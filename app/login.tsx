@@ -1,5 +1,5 @@
-import { LoginScreen } from '@/src/features/auth';
+import { LoginPlaceholderScreen } from '@/src/features/onboarding';
 
 export default function LoginRoute() {
-  return <LoginScreen />;
+  return <LoginPlaceholderScreen />;
 }
