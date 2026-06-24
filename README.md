@@ -1,50 +1,55 @@
-# Welcome to your Expo app 👋
+# Nutelyt FE
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Nutelyt is a nutrition mobile app frontend built with Expo and React Native. This repository is set up as a clean foundation for future product screens and Figma-to-code work.
 
-## Get started
+## Project stack
 
-1. Install dependencies
+- Expo SDK 54
+- React Native 0.81
+- Expo Router
+- TypeScript
+- NativeWind v4 with Tailwind CSS
+- shadcn-style React Native component patterns inspired by React Native Reusables
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Install
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Run
 
-## Learn more
+```bash
+npm run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+You can open the app with Expo Go from the Expo CLI options.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Folder structure
 
-## Join the community
+- `app/`: Expo Router routes and layouts. Keep route files thin and delegate screen UI to `src/features`.
+- `src/components/ui/`: reusable UI primitives such as `Button`, `Input`, `Card`, and `Typography`.
+- `src/components/layout/`: layout helpers such as `ScreenContainer`.
+- `src/constants/`: Nutelyt design tokens for colors, spacing, and rounded card styles.
+- `src/lib/`: small shared utilities.
+- `src/types/`: shared TypeScript types.
+- `src/features/auth/`: authentication screen placeholders.
+- `src/features/onboarding/`: onboarding and welcome screen placeholders.
+- `src/features/home/`: home dashboard placeholders.
+- `components/`, `constants/`, and `hooks/`: existing Expo starter helpers kept for compatibility while the app transitions into the `src/` structure.
 
-Join our community of developers creating universal apps.
+## NativeWind
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+NativeWind is configured with:
+
+- `tailwind.config.js`
+- `babel.config.js`
+- `metro.config.js`
+- `global.css`
+- `nativewind-env.d.ts`
+
+The global stylesheet is imported from `app/_layout.tsx`, which keeps styling available through the Expo Router entry.
+
+## Figma note
+
+Figma integration is intentionally not connected yet. The current screens are placeholders so the real Nutelyt UI can be added later from Figma without reshaping the project foundation.
