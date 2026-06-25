@@ -17,10 +17,10 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     id: 'analyze',
-    title: 'AI phân tích thành phần\nvà giá trị dinh dưỡng',
+    title: 'AI phân tích thành phần\nvà dinh dưỡng',
     description:
-      'AI phân tích các nhãn thực phẩm phức tạp và chuyển chúng thành những gợi ý sức khỏe dễ hiểu, phù hợp với riêng bạn.',
-    primaryLabel: 'Tiếp tục',
+      'Mạng lưới thần kinh tiên tiến của chúng tôi phân tích các nhãn dán phức tạp thành những thông tin sức khỏe đơn giản, dễ hiểu dành riêng cho bạn.',
+    primaryLabel: 'Tiếp theo',
   },
   {
     id: 'personalized',
