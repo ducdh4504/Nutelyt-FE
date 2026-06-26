@@ -12,6 +12,7 @@ import { colors } from "@/src/constants/tokens";
 import { FoodScanIllustration } from "./components/FoodScanIllustration";
 
 const analysisImage = require("../../../assets/images/Scan-Fruit-Vegetable.png");
+const SCAN_LINE_TRAVEL_Y = 196;
 
 type IllustrationProps = {
   id: "scan" | "analyze" | "personalized";
@@ -37,12 +38,12 @@ function AnalyzeIllustration() {
     const scanLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(scanProgress, {
-          duration: 1800,
+          duration: 1600,
           toValue: 1,
           useNativeDriver: true,
         }),
         Animated.timing(scanProgress, {
-          duration: 0,
+          duration: 1600,
           toValue: 0,
           useNativeDriver: true,
         }),
@@ -75,7 +76,7 @@ function AnalyzeIllustration() {
 
   const scanTranslateY = scanProgress.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 214],
+    outputRange: [0, SCAN_LINE_TRAVEL_Y],
   });
   const firstFloatY = floatProgress.interpolate({
     inputRange: [0, 1],
@@ -151,14 +152,18 @@ function AnalyzeIllustration() {
             className="absolute inset-x-0 top-0 h-full bg-primary-700/10"
             pointerEvents="none"
           />
-          <Animated.View
+          <View
+            className="absolute left-8 right-8 top-14 h-[252px] overflow-hidden rounded-[26px]"
             pointerEvents="none"
-            className="absolute left-10 right-10 top-16 h-1 rounded-full bg-primary-700"
-            style={{
-              boxShadow: "0 0 15px rgba(0, 109, 55, 0.65)",
-              transform: [{ translateY: scanTranslateY }],
-            }}
-          />
+          >
+            <Animated.View
+              className="absolute left-2 right-2 top-2 h-1 rounded-full bg-primary-700"
+              style={{
+                boxShadow: "0 0 15px rgba(0, 109, 55, 0.55)",
+                transform: [{ translateY: scanTranslateY }],
+              }}
+            />
+          </View>
         </ImageBackground>
       </View>
     </View>
