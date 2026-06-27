@@ -21,8 +21,27 @@ const wordmarkImage = require('../../../assets/images/Nutelyt-text.png');
 
 export function LoginScreen() {
   const [rememberMe, setRememberMe] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
   const insets = useSafeAreaInsets();
   const router = useRouter();
+
+  const clearLoginError = () => {
+    if (loginError) {
+      setLoginError('');
+    }
+  };
+
+  const handleLogin = () => {
+    if (email === 'admin@test.com.vn' && password === 'Test@123') {
+      setLoginError('');
+      router.push('/health-profile');
+      return;
+    }
+
+    setLoginError('Email ho\u1eb7c m\u1eadt kh\u1ea9u kh\u00f4ng \u0111\u00fang.');
+  };
 
   return (
     <KeyboardAvoidingView className="flex-1 bg-background" behavior="padding">
@@ -80,18 +99,34 @@ export function LoginScreen() {
                 icon="mail"
                 keyboardType="email-address"
                 label="Email"
+                onChangeText={(value) => {
+                  setEmail(value);
+                  clearLoginError();
+                }}
                 placeholder="name@example.com"
                 textContentType="emailAddress"
+                value={email}
               />
               <AuthTextInput
                 autoCapitalize="none"
                 canToggleSecureEntry
                 icon="lock"
                 label="Mật Khẩu"
+                onChangeText={(value) => {
+                  setPassword(value);
+                  clearLoginError();
+                }}
                 placeholder="••••••••"
                 secureTextEntry
                 textContentType="password"
+                value={password}
               />
+
+              {loginError ? (
+                <Text className="px-1 text-sm font-semibold text-warning-600">
+                  {loginError}
+                </Text>
+              ) : null}
 
               <View className="flex-row items-center justify-between px-1">
                 <Pressable
@@ -122,7 +157,7 @@ export function LoginScreen() {
 
               <Button
                 className="h-14 rounded-[12px] border-primary-600 bg-primary-600"
-                onPress={() => undefined}
+                onPress={handleLogin}
                 size="lg"
                 textClassName="font-normal"
               >
@@ -156,3 +191,4 @@ export function LoginScreen() {
     </KeyboardAvoidingView>
   );
 }
+

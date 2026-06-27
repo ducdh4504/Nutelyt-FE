@@ -3,6 +3,7 @@ import { useRouter, type Href } from 'expo-router';
 import { useEffect, useRef, useState, type ComponentProps } from 'react';
 import {
   Animated,
+  Image,
   KeyboardAvoidingView,
   LayoutAnimation,
   Pressable,
@@ -30,6 +31,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const shadow = { boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)' };
 const primary = colors.primary;
 const brand = colors.primaryDark;
+const wordmarkImage = require('../../assets/images/Nutelyt-text.png');
 
 const purposes: Option[] = [
   {
@@ -59,12 +61,12 @@ const purposes: Option[] = [
 ];
 
 const conditions: Option[] = [
-  { id: 'diabetes', label: 'Tiểu đường', icon: 'droplet', tone: brand },
-  { id: 'pressure', label: 'Tăng huyết áp', icon: 'trending-up', tone: '#006492' },
-  { id: 'heart', label: 'Bệnh tim mạch', icon: 'heart', tone: '#904D00' },
-  { id: 'fat', label: 'Rối loạn mỡ máu', icon: 'bar-chart-2', tone: brand },
-  { id: 'kidney', label: 'Bệnh thận', icon: 'shield', tone: '#006492' },
-  { id: 'stomach', label: 'Bệnh dạ dày', icon: 'coffee', tone: '#904D00' },
+  { id: 'diabetes', label: 'Ti\u1ec3u \u0111\u01b0\u1eddng', icon: 'droplet', tone: brand },
+  { id: 'pressure', label: 'T\u0103ng huy\u1ebft \u00e1p', icon: 'trending-up', tone: '#006492' },
+  { id: 'heart', label: 'B\u1ec7nh tim m\u1ea1ch', icon: 'heart', tone: '#904D00' },
+  { id: 'fat', label: 'R\u1ed1i lo\u1ea1n m\u1ee1 m\u00e1u', icon: 'bar-chart-2', tone: brand },
+  { id: 'kidney', label: 'B\u1ec7nh th\u1eadn', icon: 'shield', tone: '#006492' },
+  { id: 'stomach', label: 'B\u1ec7nh d\u1ea1 d\u00e0y', icon: 'coffee', tone: '#904D00' },
 ];
 
 const goals: Option[] = [
@@ -106,36 +108,36 @@ const diets: Option[] = [
   {
     id: 'keto',
     label: 'Keto',
-    description: 'ít tinh bột, nhiều chất béo',
-    icon: 'target',
+    description: '\u00edt tinh b\u1ed9t, nhi\u1ec1u ch\u1ea5t b\u00e9o',
+    icon: 'coffee',
     tone: brand,
   },
   {
     id: 'low-carb',
-    label: 'Giảm tinh bột',
-    description: 'Giảm đường và tinh bột.',
-    icon: 'pie-chart',
+    label: 'Gi\u1ea3m tinh b\u1ed9t',
+    description: 'Gi\u1ea3m \u0111\u01b0\u1eddng v\u00e0 tinh b\u1ed9t.',
+    icon: 'sliders',
     tone: '#006492',
   },
   {
     id: 'vegan',
     label: 'Chay',
-    description: 'Chế độ ăn thuần thực vật',
+    description: 'Ch\u1ebf \u0111\u1ed9 \u0103n thu\u1ea7n th\u1ef1c v\u1eadt',
     icon: 'sun',
     tone: brand,
   },
   {
     id: 'bulking',
-    label: 'Tăng cơ',
-    description: 'Cung cấp calo dư để phát triển cơ bắp',
+    label: 'T\u0103ng c\u01a1',
+    description: 'Cung c\u1ea5p calo d\u01b0 \u0111\u1ec3 ph\u00e1t tri\u1ec3n c\u01a1 b\u1eafp',
     icon: 'zap',
     tone: '#904D00',
   },
   {
     id: 'cutting',
-    label: 'Giảm mỡ',
-    description: 'Thâm hụt calo để giảm mỡ cơ thể',
-    icon: 'scissors',
+    label: 'Gi\u1ea3m m\u1ee1',
+    description: 'Th\u00e2m h\u1ee5t calo \u0111\u1ec3 gi\u1ea3m m\u1ee1 c\u01a1 th\u1ec3',
+    icon: 'trending-down',
     tone: '#006492',
   },
 ];
@@ -238,9 +240,17 @@ export default function HealthProfileRoute() {
           >
             <Feather color={brand} name="chevron-left" size={24} />
           </Pressable>
-          <Text className="absolute left-0 right-0 text-center text-xl font-bold text-primary-700">
-            Nutelyt
-          </Text>
+          <View
+            className="absolute left-0 right-0 items-center"
+            pointerEvents="none"
+          >
+            <Image
+              accessibilityLabel="Nutelyt"
+              className="h-7 w-28"
+              resizeMode="contain"
+              source={wordmarkImage}
+            />
+          </View>
           <View className="rounded-full bg-[#EEEFF0] px-3 py-1">
             <Text className="text-sm text-muted">{step + 1}/5</Text>
           </View>
@@ -425,6 +435,7 @@ export default function HealthProfileRoute() {
                   {diets.map((item, index) => (
                     <OptionCard
                       bento={index < 4}
+                      wide={index === 4}
                       index={index}
                       isSelected={diet === item.id}
                       key={item.id}
@@ -463,7 +474,7 @@ export default function HealthProfileRoute() {
                 router.push('/health-profile/complete' as Href);
               }}
             >
-              Tôi không theo chế độ nào.
+              Tôi không theo chế độ ăn nào.
             </SecondaryButton>
           ) : null}
         </View>
@@ -526,6 +537,7 @@ function OptionCard({
   isSelected,
   onPress,
   option,
+  wide = false,
 }: {
   bento?: boolean;
   compact?: boolean;
@@ -533,6 +545,7 @@ function OptionCard({
   isSelected: boolean;
   onPress: () => void;
   option: Option;
+  wide?: boolean;
 }) {
   const pressScale = useRef(new Animated.Value(1)).current;
   const selectedScale = useRef(new Animated.Value(isSelected ? 1.01 : 1)).current;
@@ -588,7 +601,8 @@ function OptionCard({
       style={[
         shadow,
         bento ? { minHeight: 175, width: '47.5%' } : undefined,
-        compact ? { alignSelf: 'flex-start', maxWidth: '100%', minWidth: 198 } : undefined,
+        compact ? { minHeight: 84, width: '100%' } : undefined,
+        wide ? { minHeight: 104, width: '100%' } : undefined,
         {
           borderColor: isSelected ? primary : 'transparent',
           opacity: entrance,
@@ -608,7 +622,7 @@ function OptionCard({
           </View>
         </View>
       ) : (
-        <View className={`flex-row ${compact ? 'items-center gap-4' : 'gap-4'}`}>
+        <View className={`flex-row ${compact || wide ? 'items-center gap-4' : 'gap-4'}`}>
           <Icon option={option} />
           <View className="min-w-0 flex-1 gap-1">
             <Text className="text-xl leading-7 text-foreground">{option.label}</Text>
