@@ -34,7 +34,7 @@ export function LoginScreen() {
   };
 
   const handleLogin = () => {
-    if (email === 'admin@test.com.vn' && password === 'Test@123') {
+    if (email === 'admin@gmail.com' && password === 'Test@123') {
       setLoginError('');
       router.push('/health-profile');
       return;
