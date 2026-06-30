@@ -7,16 +7,16 @@ import { colors } from '@/src/constants/tokens';
 import type { HealthOption } from '../types';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const shadow = { boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)' };
+const shadow = { boxShadow: '0 4px 8px rgba(0, 0, 0, 0.06)' };
 const primary = colors.primary;
 
-function HealthOptionIcon({ option }: { option: HealthOption }) {
+function HealthOptionIcon({ option, selected }: { option: HealthOption; selected: boolean }) {
   return (
     <View
-      className="h-12 w-12 items-center justify-center rounded-full"
-      style={{ backgroundColor: `${option.tone}18` }}
+      className={`${selected ? 'bg-primary-600' : ''} h-12 w-12 items-center justify-center rounded-full`}
+      style={{ backgroundColor: selected ? primary : `${option.tone}18` }}
     >
-      <Feather color={option.tone} name={option.icon} size={21} />
+      <Feather color={selected ? '#FFFFFF' : option.tone} name={option.icon} size={21} />
     </View>
   );
 }
@@ -91,11 +91,11 @@ export function HealthOptionCard({
       }}
       style={[
         shadow,
-        bento ? { minHeight: 175, width: '47.5%' } : undefined,
+        bento ? { minHeight: 160, width: '47.5%' } : undefined,
         compact ? { minHeight: 84, width: '100%' } : undefined,
-        wide ? { minHeight: 104, width: '100%' } : undefined,
+        wide ? { minHeight: 100, width: '100%' } : undefined,
         {
-          borderColor: isSelected ? primary : 'transparent',
+          borderColor: isSelected ? primary : compact ? '#BCCABC' : 'transparent',
           opacity: entrance,
           transform: [
             { translateY },
@@ -106,17 +106,19 @@ export function HealthOptionCard({
     >
       {bento ? (
         <View className="flex-1 justify-between">
-          <HealthOptionIcon option={option} />
+          <HealthOptionIcon option={option} selected={isSelected} />
           <View className="gap-1">
-            <Text className="text-xl leading-7 text-foreground">{option.label}</Text>
-            <Text className="text-sm leading-[18px] text-muted">{option.description}</Text>
+            <Text className="text-xl font-semibold leading-7 text-foreground">{option.label}</Text>
+            <Text className="text-sm font-semibold leading-[18px] text-muted">{option.description}</Text>
           </View>
         </View>
       ) : (
         <View className={`flex-row ${compact || wide ? 'items-center gap-4' : 'gap-4'}`}>
-          <HealthOptionIcon option={option} />
+          <HealthOptionIcon option={option} selected={isSelected} />
           <View className="min-w-0 flex-1 gap-1">
-            <Text className="text-xl leading-7 text-foreground">{option.label}</Text>
+            <Text className={`${compact ? 'text-base' : 'text-xl'} font-semibold leading-7 text-foreground`}>
+              {option.label}
+            </Text>
             {option.description ? (
               <Text className="text-base leading-6 text-muted">{option.description}</Text>
             ) : null}
@@ -126,7 +128,9 @@ export function HealthOptionCard({
               <Feather color="#FFFFFF" name="check" size={15} />
             </View>
           ) : (
-            <View className="h-6 w-6 rounded-full border border-[#C9D4CA]" />
+            <View className="h-6 w-6 items-center justify-center rounded-full bg-[#BCCABC]">
+              <Feather color="#FFFFFF" name="check" size={14} />
+            </View>
           )}
         </View>
       )}

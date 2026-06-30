@@ -11,3 +11,18 @@ export type HealthOption = {
   label: string;
   tone: string;
 };
+
+export type HealthProfilePayload = {
+  allergyText: string;
+  conditionLabels: string[];
+  conditions: string[];
+  dateOfBirth: string;
+  diet: string | null;
+  dietLabel: string;
+  fullName: string;
+  gender: Gender | string;
+  goal: string;
+  goalLabel: string;
+  height: string;
+  weight: string;
+};

@@ -3,7 +3,7 @@ import { useRef } from 'react';
 import { Animated, Pressable, Text } from 'react-native';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const shadow = { boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)' };
+const shadow = { boxShadow: '0 4px 6px rgba(39, 174, 96, 0.3)' };
 
 export function HealthPrimaryButton({ disabled, onPress }: { disabled: boolean; onPress: () => void }) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -32,7 +32,7 @@ export function HealthPrimaryButton({ disabled, onPress }: { disabled: boolean; 
       }}
       style={[shadow, { opacity: disabled ? 0.45 : 1, transform: [{ scale }] }]}
     >
-      <Text className="text-base text-white">Tiếp tục</Text>
+      <Text className="text-base font-semibold text-white">Tiếp tục</Text>
       <Feather color="#FFFFFF" name="arrow-right" size={17} />
     </AnimatedPressable>
   );

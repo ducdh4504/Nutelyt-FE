@@ -6,9 +6,20 @@ import { colors } from '@/src/constants/tokens';
 const brand = colors.primaryDark;
 const wordmarkImage = require('../../../../assets/images/Nutelyt-text.png');
 
-export function HealthProfileHeader({ onBack, step }: { onBack: () => void; step: number }) {
+export function HealthProfileHeader({
+  onBack,
+  step,
+  totalSteps = 4,
+}: {
+  onBack: () => void;
+  step: number;
+  totalSteps?: number;
+}) {
   return (
-    <View className="h-14 flex-row items-center justify-between px-5">
+    <View
+      className="h-14 flex-row items-center justify-between bg-background px-5"
+      style={{ boxShadow: '0 1px 1px rgba(0, 0, 0, 0.05)' }}
+    >
       <Pressable
         accessibilityLabel="Quay lại"
         accessibilityRole="button"
@@ -26,7 +37,9 @@ export function HealthProfileHeader({ onBack, step }: { onBack: () => void; step
         />
       </View>
       <View className="rounded-full bg-[#EEEFF0] px-3 py-1">
-        <Text className="text-sm text-muted">{step + 1}/5</Text>
+        <Text className="text-sm font-semibold text-muted">
+          {step + 1}/{totalSteps}
+        </Text>
       </View>
     </View>
   );
@@ -44,7 +57,9 @@ export function HealthSectionHeader({
   return (
     <View className="gap-2">
       <Text
-        className={`text-[28px] leading-9 text-foreground ${centered ? 'text-center' : ''}`}
+        className={`text-[28px] font-semibold leading-9 text-foreground ${
+          centered ? 'text-center' : ''
+        }`}
       >
         {title}
       </Text>

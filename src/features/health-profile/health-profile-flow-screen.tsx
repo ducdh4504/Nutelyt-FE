@@ -1,8 +1,9 @@
 import { useRouter, type Href } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { conditions, diets, goals } from './data/health-profile-options';
 import { HealthPrimaryButton } from './components/health-primary-button';
 import { HealthProfileHeader } from './components/health-profile-header';
 import { HealthProgress } from './components/health-progress';
@@ -11,30 +12,37 @@ import { BasicHealthProfileStep } from './steps/basic-health-profile-step';
 import { DietPreferenceStep } from './steps/diet-preference-step';
 import { HealthGoalsStep } from './steps/health-goals-step';
 import { MedicalConditionsStep } from './steps/medical-conditions-step';
-import { UsagePurposeStep } from './steps/usage-purpose-step';
-import type { Gender } from './types';
+import type { Gender, HealthProfilePayload } from './types';
+
+const TOTAL_STEPS = 4;
+const NO_DIET_LABEL = 'Không theo chế độ ăn nào';
+
+function getOptionLabel(options: { id: string; label: string }[], id: string) {
+  return options.find((item) => item.id === id)?.label ?? '';
+}
 
 export function HealthProfileFlowScreen() {
   const [step, setStep] = useState(0);
-  const [purpose, setPurpose] = useState('');
   const [fullName, setFullName] = useState('');
-  const [age, setAge] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
   const [gender, setGender] = useState<Gender>('Nam');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
+  const [selectedGoal, setSelectedGoal] = useState('');
+  const [selectedDiet, setSelectedDiet] = useState('');
+  const [noDiet, setNoDiet] = useState(false);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
-  const [goal, setGoal] = useState('');
-  const [diet, setDiet] = useState('');
+  const [allergyText, setAllergyText] = useState('');
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const opacity = useRef(new Animated.Value(1)).current;
   const translateX = useRef(new Animated.Value(0)).current;
-  const progress = useRef(new Animated.Value(0.2)).current;
+  const progress = useRef(new Animated.Value(1 / TOTAL_STEPS)).current;
 
   useEffect(() => {
     Animated.timing(progress, {
       duration: 320,
-      toValue: (step + 1) / 5,
+      toValue: (step + 1) / TOTAL_STEPS,
       useNativeDriver: false,
     }).start();
   }, [progress, step]);
@@ -77,21 +85,44 @@ export function HealthProfileFlowScreen() {
 
   const canContinue =
     step === 0
-      ? Boolean(purpose)
+      ? Boolean(fullName.trim() && dateOfBirth && gender && height.trim() && weight.trim())
       : step === 1
-        ? Boolean(fullName.trim() && age.trim() && gender && height.trim() && weight.trim())
+        ? Boolean(selectedGoal)
         : step === 2
-          ? true
-          : step === 3
-            ? Boolean(goal)
-            : Boolean(diet);
+          ? Boolean(selectedDiet || noDiet)
+          : true;
+
+  const profilePayload = useMemo<HealthProfilePayload>(
+    () => ({
+      allergyText: allergyText.trim(),
+      conditionLabels: selectedConditions.map((id) => getOptionLabel(conditions, id)).filter(Boolean),
+      conditions: selectedConditions,
+      dateOfBirth,
+      diet: noDiet ? null : selectedDiet || null,
+      dietLabel: noDiet ? NO_DIET_LABEL : getOptionLabel(diets, selectedDiet),
+      fullName: fullName.trim(),
+      gender,
+      goal: selectedGoal,
+      goalLabel: getOptionLabel(goals, selectedGoal),
+      height: height.trim(),
+      weight: weight.trim(),
+    }),
+    [allergyText, dateOfBirth, fullName, gender, height, noDiet, selectedConditions, selectedDiet, selectedGoal, weight]
+  );
+
+  const navigateToProfile = () => {
+    router.push({
+      pathname: '/profile',
+      params: { profile: JSON.stringify(profilePayload) },
+    } as unknown as Href);
+  };
 
   const continueFlow = () => {
     if (!canContinue) {
       return;
     }
-    if (step === 4) {
-      router.push('/health-profile/complete' as Href);
+    if (step === TOTAL_STEPS - 1) {
+      navigateToProfile();
       return;
     }
     animateTo(step + 1);
@@ -108,7 +139,7 @@ export function HealthProfileFlowScreen() {
       className="flex-1 bg-background"
     >
       <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-        <HealthProfileHeader onBack={goBack} step={step} />
+        <HealthProfileHeader onBack={goBack} step={step} totalSteps={TOTAL_STEPS} />
         <HealthProgress width={progressWidth} />
 
         <Animated.View className="flex-1" style={{ opacity, transform: [{ translateX }] }}>
@@ -118,21 +149,19 @@ export function HealthProfileFlowScreen() {
               gap: 24,
               paddingBottom: 24,
               paddingHorizontal: 20,
-              paddingTop: 20,
+              paddingTop: 24,
             }}
             contentInsetAdjustmentBehavior="automatic"
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            {step === 0 ? <UsagePurposeStep purpose={purpose} setPurpose={setPurpose} /> : null}
-
-            {step === 1 ? (
+            {step === 0 ? (
               <BasicHealthProfileStep
-                age={age}
+                dateOfBirth={dateOfBirth}
                 fullName={fullName}
                 gender={gender}
                 height={height}
-                setAge={setAge}
+                setDateOfBirth={setDateOfBirth}
                 setFullName={setFullName}
                 setGender={setGender}
                 setHeight={setHeight}
@@ -141,16 +170,29 @@ export function HealthProfileFlowScreen() {
               />
             ) : null}
 
+            {step === 1 ? (
+              <HealthGoalsStep goal={selectedGoal} setGoal={setSelectedGoal} />
+            ) : null}
+
             {step === 2 ? (
-              <MedicalConditionsStep
-                selectedConditions={selectedConditions}
-                setSelectedConditions={setSelectedConditions}
+              <DietPreferenceStep
+                diet={selectedDiet}
+                noDiet={noDiet}
+                setDiet={(id) => {
+                  setSelectedDiet(id);
+                  setNoDiet(false);
+                }}
               />
             ) : null}
 
-            {step === 3 ? <HealthGoalsStep goal={goal} setGoal={setGoal} /> : null}
-
-            {step === 4 ? <DietPreferenceStep diet={diet} setDiet={setDiet} /> : null}
+            {step === 3 ? (
+              <MedicalConditionsStep
+                allergyText={allergyText}
+                selectedConditions={selectedConditions}
+                setAllergyText={setAllergyText}
+                setSelectedConditions={setSelectedConditions}
+              />
+            ) : null}
           </ScrollView>
         </Animated.View>
 
@@ -165,21 +207,21 @@ export function HealthProfileFlowScreen() {
           {step === 2 ? (
             <HealthSecondaryButton
               onPress={() => {
-                setSelectedConditions([]);
+                setSelectedDiet('');
+                setNoDiet(true);
                 animateTo(3);
               }}
             >
-              Tôi không có bệnh lý nào.
+              Tôi không theo chế độ ăn nào.
             </HealthSecondaryButton>
           ) : null}
-          {step === 4 ? (
+          {step === 3 ? (
             <HealthSecondaryButton
               onPress={() => {
-                setDiet('');
-                router.push('/health-profile/complete' as Href);
+                setSelectedConditions([]);
               }}
             >
-              Tôi không theo chế độ ăn nào.
+              Tôi không có bệnh lý nào.
             </HealthSecondaryButton>
           ) : null}
         </View>

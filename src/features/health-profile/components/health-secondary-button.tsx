@@ -10,10 +10,10 @@ export function HealthSecondaryButton({
   return (
     <Pressable
       accessibilityRole="button"
-      className="mt-4 h-12 items-center justify-center rounded-[12px]"
+      className="mt-4 h-14 items-center justify-center rounded-[12px] border-2 border-[#006492]"
       onPress={onPress}
     >
-      <Text className="text-base text-primary-700">{children}</Text>
+      <Text className="text-lg font-semibold text-[#006492]">{children}</Text>
     </Pressable>
   );
 }

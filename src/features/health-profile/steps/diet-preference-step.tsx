@@ -4,7 +4,15 @@ import { HealthOptionCard } from '../components/health-option-card';
 import { HealthSectionHeader } from '../components/health-profile-header';
 import { diets } from '../data/health-profile-options';
 
-export function DietPreferenceStep({ diet, setDiet }: { diet: string; setDiet: (id: string) => void }) {
+export function DietPreferenceStep({
+  diet,
+  noDiet,
+  setDiet,
+}: {
+  diet: string;
+  noDiet: boolean;
+  setDiet: (id: string) => void;
+}) {
   return (
     <View className="gap-6">
       <HealthSectionHeader
@@ -17,7 +25,7 @@ export function DietPreferenceStep({ diet, setDiet }: { diet: string; setDiet: (
             bento={index < 4}
             wide={index === 4}
             index={index}
-            isSelected={diet === item.id}
+            isSelected={!noDiet && diet === item.id}
             key={item.id}
             onPress={() => setDiet(item.id)}
             option={item}

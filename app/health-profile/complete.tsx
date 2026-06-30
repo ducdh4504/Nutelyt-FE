@@ -21,14 +21,14 @@ export default function HealthProfileCompleteRoute() {
         Hoàn tất hồ sơ sức khỏe
       </Text>
       <Text className="mt-3 text-center text-base leading-6 text-muted">
-        Đây là màn hình tạm thời. Home/Dashboard sẽ được triển khai ở bước tiếp theo.
+        Đây là màn hình tạm thời. Review hồ sơ hiện được điều hướng qua trang Profile.
       </Text>
       <Pressable
         accessibilityRole="button"
         className="mt-8 h-14 w-full max-w-[350px] items-center justify-center rounded-[12px] bg-primary-600"
-        onPress={() => router.replace('/login')}
+        onPress={() => router.replace('/health-profile')}
       >
-        <Text className="text-base text-white">Quay lại đăng nhập</Text>
+        <Text className="text-base text-white">Quay lại hồ sơ sức khỏe</Text>
       </Pressable>
     </View>
   );
