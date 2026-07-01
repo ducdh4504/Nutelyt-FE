@@ -2,7 +2,17 @@ import { Feather } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import {
+  Animated,
+  Image,
+  Keyboard,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
@@ -13,6 +23,9 @@ type FeatherName = ComponentProps<typeof Feather>['name'];
 type ChatMode = 'entry' | 'chat' | 'detail';
 type RecipeTab = 'overview' | 'ingredients' | 'steps' | 'nutrition';
 type MainTab = 'home' | 'history' | 'chatAi' | 'profile';
+type ChatMessage =
+  | { id: string; role: 'user' | 'assistant'; text: string }
+  | { id: string; role: 'assistant'; type: 'bun-bo-card' };
 
 const recipe = {
   name: 'Bún bò',
@@ -109,6 +122,14 @@ const cardShadow = { boxShadow: '0 14px 28px rgba(0, 0, 0, 0.06)' };
 const softShadow = { boxShadow: '0 8px 18px rgba(39, 174, 96, 0.18)' };
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+function normalizeForSearch(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd');
+}
+
 function BottomTabBar({ active, profileParam }: { active: MainTab; profileParam?: string }) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -149,11 +170,15 @@ function BottomTabBar({ active, profileParam }: { active: MainTab; profileParam?
   );
 }
 
-function ChatHeader({ onBack }: { onBack: () => void }) {
+function ChatHeader({ onBack, topInset }: { onBack: () => void; topInset: number }) {
   return (
     <View
-      className="h-[72px] flex-row items-center bg-card px-5"
-      style={{ boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)' }}
+      className="flex-row items-center bg-card px-5"
+      style={{
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+        height: Math.max(topInset + 48, 72),
+        paddingTop: topInset,
+      }}
     >
       <Pressable accessibilityLabel="Quay lại" accessibilityRole="button" className="h-12 w-12 justify-center" onPress={onBack}>
         <Feather color={colors.primaryDark} name="chevron-left" size={24} />
@@ -166,18 +191,18 @@ function ChatHeader({ onBack }: { onBack: () => void }) {
   );
 }
 
-function BotMark({ large = false }: { large?: boolean }) {
+function AIEntryImage() {
   return (
     <View
-      className={`${large ? 'h-[150px] w-[150px] rounded-full' : 'h-[72px] w-[72px] rounded-full'} items-center justify-center border-2 border-primary-700 bg-primary-50`}
-      style={{ boxShadow: '0 12px 24px rgba(0, 109, 55, 0.12)' }}
+      className="h-[124px] w-[124px] items-center justify-center overflow-hidden rounded-full border-2 border-primary-600 bg-primary-50"
+      style={{ boxShadow: '0 14px 28px rgba(0, 109, 55, 0.16)' }}
     >
-      <View className={`${large ? 'h-[86px] w-[86px]' : 'h-11 w-11'} items-center justify-center rounded-[24px] bg-[#16332A]`}>
-        <Feather color="#77F0A4" name="smile" size={large ? 44 : 24} />
-      </View>
-      <View className="absolute -top-1 h-8 w-8 items-center justify-center rounded-full bg-[#D9FBE6]">
-        <Feather color={colors.primaryDark} name="activity" size={18} />
-      </View>
+      <Image
+        accessibilityIgnoresInvertColors
+        resizeMode="contain"
+        source={require('../../assets/images/Nutelyt-AI.png')}
+        style={{ height: 116, width: 116 }}
+      />
     </View>
   );
 }
@@ -193,14 +218,14 @@ function Chip({ label, solid = false }: { label: string; solid?: boolean }) {
 function FoodPlaceholder({ compact = false }: { compact?: boolean }) {
   return (
     <View className={`${compact ? 'h-[148px]' : 'h-[286px]'} overflow-hidden bg-[#B97945]`}>
-      <View className="absolute -left-10 top-4 h-40 w-40 rounded-full bg-[#E9C69D]" />
-      <View className="absolute right-8 top-10 h-24 w-24 rounded-full bg-[#8C3D27]" />
-      <View className="absolute bottom-7 left-8 right-8 rounded-[28px] bg-[#F8F1E8] p-4" style={cardShadow}>
-        <View className="h-20 rounded-full bg-[#7A2F20]" />
-        <View className="absolute left-14 top-8 h-12 w-28 rounded-full bg-[#E4CEAA]" />
-        <View className="absolute right-16 top-10 h-8 w-16 rounded-full bg-[#2F8E55]" />
-      </View>
-      <Text className="absolute bottom-4 right-5 text-sm font-bold text-white/90">Bún bò</Text>
+      <Image
+        accessibilityIgnoresInvertColors
+        resizeMode="cover"
+        source={require('../../assets/images/Food/Bun-bo.png')}
+        style={{ height: '100%', width: '100%' }}
+      />
+      <View className="absolute bottom-0 left-0 right-0 h-16 bg-black/15" />
+      <Text className="absolute bottom-4 right-5 text-sm font-bold text-white">Bún bò</Text>
     </View>
   );
 }
@@ -234,7 +259,7 @@ function EntryScreen({ onSelect }: { onSelect: () => void }) {
       showsVerticalScrollIndicator={false}
     >
       <View className="items-center gap-5">
-        <BotMark />
+        <AIEntryImage />
         <Text className="text-center text-[13px] font-bold leading-5 text-[#6A7080]">Bạn muốn mình hỗ trợ về điều gì?</Text>
       </View>
 
@@ -309,34 +334,63 @@ function RecipeSuggestionCard({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-function ChatScreen({ onOpenDetail }: { onOpenDetail: () => void }) {
+function ChatScreen({ keyboardHeight, onOpenDetail }: { keyboardHeight: number; onOpenDetail: () => void }) {
   const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
   const [input, setInput] = useState('');
-  const [message, setMessage] = useState('Mình muốn nấu bún bò');
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const isKeyboardOpen = keyboardHeight > 0;
 
   const send = () => {
     const trimmed = input.trim();
-    if (trimmed) {
-      setMessage(`Mình muốn nấu ${trimmed}`);
-      setInput('');
+    if (!trimmed) {
+      return;
     }
+
+    const normalized = normalizeForSearch(trimmed);
+    const isBunBo = normalized.includes('bun bo');
+    const timestamp = Date.now().toString();
+    const nextMessages: ChatMessage[] = [
+      { id: `user-${timestamp}`, role: 'user', text: trimmed },
+      isBunBo
+        ? {
+            id: `assistant-${timestamp}`,
+            role: 'assistant',
+            text: 'Đây là gợi ý công thức bún bò phù hợp với tình trạng sức khỏe của bạn:',
+          }
+        : {
+            id: `assistant-${timestamp}`,
+            role: 'assistant',
+            text: `Nutelyt vẫn đang phát triển, hiện chưa có thông tin về "${trimmed}". Bạn có thể thử nhập "bún bò" để xem gợi ý mẫu trong bản MVP.`,
+          },
+    ];
+
+    if (isBunBo) {
+      nextMessages.push({ id: `bun-bo-card-${timestamp}`, role: 'assistant', type: 'bun-bo-card' });
+    }
+
+    setMessages((currentMessages) => [...currentMessages, ...nextMessages]);
+    setInput('');
+    requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
   };
 
   return (
     <View className="flex-1">
       <ScrollView
+        ref={scrollRef}
         className="flex-1"
         contentContainerStyle={{
           gap: 18,
-          paddingBottom: Math.max(insets.bottom + 188, 216),
+          paddingBottom: isKeyboardOpen ? keyboardHeight + 112 : Math.max(insets.bottom + 188, 216),
           paddingHorizontal: 20,
           paddingTop: 40,
         }}
         contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         <View className="items-center gap-5 pb-2">
-          <BotMark large />
+          <AIEntryImage />
           <View className="items-center gap-2">
             <Text className="text-center text-[24px] font-bold leading-8 text-[#404140]">Bạn muốn nấu món gì?</Text>
             <Text className="max-w-[270px] text-center text-[13px] leading-5 text-[#999B98]">
@@ -345,33 +399,43 @@ function ChatScreen({ onOpenDetail }: { onOpenDetail: () => void }) {
           </View>
         </View>
 
-        <ChatBubble align="user">{message}</ChatBubble>
-        <ChatBubble align="assistant">
-          Đây là gợi ý công thức bún bò phù hợp với tình trạng sức khỏe của bạn:
-        </ChatBubble>
-        <RecipeSuggestionCard onOpen={onOpenDetail} />
+        {messages.map((message) =>
+          'type' in message ? (
+            <RecipeSuggestionCard key={message.id} onOpen={onOpenDetail} />
+          ) : (
+            <ChatBubble align={message.role === 'user' ? 'user' : 'assistant'} key={message.id}>
+              {message.text}
+            </ChatBubble>
+          )
+        )}
       </ScrollView>
 
       <View
-        className="absolute left-5 right-5 flex-row items-center gap-3 rounded-[18px] bg-[#F6F7F8] px-5 py-4"
-        style={{ bottom: Math.max(insets.bottom + 82, 96) }}
+        className="absolute left-0 right-0 border-t border-[#E7ECE8] bg-background px-5 pt-3"
+        style={{
+          bottom: isKeyboardOpen ? keyboardHeight : Math.max(insets.bottom + 82, 96),
+          paddingBottom: 12,
+        }}
       >
-        <TextInput
-          className="min-h-10 flex-1 text-[13px] text-foreground"
-          onChangeText={setInput}
-          onSubmitEditing={send}
-          placeholder="Nhập tin nhắn của bạn..."
-          placeholderTextColor="#979AAB"
-          returnKeyType="send"
-          value={input}
-        />
-        <Pressable
-          accessibilityRole="button"
-          className="h-10 w-10 items-center justify-center rounded-full bg-primary-700"
-          onPress={send}
-        >
-          <Feather color="#FFFFFF" name="send" size={18} />
-        </Pressable>
+        <View className="flex-row items-center gap-3 rounded-[18px] bg-[#F6F7F8] px-5 py-4">
+          <TextInput
+            className="min-h-10 flex-1 text-[13px] text-foreground"
+            cursorColor={colors.primaryDark}
+            onChangeText={setInput}
+            onSubmitEditing={send}
+            placeholder="Nhập tin nhắn của bạn..."
+            placeholderTextColor="#979AAB"
+            returnKeyType="send"
+            value={input}
+          />
+          <Pressable
+            accessibilityRole="button"
+            className="h-10 w-10 items-center justify-center rounded-full bg-primary-700"
+            onPress={send}
+          >
+            <Feather color="#FFFFFF" name="send" size={18} />
+          </Pressable>
+        </View>
       </View>
     </View>
   );
@@ -585,6 +649,7 @@ export default function ChatAIRoute() {
   const profile = useMemo(() => parseHealthProfileParam(params), [params]);
   const profileParam = useMemo(() => serializeProfile(profile), [profile]);
   const [mode, setMode] = useState<ChatMode>('entry');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(12)).current;
 
@@ -596,6 +661,25 @@ export default function ChatAIRoute() {
       Animated.spring(translateY, { damping: 18, stiffness: 150, toValue: 0, useNativeDriver: true }),
     ]).start();
   }, [mode, opacity, translateY]);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSubscription = Keyboard.addListener(showEvent, (event) => {
+      Keyboard.scheduleLayoutAnimation(event);
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hideSubscription = Keyboard.addListener(hideEvent, (event) => {
+      Keyboard.scheduleLayoutAnimation(event);
+      setKeyboardHeight(0);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const goBack = () => {
     if (mode === 'detail') {
@@ -625,12 +709,16 @@ export default function ChatAIRoute() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-        <ChatHeader onBack={goBack} />
+      <View className="flex-1 bg-background">
+        <ChatHeader onBack={goBack} topInset={insets.top} />
         <Animated.View className="flex-1" style={{ opacity, transform: [{ translateY }] }}>
-          {mode === 'entry' ? <EntryScreen onSelect={() => setMode('chat')} /> : <ChatScreen onOpenDetail={() => setMode('detail')} />}
+          {mode === 'entry' ? (
+            <EntryScreen onSelect={() => setMode('chat')} />
+          ) : (
+            <ChatScreen keyboardHeight={keyboardHeight} onOpenDetail={() => setMode('detail')} />
+          )}
         </Animated.View>
-        <BottomTabBar active="chatAi" profileParam={profileParam} />
+        {keyboardHeight > 0 ? null : <BottomTabBar active="chatAi" profileParam={profileParam} />}
       </View>
     </>
   );
