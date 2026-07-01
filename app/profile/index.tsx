@@ -295,6 +295,14 @@ export default function ProfileRoute() {
     }
     router.replace('/health-profile' as Href);
   };
+  
+  const saveProfile = () => {
+      setSaved(true);
+      router.replace({
+        pathname: '/dashboard',
+        params: { profile: JSON.stringify(profile) },
+      } as unknown as Href);
+    };
 
   return (
     <>
@@ -463,7 +471,8 @@ export default function ProfileRoute() {
           <AnimatedPressable
             accessibilityRole="button"
             className="h-14 flex-row items-center justify-center gap-3 rounded-[12px] bg-primary-600"
-            onPress={() => setSaved(true)}
+            // onPress={() => setSaved(true)}
+            onPress={saveProfile}
             onPressIn={() => {
               Animated.spring(saveScale, {
                 damping: 12,

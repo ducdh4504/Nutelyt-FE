@@ -6,9 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { FeatherName, MainTab } from '../types';
 
 const tabs: { id: MainTab; icon: FeatherName; label: string; path: string }[] = [
-  { id: 'home', icon: 'home', label: 'Home', path: '/dashboard' },
-  { id: 'scan', icon: 'maximize', label: 'Quét', path: '/scan' },
+  // -  { id: 'home', icon: 'home', label: 'Home', path: '/dashboard' },
+  // -  { id: 'scan', icon: 'maximize', label: 'QuÃ©t', path: '/scan' },
+  // -  { id: 'history', icon: 'clock', label: 'Lá»‹ch sá»­', path: '/scan-history' },
+  // -  { id: 'profile', icon: 'user', label: 'Há»“ sÆ¡', path: '/profile' },
+  { id: 'home', icon: 'home', label: 'Nhà', path: '/dashboard' },
   { id: 'history', icon: 'clock', label: 'Lịch sử', path: '/scan-history' },
+  { id: 'scan', icon: 'message-circle', label: 'Chat AI', path: '/chat-ai' },
   { id: 'profile', icon: 'user', label: 'Hồ sơ', path: '/profile' },
 ];
 
@@ -31,7 +35,8 @@ export function BottomTabBar({ active, profileParam }: { active: MainTab; profil
             accessibilityRole="button"
             accessibilityState={{ selected: isActive }}
             className={`min-w-[68px] flex-1 items-center justify-center gap-1 rounded-[12px] py-2 ${
-              isActive ? 'bg-primary-600' : ''
+              // isActive ? 'bg-primary-600' : ''
+              isActive ? 'bg-primary-50' : ''
             }`}
             key={tab.id}
             onPress={() =>
@@ -41,10 +46,12 @@ export function BottomTabBar({ active, profileParam }: { active: MainTab; profil
               } as unknown as Href)
             }
           >
-            <Feather color={isActive ? '#00391A' : '#3D4A3F'} name={tab.icon} size={19} />
+            {/* <Feather color={isActive ? '#00391A' : '#3D4A3F'} name={tab.icon} size={19} /> */}
+            <Feather color={isActive ? '#006D37' : '#3D4A3F'} name={tab.icon} size={19} />
             <Text
               className={`text-center text-xs font-semibold leading-4 ${
-                isActive ? 'text-[#00391A]' : 'text-muted'
+                // isActive ? 'text-[#00391A]' : 'text-muted'
+                isActive ? 'text-primary-700' : 'text-muted'
               }`}
             >
               {tab.label}
