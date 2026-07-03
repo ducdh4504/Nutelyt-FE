@@ -7,9 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
 
-import { BottomTabBar } from '../components/bottom-tab-bar';
+import { useHydratedProfile } from '../context/profile-context';
 import type { RouteProfileParams } from '../types';
-import { parseHealthProfileParam, serializeProfile } from '../utils/health-profile';
 
 type HistoryStatus = 'Đã xem' | 'Đã lưu';
 
@@ -129,8 +128,7 @@ export function HistoryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<RouteProfileParams>();
-  const profile = useMemo(() => parseHealthProfileParam(params), [params]);
-  const profileParam = useMemo(() => serializeProfile(profile), [profile]);
+  const { profileParam } = useHydratedProfile(params);
   const [query, setQuery] = useState('');
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(14)).current;
@@ -157,31 +155,14 @@ export function HistoryScreen() {
       .filter((section) => section.data.length > 0);
   }, [query]);
 
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-
-    router.replace({ pathname: '/home', params: { profile: profileParam } } as unknown as Href);
-  };
-
   const goDashboard = () => {
     router.push({ pathname: '/dashboard', params: { profile: profileParam } } as unknown as Href);
   };
 
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <View className="h-[64px] flex-row items-center bg-background px-5">
-        <Pressable
-          accessibilityLabel="Quay lại"
-          accessibilityRole="button"
-          className="h-11 w-11 items-start justify-center"
-          onPress={goBack}
-        >
-          <Feather color={colors.primaryDark} name="chevron-left" size={24} />
-        </Pressable>
-        <Text className="flex-1 pr-11 text-center text-[20px] font-bold leading-7 text-foreground">
+      <View className="h-[64px] items-center justify-center bg-background px-5">
+        <Text className="text-center text-[20px] font-bold leading-7 text-foreground">
           Lịch sử tìm kiếm
         </Text>
       </View>
@@ -262,8 +243,6 @@ export function HistoryScreen() {
           <Text className="text-base font-bold leading-6 text-white">Xem tổng quan 7 ngày</Text>
         </Pressable>
       </View>
-
-      <BottomTabBar active="history" profileParam={profileParam} />
     </View>
   );
 }

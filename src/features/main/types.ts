@@ -21,7 +21,7 @@ export type HealthProfileSummary = {
 };
 
 export type FoodStatus = 'safe' | 'warning' | 'avoid';
-export type MainTab = 'home' | 'history' | 'chatAi' | 'profile';
+export type MainTab = 'home' | 'history' | 'chat-ai' | 'profile';
 export type FeatherName = ComponentProps<typeof Feather>['name'];
 
 export type NutritionFacts = {

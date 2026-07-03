@@ -1,20 +1,103 @@
 import { Feather } from '@expo/vector-icons';
-import { useRouter, type Href } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { useEffect, useRef } from 'react';
+import { Animated, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { FeatherName, MainTab } from '../types';
+import type { FeatherName } from '../types';
 
-const tabs: { id: MainTab; icon: FeatherName; label: string; path: string }[] = [
-  { id: 'home', icon: 'home', label: 'Nhà', path: '/home' },
-  { id: 'history', icon: 'clock', label: 'Lịch sử', path: '/history' },
-  { id: 'chatAi', icon: 'message-circle', label: 'Chat AI', path: '/chat-ai' },
-  { id: 'profile', icon: 'user', label: 'Hồ sơ', path: '/profile' },
-];
+type TabConfig = {
+  icon: FeatherName;
+  label: string;
+};
 
-export function BottomTabBar({ active, profileParam }: { active: MainTab; profileParam?: string }) {
+const tabs: Record<string, TabConfig> = {
+  home: { icon: 'home', label: 'Nhà' },
+  history: { icon: 'clock', label: 'Lịch sử' },
+  'chat-ai': { icon: 'message-circle', label: 'Chat AI' },
+  profile: { icon: 'user', label: 'Hồ sơ' },
+};
+
+function BottomTabButton({
+  isFocused,
+  navigation,
+  route,
+}: {
+  isFocused: boolean;
+  navigation: BottomTabBarProps['navigation'];
+  route: BottomTabBarProps['state']['routes'][number];
+}) {
+  const progress = useRef(new Animated.Value(isFocused ? 1 : 0)).current;
+  const tab = tabs[route.name] ?? tabs.home;
+
+  useEffect(() => {
+    Animated.spring(progress, {
+      damping: 18,
+      stiffness: 220,
+      toValue: isFocused ? 1 : 0,
+      useNativeDriver: true,
+    }).start();
+  }, [isFocused, progress]);
+
+  const onPress = () => {
+    const event = navigation.emit({
+      canPreventDefault: true,
+      target: route.key,
+      type: 'tabPress',
+    });
+
+    if (!isFocused && !event.defaultPrevented) {
+      navigation.navigate(route.name, route.params);
+    }
+  };
+
+  return (
+    <Pressable
+      accessibilityLabel={tab.label}
+      accessibilityRole="button"
+      accessibilityState={{ selected: isFocused }}
+      className="min-w-[68px] flex-1 items-center justify-center overflow-hidden rounded-[12px] py-2"
+      key={route.key}
+      onPress={onPress}
+    >
+      <Animated.View
+        className="absolute inset-0 rounded-[12px] bg-primary-50"
+        style={{
+          opacity: progress,
+          transform: [
+            {
+              scale: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.92, 1],
+              }),
+            },
+          ],
+        }}
+      />
+      <Animated.View
+        className="items-center justify-center gap-1"
+        style={{
+          transform: [
+            {
+              translateY: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, -1],
+              }),
+            },
+          ],
+        }}
+      >
+        <Feather color={isFocused ? '#006D37' : '#3D4A3F'} name={tab.icon} size={19} />
+        <Text className={`text-center text-xs font-semibold leading-4 ${isFocused ? 'text-primary-700' : 'text-muted'}`}>
+          {tab.label}
+        </Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
+
+export function BottomTabBar({ navigation, state }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
 
   return (
     <View
@@ -24,34 +107,14 @@ export function BottomTabBar({ active, profileParam }: { active: MainTab; profil
         paddingBottom: Math.max(insets.bottom, 10),
       }}
     >
-      {tabs.map((tab) => {
-        const isActive = active === tab.id;
-        return (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{ selected: isActive }}
-            className={`min-w-[68px] flex-1 items-center justify-center gap-1 rounded-[12px] py-2 ${
-              isActive ? 'bg-primary-50' : ''
-            }`}
-            key={tab.id}
-            onPress={() =>
-              router.push({
-                pathname: tab.path,
-                params: profileParam ? { profile: profileParam } : undefined,
-              } as unknown as Href)
-            }
-          >
-            <Feather color={isActive ? '#006D37' : '#3D4A3F'} name={tab.icon} size={19} />
-            <Text
-              className={`text-center text-xs font-semibold leading-4 ${
-                isActive ? 'text-primary-700' : 'text-muted'
-              }`}
-            >
-              {tab.label}
-            </Text>
-          </Pressable>
-        );
-      })}
+      {state.routes.map((route, index) => (
+        <BottomTabButton
+          isFocused={state.index === index}
+          key={route.key}
+          navigation={navigation}
+          route={route}
+        />
+      ))}
     </View>
   );
 }

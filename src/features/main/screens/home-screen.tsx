@@ -1,15 +1,15 @@
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ImageSourcePropType } from 'react-native';
 import { Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
 
-import { BottomTabBar } from '../components/bottom-tab-bar';
+import { useHydratedProfile } from '../context/profile-context';
 import type { RouteProfileParams } from '../types';
-import { getProfileFallback, parseHealthProfileParam, serializeProfile } from '../utils/health-profile';
+import { getProfileFallback } from '../utils/health-profile';
 
 type FoodRecommendation = {
   id: string;
@@ -101,8 +101,7 @@ export function HomeScreen() {
   const params = useLocalSearchParams<RouteProfileParams>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const profile = useMemo(() => parseHealthProfileParam(params), [params]);
-  const profileParam = useMemo(() => serializeProfile(profile), [profile]);
+  const { profile } = useHydratedProfile(params);
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(12)).current;
   const cards = useRef(Array.from({ length: foodRecommendations.length }, () => new Animated.Value(0))).current;
@@ -135,10 +134,7 @@ export function HomeScreen() {
   });
 
   const navigate = (pathname: string) => {
-    router.push({
-      pathname,
-      params: { profile: profileParam },
-    } as unknown as Href);
+    router.navigate(pathname as Href);
   };
 
   return (
@@ -216,8 +212,6 @@ export function HomeScreen() {
           </View>
         </ScrollView>
       </Animated.View>
-
-      <BottomTabBar active="home" profileParam={profileParam} />
     </View>
   );
 }

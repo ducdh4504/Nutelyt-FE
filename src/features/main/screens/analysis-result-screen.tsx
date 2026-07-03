@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AIAnalysisCard } from '../components/ai-analysis-card';
 import { AppHeader } from '../components/app-header';
-import { BottomTabBar } from '../components/bottom-tab-bar';
 import { NutritionCard } from '../components/nutrition-card';
 import { getFoodById } from '../data/mock-foods';
 import type { RouteProfileParams } from '../types';
@@ -165,7 +164,6 @@ export function AnalysisResultScreen() {
           </View>
         </ScrollView>
       </Animated.View>
-      <BottomTabBar active="chatAi" profileParam={profileParam} />
     </View>
   );
 }

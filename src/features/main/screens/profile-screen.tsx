@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
@@ -7,9 +7,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
 import type { HealthProfilePayload } from '@/src/features/health-profile/types';
-import { BottomTabBar } from '@/src/features/main/components/bottom-tab-bar';
+import { useHydratedProfile } from '@/src/features/main/context/profile-context';
+import type { HealthProfileSummary, RouteProfileParams } from '@/src/features/main/types';
+import { parseHealthProfileParam } from '@/src/features/main/utils/health-profile';
 
-const wordmarkImage = require('../../assets/images/Nutelyt-text.png');
+const wordmarkImage = require('../../../../assets/images/Nutelyt-text.png');
 
 type ProfileDisplayData = HealthProfilePayload & {
   age?: string;
@@ -38,6 +40,7 @@ type SummaryChipData = {
   label: string;
   tone?: 'danger' | 'success' | 'info';
 };
+type ProfileScreenMode = 'review' | 'tab';
 
 const cardShadow = { boxShadow: '0 16px 32px rgba(45, 156, 219, 0.06)' };
 const smallShadow = { boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' };
@@ -88,6 +91,26 @@ function parseProfileParam(profileParam: string | undefined): ProfileDisplayData
   } catch {
     return fallbackProfile;
   }
+}
+
+function toProfileDisplayData(profile: HealthProfileSummary): ProfileDisplayData {
+  return {
+    allergyText: profile.allergyText,
+    age: profile.age,
+    conditionLabels: profile.conditionLabels.length ? profile.conditionLabels : profile.diseases,
+    conditions: profile.conditions.length ? profile.conditions : profile.diseases,
+    dateOfBirth: profile.dateOfBirth,
+    diet: profile.diet,
+    dietLabel: profile.dietLabel,
+    diseases: profile.diseases,
+    fullName: profile.fullName,
+    gender: profile.gender,
+    goal: profile.goal ?? '',
+    goalLabel: profile.goalLabel,
+    height: profile.height,
+    purpose: profile.purpose,
+    weight: profile.weight,
+  };
 }
 
 function isHealthProfileReviewPayload(profileParam: string | undefined) {
@@ -271,10 +294,11 @@ function buildSummaryChips(profile: ProfileDisplayData): SummaryChipData[] {
   return chips;
 }
 
-export default function ProfileRoute() {
+export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ profile?: string | string[]; mode?: string | string[] }>();
+  const params = useLocalSearchParams<RouteProfileParams & { mode?: string | string[] }>();
+  const { profile: storedProfile, profileParam: storedProfileParam, saveProfile: saveProfileToStore } = useHydratedProfile(params);
   const [saved, setSaved] = useState(false);
   const screenOpacity = useRef(new Animated.Value(0)).current;
   const screenTranslate = useRef(new Animated.Value(14)).current;
@@ -282,10 +306,18 @@ export default function ProfileRoute() {
   const cardProgress = useRef(Array.from({ length: 6 }, () => new Animated.Value(0))).current;
 
   const profileParamValue = firstParam(params.profile);
-  const mode = firstParam(params.mode);
-  const profile = useMemo(() => parseProfileParam(profileParamValue), [profileParamValue]);
-  const profileParam = useMemo(() => JSON.stringify(profile), [profile]);
-  const isReviewMode = mode === 'review' || (!mode && isHealthProfileReviewPayload(profileParamValue));
+  const routeMode = firstParam(params.mode);
+  const reviewProfile = useMemo(() => parseProfileParam(profileParamValue), [profileParamValue]);
+  const tabProfile = useMemo(() => toProfileDisplayData(storedProfile), [storedProfile]);
+  const isReviewMode =
+    forcedMode === 'review' ||
+    routeMode === 'review' ||
+    (!forcedMode && !routeMode && isHealthProfileReviewPayload(profileParamValue));
+  const profile = isReviewMode ? reviewProfile : tabProfile;
+  const profileParam = useMemo(
+    () => (isReviewMode ? JSON.stringify(profile) : storedProfileParam),
+    [isReviewMode, profile, storedProfileParam]
+  );
   const bmi = useMemo(() => calculateBMI(profile.height, profile.weight), [profile.height, profile.weight]);
   const bmiText = bmi ? `${bmi.toFixed(1)} (${getBMILabel(bmi)})` : '--';
   const chips = useMemo(() => buildSummaryChips(profile), [profile]);
@@ -337,16 +369,10 @@ export default function ProfileRoute() {
     ],
   });
 
-  const goBack = () => {
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.replace('/health-profile' as Href);
-  };
-  
   const saveProfile = () => {
+    saveProfileToStore(parseHealthProfileParam({ profile: profileParam }));
     setSaved(true);
+    router.setParams({ mode: 'tab', profile: profileParam });
     router.replace({
       pathname: '/home',
       params: { profile: profileParam },
@@ -361,22 +387,9 @@ export default function ProfileRoute() {
   };
 
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-        <View className="h-14 flex-row items-center justify-between bg-background px-5" style={smallShadow}>
-          {isReviewMode ? (
-            <View className="h-12 w-12" />
-          ) : (
-            <Pressable
-              accessibilityLabel="Quay lại"
-              accessibilityRole="button"
-              className="h-12 w-12 items-start justify-center"
-              onPress={goBack}
-            >
-              <Feather color={colors.primaryDark} name="arrow-left" size={20} />
-            </Pressable>
-          )}
+    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+      <View className="h-14 flex-row items-center justify-between bg-background px-5" style={smallShadow}>
+          <View className="h-12 w-12" />
           <View className="absolute left-0 right-0 items-center" pointerEvents="none">
             <Image
               accessibilityLabel="Nutelyt"
@@ -386,7 +399,7 @@ export default function ProfileRoute() {
             />
           </View>
           <View className="h-12 w-12" />
-        </View>
+      </View>
 
         <Animated.View
           className="flex-1"
@@ -585,10 +598,7 @@ export default function ProfileRoute() {
               Bằng việc lưu, bạn đồng ý với Chính sách bảo mật thông tin sức khỏe của chúng tôi.
             </Text>
           </View>
-        ) : (
-          <BottomTabBar active="profile" profileParam={profileParam} />
-        )}
-      </View>
-    </>
+        ) : null}
+    </View>
   );
 }

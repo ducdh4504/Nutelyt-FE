@@ -6,7 +6,6 @@ import { Animated, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppHeader } from '../components/app-header';
-import { BottomTabBar } from '../components/bottom-tab-bar';
 import type { RouteProfileParams } from '../types';
 import { parseHealthProfileParam, serializeProfile } from '../utils/health-profile';
 
@@ -126,7 +125,6 @@ export function ScanCameraScreen() {
           </Text>
         </View>
       </Animated.View>
-      <BottomTabBar active="chatAi" profileParam={profileParam} />
     </View>
   );
 }
