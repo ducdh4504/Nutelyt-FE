@@ -1,12 +1,14 @@
-import { Stack } from 'expo-router';
+import { Redirect, Stack, useLocalSearchParams, type Href } from 'expo-router';
 
-import { ScanHistoryScreen } from '@/src/features/main';
+import type { RouteProfileParams } from '@/src/features/main/types';
 
-export default function ScanHistoryRoute() {
+export default function LegacyHistoryRedirect() {
+  const params = useLocalSearchParams<RouteProfileParams>();
+
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <ScanHistoryScreen />
+      <Redirect href={{ pathname: '/history', params } as unknown as Href} />
     </>
   );
 }

@@ -2,6 +2,10 @@ import type { HealthProfileSummary, RouteProfileParams } from '../types';
 
 export function getProfileFallback(): HealthProfileSummary {
   return {
+    allergyText: '',
+    conditionLabels: [],
+    conditions: [],
+    dateOfBirth: '',
     fullName: 'Người dùng Nutelyt',
     age: '--',
     gender: '--',
@@ -10,7 +14,9 @@ export function getProfileFallback(): HealthProfileSummary {
     purpose: '',
     diseases: [],
     goal: null,
+    goalLabel: 'Chưa chọn',
     diet: null,
+    dietLabel: 'Chưa chọn',
   };
 }
 
@@ -22,6 +28,31 @@ function safeText(value: unknown, fallback = '--') {
   return typeof value === 'string' && value.trim() ? value.trim() : fallback;
 }
 
+function safeArray(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+function safeNullableText(value: unknown) {
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+function calculateAgeFromBirthDate(value: string) {
+  const [year, month, day] = value.split('-').map(Number);
+  if (!year || !month || !day) {
+    return '--';
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - year;
+  const hasHadBirthday = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
+
+  if (!hasHadBirthday) {
+    age -= 1;
+  }
+
+  return age > 0 ? `${age} tuổi` : '--';
+}
+
 export function parseHealthProfileParam(params: RouteProfileParams): HealthProfileSummary {
   const profileParam = firstParam(params.profile);
 
@@ -31,21 +62,32 @@ export function parseHealthProfileParam(params: RouteProfileParams): HealthProfi
 
   try {
     const parsed = JSON.parse(profileParam) as Partial<HealthProfileSummary>;
+    const fallback = getProfileFallback();
+    const dateOfBirth = safeText(parsed.dateOfBirth, '');
+    const conditionLabels = safeArray(parsed.conditionLabels);
+    const diseases = safeArray(parsed.diseases);
+    const conditions = safeArray(parsed.conditions);
+    const goal = safeNullableText(parsed.goal);
+    const diet = safeNullableText(parsed.diet);
 
     return {
-      fullName: safeText(parsed.fullName, getProfileFallback().fullName),
-      age: safeText(parsed.age),
+      allergyText: safeText(parsed.allergyText, ''),
+      conditionLabels: conditionLabels.length ? conditionLabels : diseases,
+      conditions: conditions.length ? conditions : diseases,
+      dateOfBirth,
+      fullName: safeText(parsed.fullName, fallback.fullName),
+      age: safeText(parsed.age, dateOfBirth ? calculateAgeFromBirthDate(dateOfBirth) : fallback.age),
       gender: safeText(parsed.gender),
       height: safeText(parsed.height),
       weight: safeText(parsed.weight),
       purpose: Array.isArray(parsed.purpose)
         ? parsed.purpose.filter((item): item is string => typeof item === 'string')
         : safeText(parsed.purpose, ''),
-      diseases: Array.isArray(parsed.diseases)
-        ? parsed.diseases.filter((item): item is string => typeof item === 'string')
-        : [],
-      goal: typeof parsed.goal === 'string' && parsed.goal.trim() ? parsed.goal.trim() : null,
-      diet: typeof parsed.diet === 'string' && parsed.diet.trim() ? parsed.diet.trim() : null,
+      diseases: diseases.length ? diseases : conditionLabels,
+      goal,
+      goalLabel: safeText(parsed.goalLabel, goal ?? fallback.goalLabel),
+      diet,
+      dietLabel: safeText(parsed.dietLabel, diet ?? fallback.dietLabel),
     };
   } catch {
     return getProfileFallback();

@@ -125,7 +125,7 @@ function HistoryCard({ item, style }: { item: HistoryItem; style: object }) {
   );
 }
 
-export function ScanHistoryScreen() {
+export function HistoryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<RouteProfileParams>();
@@ -163,7 +163,7 @@ export function ScanHistoryScreen() {
       return;
     }
 
-    router.replace({ pathname: '/dashboard', params: { profile: profileParam } } as unknown as Href);
+    router.replace({ pathname: '/home', params: { profile: profileParam } } as unknown as Href);
   };
 
   const goDashboard = () => {
@@ -259,7 +259,7 @@ export function ScanHistoryScreen() {
           onPress={goDashboard}
           style={ctaShadow}
         >
-          <Text className="text-base font-bold leading-6 text-white">Xem Dashboard 7 ngày</Text>
+          <Text className="text-base font-bold leading-6 text-white">Xem tổng quan 7 ngày</Text>
         </Pressable>
       </View>
 

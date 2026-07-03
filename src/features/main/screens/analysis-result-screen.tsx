@@ -56,7 +56,7 @@ export function AnalysisResultScreen() {
           if (router.canGoBack()) {
             router.back();
           } else {
-            router.replace({ pathname: '/dashboard', params: { profile: profileParam } } as unknown as Href);
+            router.replace({ pathname: '/home', params: { profile: profileParam } } as unknown as Href);
           }
         }}
         rightIcon="share-2"
@@ -165,7 +165,7 @@ export function AnalysisResultScreen() {
           </View>
         </ScrollView>
       </Animated.View>
-      <BottomTabBar active="scan" profileParam={profileParam} />
+      <BottomTabBar active="chatAi" profileParam={profileParam} />
     </View>
   );
 }

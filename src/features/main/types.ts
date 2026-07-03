@@ -3,6 +3,10 @@ import type { ComponentProps } from 'react';
 import { Feather } from '@expo/vector-icons';
 
 export type HealthProfileSummary = {
+  allergyText: string;
+  conditionLabels: string[];
+  conditions: string[];
+  dateOfBirth: string;
   fullName: string;
   age: string;
   gender: string;
@@ -11,11 +15,13 @@ export type HealthProfileSummary = {
   purpose?: string | string[];
   diseases: string[];
   goal: string | null;
+  goalLabel: string;
   diet: string | null;
+  dietLabel: string;
 };
 
 export type FoodStatus = 'safe' | 'warning' | 'avoid';
-export type MainTab = 'home' | 'scan' | 'history' | 'chatAi' | 'profile';
+export type MainTab = 'home' | 'history' | 'chatAi' | 'profile';
 export type FeatherName = ComponentProps<typeof Feather>['name'];
 
 export type NutritionFacts = {

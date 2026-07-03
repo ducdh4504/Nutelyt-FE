@@ -41,7 +41,7 @@ export function ScanCameraScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace({ pathname: '/dashboard', params: { profile: profileParam } } as unknown as Href);
+      router.replace({ pathname: '/home', params: { profile: profileParam } } as unknown as Href);
     }
   };
 
@@ -126,7 +126,7 @@ export function ScanCameraScreen() {
           </Text>
         </View>
       </Animated.View>
-      <BottomTabBar active="scan" profileParam={profileParam} />
+      <BottomTabBar active="chatAi" profileParam={profileParam} />
     </View>
   );
 }

@@ -6,8 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { FeatherName, MainTab } from '../types';
 
 const tabs: { id: MainTab; icon: FeatherName; label: string; path: string }[] = [
-  { id: 'home', icon: 'home', label: 'Nhà', path: '/dashboard' },
-  { id: 'history', icon: 'clock', label: 'Lịch sử', path: '/scan-history' },
+  { id: 'home', icon: 'home', label: 'Nhà', path: '/home' },
+  { id: 'history', icon: 'clock', label: 'Lịch sử', path: '/history' },
   { id: 'chatAi', icon: 'message-circle', label: 'Chat AI', path: '/chat-ai' },
   { id: 'profile', icon: 'user', label: 'Hồ sơ', path: '/profile' },
 ];
@@ -25,7 +25,7 @@ export function BottomTabBar({ active, profileParam }: { active: MainTab; profil
       }}
     >
       {tabs.map((tab) => {
-        const isActive = active === tab.id || (active === 'scan' && tab.id === 'chatAi');
+        const isActive = active === tab.id;
         return (
           <Pressable
             accessibilityRole="button"

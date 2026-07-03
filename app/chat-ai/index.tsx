@@ -68,8 +68,8 @@ const recipe = {
 };
 
 const tabs: { id: MainTab; icon: FeatherName; label: string; path: string }[] = [
-  { id: 'home', icon: 'home', label: 'Nhà', path: '/dashboard' },
-  { id: 'history', icon: 'clock', label: 'Lịch sử', path: '/scan-history' },
+  { id: 'home', icon: 'home', label: 'Nhà', path: '/home' },
+  { id: 'history', icon: 'clock', label: 'Lịch sử', path: '/history' },
   { id: 'chatAi', icon: 'message-circle', label: 'Chat AI', path: '/chat-ai' },
   { id: 'profile', icon: 'user', label: 'Hồ sơ', path: '/profile' },
 ];
@@ -694,7 +694,7 @@ export default function ChatAIRoute() {
       router.back();
       return;
     }
-    router.replace({ pathname: '/dashboard', params: { profile: profileParam } } as unknown as Href);
+    router.replace({ pathname: '/home', params: { profile: profileParam } } as unknown as Href);
   };
 
   if (mode === 'detail') {

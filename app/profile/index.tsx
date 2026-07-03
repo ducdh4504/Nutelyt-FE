@@ -2,13 +2,22 @@ import { Feather } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
 import type { HealthProfilePayload } from '@/src/features/health-profile/types';
+import { BottomTabBar } from '@/src/features/main/components/bottom-tab-bar';
 
-const fallbackProfile: HealthProfilePayload = {
+const wordmarkImage = require('../../assets/images/Nutelyt-text.png');
+
+type ProfileDisplayData = HealthProfilePayload & {
+  age?: string;
+  diseases?: string[];
+  purpose?: string | string[];
+};
+
+const fallbackProfile: ProfileDisplayData = {
   allergyText: '',
   conditionLabels: [],
   conditions: [],
@@ -46,30 +55,57 @@ function safeArray(value: unknown) {
   return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
 }
 
-function parseProfileParam(profileParam: string | undefined): HealthProfilePayload {
+function parseProfileParam(profileParam: string | undefined): ProfileDisplayData {
   if (!profileParam) {
     return fallbackProfile;
   }
 
   try {
-    const parsed = JSON.parse(profileParam) as Partial<HealthProfilePayload>;
+    const parsed = JSON.parse(profileParam) as Partial<ProfileDisplayData>;
+    const conditionLabels = safeArray(parsed.conditionLabels);
+    const diseases = safeArray(parsed.diseases);
+    const conditions = safeArray(parsed.conditions);
+    const goal = safeText(parsed.goal, '');
+    const diet = typeof parsed.diet === 'string' && parsed.diet.trim() ? parsed.diet.trim() : null;
 
     return {
       allergyText: safeText(parsed.allergyText, ''),
-      conditionLabels: safeArray(parsed.conditionLabels),
-      conditions: safeArray(parsed.conditions),
+      age: safeText(parsed.age, ''),
+      conditionLabels: conditionLabels.length ? conditionLabels : diseases,
+      conditions: conditions.length ? conditions : diseases,
       dateOfBirth: safeText(parsed.dateOfBirth, ''),
-      diet: typeof parsed.diet === 'string' && parsed.diet.trim() ? parsed.diet.trim() : null,
-      dietLabel: safeText(parsed.dietLabel, fallbackProfile.dietLabel),
+      diet,
+      dietLabel: safeText(parsed.dietLabel, diet ?? fallbackProfile.dietLabel),
+      diseases,
       fullName: safeText(parsed.fullName, fallbackProfile.fullName),
       gender: safeText(parsed.gender),
-      goal: safeText(parsed.goal, ''),
-      goalLabel: safeText(parsed.goalLabel, fallbackProfile.goalLabel),
+      goal,
+      goalLabel: safeText(parsed.goalLabel, goal || fallbackProfile.goalLabel),
       height: safeText(parsed.height),
+      purpose: parsed.purpose,
       weight: safeText(parsed.weight),
     };
   } catch {
     return fallbackProfile;
+  }
+}
+
+function isHealthProfileReviewPayload(profileParam: string | undefined) {
+  if (!profileParam) {
+    return false;
+  }
+
+  try {
+    const parsed = JSON.parse(profileParam) as Partial<HealthProfilePayload> & { age?: unknown; diseases?: unknown };
+    return (
+      typeof parsed.dateOfBirth === 'string' &&
+      typeof parsed.goalLabel === 'string' &&
+      typeof parsed.dietLabel === 'string' &&
+      typeof parsed.age === 'undefined' &&
+      typeof parsed.diseases === 'undefined'
+    );
+  } catch {
+    return false;
   }
 }
 
@@ -138,6 +174,15 @@ function calculateAge(value: string) {
   return age > 0 ? `${age} tuổi` : '--';
 }
 
+function getAgeDisplay(profile: ProfileDisplayData) {
+  const ageFromBirthDate = calculateAge(profile.dateOfBirth);
+  if (ageFromBirthDate !== '--') {
+    return ageFromBirthDate;
+  }
+
+  return safeText(profile.age, '--');
+}
+
 function CardShell({
   children,
   className = '',
@@ -204,7 +249,7 @@ function SummaryChip({ chip }: { chip: SummaryChipData }) {
   );
 }
 
-function buildSummaryChips(profile: HealthProfilePayload): SummaryChipData[] {
+function buildSummaryChips(profile: ProfileDisplayData): SummaryChipData[] {
   const chips: SummaryChipData[] = [];
 
   if (profile.allergyText.trim()) {
@@ -229,14 +274,18 @@ function buildSummaryChips(profile: HealthProfilePayload): SummaryChipData[] {
 export default function ProfileRoute() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ profile?: string | string[] }>();
+  const params = useLocalSearchParams<{ profile?: string | string[]; mode?: string | string[] }>();
   const [saved, setSaved] = useState(false);
   const screenOpacity = useRef(new Animated.Value(0)).current;
   const screenTranslate = useRef(new Animated.Value(14)).current;
   const saveScale = useRef(new Animated.Value(1)).current;
-  const cardProgress = useRef(Array.from({ length: 5 }, () => new Animated.Value(0))).current;
+  const cardProgress = useRef(Array.from({ length: 6 }, () => new Animated.Value(0))).current;
 
-  const profile = useMemo(() => parseProfileParam(firstParam(params.profile)), [params.profile]);
+  const profileParamValue = firstParam(params.profile);
+  const mode = firstParam(params.mode);
+  const profile = useMemo(() => parseProfileParam(profileParamValue), [profileParamValue]);
+  const profileParam = useMemo(() => JSON.stringify(profile), [profile]);
+  const isReviewMode = mode === 'review' || (!mode && isHealthProfileReviewPayload(profileParamValue));
   const bmi = useMemo(() => calculateBMI(profile.height, profile.weight), [profile.height, profile.weight]);
   const bmiText = bmi ? `${bmi.toFixed(1)} (${getBMILabel(bmi)})` : '--';
   const chips = useMemo(() => buildSummaryChips(profile), [profile]);
@@ -297,27 +346,46 @@ export default function ProfileRoute() {
   };
   
   const saveProfile = () => {
-      setSaved(true);
-      router.replace({
-        pathname: '/dashboard',
-        params: { profile: JSON.stringify(profile) },
-      } as unknown as Href);
-    };
+    setSaved(true);
+    router.replace({
+      pathname: '/home',
+      params: { profile: profileParam },
+    } as unknown as Href);
+  };
+
+  const openDashboard = () => {
+    router.push({
+      pathname: '/dashboard',
+      params: { profile: profileParam },
+    } as unknown as Href);
+  };
 
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
       <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-        <View className="h-14 flex-row items-center bg-background px-5" style={smallShadow}>
-          <Pressable
-            accessibilityLabel="Quay lại"
-            accessibilityRole="button"
-            className="h-12 w-12 items-start justify-center"
-            onPress={goBack}
-          >
-            <Feather color={colors.primaryDark} name="arrow-left" size={20} />
-          </Pressable>
-          <Text className="flex-1 pr-12 text-center text-xl font-bold text-primary-700">Nutelyt</Text>
+        <View className="h-14 flex-row items-center justify-between bg-background px-5" style={smallShadow}>
+          {isReviewMode ? (
+            <View className="h-12 w-12" />
+          ) : (
+            <Pressable
+              accessibilityLabel="Quay lại"
+              accessibilityRole="button"
+              className="h-12 w-12 items-start justify-center"
+              onPress={goBack}
+            >
+              <Feather color={colors.primaryDark} name="arrow-left" size={20} />
+            </Pressable>
+          )}
+          <View className="absolute left-0 right-0 items-center" pointerEvents="none">
+            <Image
+              accessibilityLabel="Nutelyt"
+              className="h-7 w-28"
+              resizeMode="contain"
+              source={wordmarkImage}
+            />
+          </View>
+          <View className="h-12 w-12" />
         </View>
 
         <Animated.View
@@ -328,7 +396,7 @@ export default function ProfileRoute() {
             className="flex-1"
             contentContainerStyle={{
               gap: 32,
-              paddingBottom: Math.max(insets.bottom + 132, 156),
+              paddingBottom: isReviewMode ? Math.max(insets.bottom + 132, 156) : Math.max(insets.bottom + 112, 136),
               paddingHorizontal: 20,
               paddingTop: 24,
             }}
@@ -337,10 +405,12 @@ export default function ProfileRoute() {
           >
             <View className="gap-2">
               <Text className="text-center text-[28px] font-semibold leading-9 text-foreground">
-                Xem lại hồ sơ của bạn
+                {isReviewMode ? 'Xem lại hồ sơ của bạn' : 'Hồ sơ sức khỏe của bạn'}
               </Text>
               <Text className="text-base leading-6 text-muted">
-                Vui lòng kiểm tra và xác nhận thông tin để hỗ trợ AI mang đến trải nghiệm cá nhân hóa với độ chính xác theo tiêu chuẩn lâm sàng.
+                {isReviewMode
+                  ? 'Vui lòng kiểm tra và xác nhận thông tin để hỗ trợ AI mang đến trải nghiệm cá nhân hóa với độ chính xác theo tiêu chuẩn lâm sàng.'
+                  : 'Theo dõi thông tin sức khỏe đã thiết lập và mở Dashboard để xem tổng quan dinh dưỡng theo tuần.'}
               </Text>
             </View>
 
@@ -366,7 +436,7 @@ export default function ProfileRoute() {
                         Tuổi / Giới tính
                       </Text>
                       <Text className="text-[18px] font-bold leading-7 text-foreground">
-                        {calculateAge(profile.dateOfBirth)} • {profile.gender || '--'}
+                        {getAgeDisplay(profile)} • {profile.gender || '--'}
                       </Text>
                     </View>
                   </View>
@@ -420,6 +490,21 @@ export default function ProfileRoute() {
                 </View>
               </CardShell>
 
+              <CardShell className="border-[#BCCABC4D] bg-white" delayStyle={cardStyle(3)}>
+                <Pressable accessibilityRole="button" className="flex-row items-center gap-4" onPress={openDashboard}>
+                  <View className="h-12 w-12 items-center justify-center rounded-[12px] bg-primary-50">
+                    <Feather color={colors.primaryDark} name="bar-chart-2" size={21} />
+                  </View>
+                  <View className="min-w-0 flex-1 gap-1">
+                    <Text className="text-[18px] font-bold leading-7 text-foreground">Xem Dashboard 7 ngày</Text>
+                    <Text className="text-sm leading-5 text-muted">
+                      Theo dõi tổng quan dinh dưỡng và cảnh báo sức khỏe
+                    </Text>
+                  </View>
+                  <Feather color={colors.primaryDark} name="chevron-right" size={20} />
+                </Pressable>
+              </CardShell>
+
               <Animated.View
                 className="overflow-hidden rounded-[12px] bg-primary-600 p-8"
                 style={[
@@ -427,7 +512,7 @@ export default function ProfileRoute() {
                     backgroundColor: colors.primary,
                     boxShadow: '0 10px 24px rgba(39, 174, 96, 0.22)',
                   },
-                  cardStyle(3),
+                  cardStyle(4),
                 ]}
               >
                 <View className="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10" />
@@ -446,7 +531,7 @@ export default function ProfileRoute() {
 
               <Animated.View
                 className="rounded-[12px] border-2 border-primary-700 bg-[#E2E2E5] p-[18px]"
-                style={cardStyle(4)}
+                style={cardStyle(5)}
               >
                 <View className="flex-row items-start gap-4">
                   <Feather color={colors.primaryDark} name="shield" size={24} />
@@ -464,42 +549,45 @@ export default function ProfileRoute() {
           </ScrollView>
         </Animated.View>
 
-        <View
-          className="absolute bottom-0 left-0 right-0 gap-3 border-t border-[#E2E2E5] bg-card px-5 pt-4"
-          style={{ paddingBottom: Math.max(insets.bottom, 10), boxShadow: '0 -4px 8px rgba(0,0,0,0.06)' }}
-        >
-          <AnimatedPressable
-            accessibilityRole="button"
-            className="h-14 flex-row items-center justify-center gap-3 rounded-[12px] bg-primary-600"
-            // onPress={() => setSaved(true)}
-            onPress={saveProfile}
-            onPressIn={() => {
-              Animated.spring(saveScale, {
-                damping: 12,
-                stiffness: 260,
-                toValue: 0.98,
-                useNativeDriver: true,
-              }).start();
-            }}
-            onPressOut={() => {
-              Animated.spring(saveScale, {
-                damping: 12,
-                stiffness: 260,
-                toValue: 1,
-                useNativeDriver: true,
-              }).start();
-            }}
-            style={[smallShadow, { transform: [{ scale: saveScale }] }]}
+        {isReviewMode ? (
+          <View
+            className="absolute bottom-0 left-0 right-0 gap-3 border-t border-[#E2E2E5] bg-card px-5 pt-4"
+            style={{ paddingBottom: Math.max(insets.bottom, 10), boxShadow: '0 -4px 8px rgba(0,0,0,0.06)' }}
           >
-            <Text className="text-base leading-6 text-white">
-              {saved ? 'Đã lưu hồ sơ' : 'Lưu hồ sơ sức khỏe'}
+            <AnimatedPressable
+              accessibilityRole="button"
+              className="h-14 flex-row items-center justify-center gap-3 rounded-[12px] bg-primary-600"
+              onPress={saveProfile}
+              onPressIn={() => {
+                Animated.spring(saveScale, {
+                  damping: 12,
+                  stiffness: 260,
+                  toValue: 0.98,
+                  useNativeDriver: true,
+                }).start();
+              }}
+              onPressOut={() => {
+                Animated.spring(saveScale, {
+                  damping: 12,
+                  stiffness: 260,
+                  toValue: 1,
+                  useNativeDriver: true,
+                }).start();
+              }}
+              style={[smallShadow, { transform: [{ scale: saveScale }] }]}
+            >
+              <Text className="text-base leading-6 text-white">
+                {saved ? 'Đã lưu hồ sơ' : 'Lưu hồ sơ sức khỏe'}
+              </Text>
+              <Feather color="#FFFFFF" name={saved ? 'check-circle' : 'arrow-right-circle'} size={18} />
+            </AnimatedPressable>
+            <Text className="text-center text-sm leading-5 text-muted">
+              Bằng việc lưu, bạn đồng ý với Chính sách bảo mật thông tin sức khỏe của chúng tôi.
             </Text>
-            <Feather color="#FFFFFF" name={saved ? 'check-circle' : 'arrow-right-circle'} size={18} />
-          </AnimatedPressable>
-          <Text className="text-center text-sm leading-5 text-muted">
-            Bằng việc lưu, bạn đồng ý với Chính sách bảo mật thông tin sức khỏe của chúng tôi.
-          </Text>
-        </View>
+          </View>
+        ) : (
+          <BottomTabBar active="profile" profileParam={profileParam} />
+        )}
       </View>
     </>
   );
