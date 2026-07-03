@@ -19,6 +19,8 @@ import { colors } from '@/src/constants/tokens';
 import { useHydratedProfile } from '@/src/features/main/context/profile-context';
 import type { RouteProfileParams } from '@/src/features/main/types';
 
+import { MainScreenHeader } from '../components/main-screen-header';
+
 type FeatherName = ComponentProps<typeof Feather>['name'];
 type ChatMode = 'entry' | 'chat' | 'detail';
 type RecipeTab = 'overview' | 'ingredients' | 'steps' | 'nutrition';
@@ -658,7 +660,15 @@ export function ChatAIScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <ChatHeader onBack={goBack} showBack={mode !== 'entry'} topInset={insets.top} />
+      {mode === 'entry' ? (
+        <MainScreenHeader
+          align="center"
+          subtitle="Sẵn sàng hỗ trợ bạn!"
+          title="Trợ lý dinh dưỡng AI"
+        />
+      ) : (
+        <ChatHeader onBack={goBack} showBack topInset={insets.top} />
+      )}
       <Animated.View className="flex-1" style={{ opacity, transform: [{ translateY }] }}>
         {mode === 'entry' ? (
           <EntryScreen onSelect={() => setMode('chat')} />

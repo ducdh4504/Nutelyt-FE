@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
 
+import { MainScreenHeader } from '../components/main-screen-header';
 import { useHydratedProfile } from '../context/profile-context';
 import type { RouteProfileParams } from '../types';
 
@@ -160,13 +161,12 @@ export function HistoryScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <View className="h-[64px] items-center justify-center bg-background px-5">
-        <Text className="text-center text-[20px] font-bold leading-7 text-foreground">
-          Lịch sử tìm kiếm
-        </Text>
-      </View>
-
+    <View className="flex-1 bg-background">
+      <MainScreenHeader
+        align="center"
+        subtitle="Tìm lại các món ăn và gợi ý đã xem"
+        title="Lịch sử tìm kiếm"
+      />
       <Animated.View className="flex-1" style={{ opacity, transform: [{ translateY }] }}>
         <ScrollView
           className="flex-1"
@@ -174,7 +174,7 @@ export function HistoryScreen() {
             gap: 24,
             paddingBottom: Math.max(insets.bottom + 184, 208),
             paddingHorizontal: 20,
-            paddingTop: 8,
+            paddingTop: 0,
           }}
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}

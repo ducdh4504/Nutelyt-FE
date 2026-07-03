@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
 
+import { MainScreenHeader } from '../components/main-screen-header';
 import { useHydratedProfile } from '../context/profile-context';
 import type { RouteProfileParams } from '../types';
 import { getProfileFallback } from '../utils/health-profile';
@@ -138,42 +139,38 @@ export function HomeScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-background">
+      <MainScreenHeader
+        rightSlot={
+          <Pressable
+            accessibilityLabel="Mở hồ sơ"
+            accessibilityRole="button"
+            className="h-16 w-16 items-center justify-center rounded-full bg-primary-50"
+            onPress={() => navigate('/profile')}
+            style={cardShadow}
+          >
+            <Text className="text-[24px] font-bold leading-8 text-primary-700">{avatarInitial}</Text>
+            <View className="absolute bottom-1 right-1 h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-primary-600">
+              <Feather color="#FFFFFF" name="check" size={11} />
+            </View>
+          </Pressable>
+        }
+        subtitle="Hôm nay bạn muốn ăn gì?"
+        title={`Chào mừng, ${greetingName}`}
+      />
       <Animated.View className="flex-1" style={{ opacity, transform: [{ translateY }] }}>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{
             paddingBottom: Math.max(insets.bottom + 112, 136),
             paddingHorizontal: 20,
-            paddingTop: 24,
+            paddingTop: 0,
           }}
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}
         >
           <View className="gap-8">
             <View className="gap-8">
-              <View className="min-h-[60px] flex-row items-start justify-between gap-4">
-                <View className="min-w-0 flex-1">
-                  <Text className="text-[28px] font-semibold leading-9 text-foreground">
-                    Chào mừng, {greetingName}
-                  </Text>
-                  <Text className="text-base leading-6 text-muted">Hôm nay bạn muốn ăn gì?</Text>
-                </View>
-
-                <Pressable
-                  accessibilityLabel="Mở hồ sơ"
-                  accessibilityRole="button"
-                  className="h-16 w-16 items-center justify-center rounded-full bg-primary-50"
-                  onPress={() => navigate('/profile')}
-                  style={cardShadow}
-                >
-                  <Text className="text-[24px] font-bold leading-8 text-primary-700">{avatarInitial}</Text>
-                  <View className="absolute bottom-1 right-1 h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-primary-600">
-                    <Feather color="#FFFFFF" name="check" size={11} />
-                  </View>
-                </Pressable>
-              </View>
-
               <Pressable
                 accessibilityRole="button"
                 className="h-[70px] overflow-hidden rounded-[8px] bg-primary-600 px-5"

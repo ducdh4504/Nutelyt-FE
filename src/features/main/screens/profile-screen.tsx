@@ -11,6 +11,8 @@ import { useHydratedProfile } from '@/src/features/main/context/profile-context'
 import type { HealthProfileSummary, RouteProfileParams } from '@/src/features/main/types';
 import { parseHealthProfileParam } from '@/src/features/main/utils/health-profile';
 
+import { MainScreenHeader } from '../components/main-screen-header';
+
 const wordmarkImage = require('../../../../assets/images/Nutelyt-text.png');
 
 type ProfileDisplayData = HealthProfilePayload & {
@@ -387,8 +389,9 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <View className="h-14 flex-row items-center justify-between bg-background px-5" style={smallShadow}>
+    <View className="flex-1 bg-background" style={{ paddingTop: isReviewMode ? insets.top : 0 }}>
+      {isReviewMode ? (
+        <View className="h-14 flex-row items-center justify-between bg-background px-5" style={smallShadow}>
           <View className="h-12 w-12" />
           <View className="absolute left-0 right-0 items-center" pointerEvents="none">
             <Image
@@ -399,7 +402,13 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
             />
           </View>
           <View className="h-12 w-12" />
-      </View>
+        </View>
+      ) : (
+        <MainScreenHeader
+          subtitle="Theo dõi thông tin sức khỏe đã thiết lập"
+          title="Hồ sơ sức khỏe của bạn"
+        />
+      )}
 
         <Animated.View
           className="flex-1"
@@ -411,21 +420,21 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
               gap: 32,
               paddingBottom: isReviewMode ? Math.max(insets.bottom + 132, 156) : Math.max(insets.bottom + 112, 136),
               paddingHorizontal: 20,
-              paddingTop: 24,
+              paddingTop: isReviewMode ? 24 : 0,
             }}
             contentInsetAdjustmentBehavior="automatic"
             showsVerticalScrollIndicator={false}
           >
-            <View className="gap-2">
-              <Text className="text-center text-[28px] font-semibold leading-9 text-foreground">
-                {isReviewMode ? 'Xem lại hồ sơ của bạn' : 'Hồ sơ sức khỏe của bạn'}
-              </Text>
-              <Text className="text-base leading-6 text-muted">
-                {isReviewMode
-                  ? 'Vui lòng kiểm tra và xác nhận thông tin để hỗ trợ AI mang đến trải nghiệm cá nhân hóa với độ chính xác theo tiêu chuẩn lâm sàng.'
-                  : 'Theo dõi thông tin sức khỏe đã thiết lập và mở Dashboard để xem tổng quan dinh dưỡng theo tuần.'}
-              </Text>
-            </View>
+            {isReviewMode ? (
+              <View className="gap-2">
+                <Text className="text-center text-[28px] font-semibold leading-9 text-foreground">
+                  Xem lại hồ sơ của bạn
+                </Text>
+                <Text className="text-base leading-6 text-muted">
+                  Vui lòng kiểm tra và xác nhận thông tin để hỗ trợ AI mang đến trải nghiệm cá nhân hóa với độ chính xác theo tiêu chuẩn lâm sàng.
+                </Text>
+              </View>
+            ) : null}
 
             <View className="gap-4">
               <CardShell delayStyle={cardStyle(0)}>
