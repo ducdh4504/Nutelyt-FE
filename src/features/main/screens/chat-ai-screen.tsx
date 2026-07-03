@@ -296,8 +296,12 @@ function ChatScreen({ keyboardHeight, onOpenDetail }: { keyboardHeight: number; 
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const [input, setInput] = useState('');
+  const [isVoiceRecording, setIsVoiceRecording] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const isKeyboardOpen = keyboardHeight > 0;
+  const bottomPadding = isKeyboardOpen
+    ? keyboardHeight + (isVoiceRecording ? 144 : 112)
+    : Math.max(insets.bottom + (isVoiceRecording ? 220 : 188), isVoiceRecording ? 248 : 216);
 
   const send = () => {
     const trimmed = input.trim();
@@ -329,7 +333,16 @@ function ChatScreen({ keyboardHeight, onOpenDetail }: { keyboardHeight: number; 
 
     setMessages((currentMessages) => [...currentMessages, ...nextMessages]);
     setInput('');
+    setIsVoiceRecording(false);
     requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
+  };
+
+  const toggleVoiceRecording = () => {
+    if (isVoiceRecording && !input.trim()) {
+      setInput('Tôi muốn nấu bún bò');
+    }
+
+    setIsVoiceRecording((current) => !current);
   };
 
   return (
@@ -339,7 +352,7 @@ function ChatScreen({ keyboardHeight, onOpenDetail }: { keyboardHeight: number; 
         className="flex-1"
         contentContainerStyle={{
           gap: 18,
-          paddingBottom: isKeyboardOpen ? keyboardHeight + 112 : Math.max(insets.bottom + 188, 216),
+          paddingBottom: bottomPadding,
           paddingHorizontal: 20,
           paddingTop: 40,
         }}
@@ -375,6 +388,12 @@ function ChatScreen({ keyboardHeight, onOpenDetail }: { keyboardHeight: number; 
           paddingBottom: 12,
         }}
       >
+        {isVoiceRecording ? (
+          <View className="mb-2 self-start flex-row items-center gap-2 rounded-full bg-primary-50 px-3 py-1">
+            <View className="h-2 w-2 rounded-full bg-primary-700" />
+            <Text className="text-xs font-semibold leading-4 text-primary-700">Đang ghi âm...</Text>
+          </View>
+        ) : null}
         <View className="flex-row items-center gap-3 rounded-[18px] bg-[#F6F7F8] px-5 py-4">
           <TextInput
             className="min-h-10 flex-1 text-[13px] text-foreground"
@@ -386,6 +405,17 @@ function ChatScreen({ keyboardHeight, onOpenDetail }: { keyboardHeight: number; 
             returnKeyType="send"
             value={input}
           />
+          <Pressable
+            accessibilityLabel={isVoiceRecording ? 'Dừng ghi âm thử' : 'Bắt đầu ghi âm thử'}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isVoiceRecording }}
+            className={`h-10 w-10 items-center justify-center rounded-full ${
+              isVoiceRecording ? 'bg-primary-700' : 'bg-primary-50'
+            }`}
+            onPress={toggleVoiceRecording}
+          >
+            <Feather color={isVoiceRecording ? '#FFFFFF' : colors.primaryDark} name={isVoiceRecording ? 'mic-off' : 'mic'} size={18} />
+          </Pressable>
           <Pressable
             accessibilityRole="button"
             className="h-10 w-10 items-center justify-center rounded-full bg-primary-700"
