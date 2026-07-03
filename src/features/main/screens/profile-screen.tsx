@@ -305,7 +305,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
   const screenOpacity = useRef(new Animated.Value(0)).current;
   const screenTranslate = useRef(new Animated.Value(14)).current;
   const saveScale = useRef(new Animated.Value(1)).current;
-  const cardProgress = useRef(Array.from({ length: 6 }, () => new Animated.Value(0))).current;
+  const cardProgress = useRef(Array.from({ length: 7 }, () => new Animated.Value(0))).current;
 
   const profileParamValue = firstParam(params.profile);
   const routeMode = firstParam(params.mode);
@@ -386,6 +386,10 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
       pathname: '/dashboard',
       params: { profile: profileParam },
     } as unknown as Href);
+  };
+
+  const openSubscription = () => {
+    router.push('/subscription' as Href);
   };
 
   return (
@@ -527,6 +531,28 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
                 </Pressable>
               </CardShell>
 
+              <CardShell className="border-primary-600/20 bg-[#F7FFF9]" delayStyle={cardStyle(4)}>
+                <Pressable accessibilityRole="button" className="gap-4" onPress={openSubscription}>
+                  <View className="flex-row items-start gap-4">
+                    <View className="h-12 w-12 items-center justify-center rounded-[12px] bg-primary-50">
+                      <Feather color={colors.primaryDark} name="star" size={21} />
+                    </View>
+                    <View className="min-w-0 flex-1 gap-1">
+                      <Text className="text-[18px] font-bold leading-7 text-foreground">
+                        Nâng cấp Nutelyt Premium
+                      </Text>
+                      <Text className="text-sm leading-5 text-muted">
+                        Mở khóa phân tích nâng cao, gợi ý không giới hạn và kế hoạch cá nhân hóa hơn.
+                      </Text>
+                    </View>
+                  </View>
+                  <View className="self-start flex-row items-center gap-2 rounded-full bg-primary-600 px-4 py-2">
+                    <Text className="text-sm font-bold leading-5 text-white">Nâng cấp ngay</Text>
+                    <Feather color="#FFFFFF" name="arrow-right" size={14} />
+                  </View>
+                </Pressable>
+              </CardShell>
+
               <Animated.View
                 className="overflow-hidden rounded-[12px] bg-primary-600 p-8"
                 style={[
@@ -534,7 +560,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
                     backgroundColor: colors.primary,
                     boxShadow: '0 10px 24px rgba(39, 174, 96, 0.22)',
                   },
-                  cardStyle(4),
+                  cardStyle(5),
                 ]}
               >
                 <View className="absolute -right-8 -top-8 h-36 w-36 rounded-full bg-white/10" />
@@ -553,7 +579,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
 
               <Animated.View
                 className="rounded-[12px] border-2 border-primary-700 bg-[#E2E2E5] p-[18px]"
-                style={cardStyle(5)}
+                style={cardStyle(6)}
               >
                 <View className="flex-row items-start gap-4">
                   <Feather color={colors.primaryDark} name="shield" size={24} />
