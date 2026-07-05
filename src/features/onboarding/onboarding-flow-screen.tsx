@@ -1,13 +1,8 @@
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
-import {
-  Animated,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Asset } from "expo-asset";
+import { Image } from "expo-image";
+import { useEffect, useRef, useState } from "react";
+import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ScreenContainer } from "@/src/components/layout";
@@ -16,10 +11,22 @@ import { Button, Typography } from "@/src/components/ui";
 import { ONBOARDING_STEPS } from "./onboarding-data";
 import { OnboardingIllustration } from "./onboarding-illustrations";
 import { OnboardingProgressDots } from "./onboarding-progress-dots";
+import { loginAssets } from "./onboarding-assets";
 
 const TRANSITION_OUT_MS = 110;
 const TRANSITION_IN_MS = 170;
 const wordmarkImage = require("../../../assets/images/Nutelyt-text.png");
+
+const loginPrefetchUris = loginAssets
+  .map((moduleId) => {
+    try {
+      const asset = Asset.fromModule(moduleId);
+      return asset.uri ?? asset.localUri ?? null;
+    } catch {
+      return null;
+    }
+  })
+  .filter((uri): uri is string => typeof uri === "string" && uri.length > 0);
 
 export function OnboardingFlowScreen() {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -30,6 +37,28 @@ export function OnboardingFlowScreen() {
   const router = useRouter();
   const step = ONBOARDING_STEPS[activeIndex];
   const isFinalStep = activeIndex === ONBOARDING_STEPS.length - 1;
+
+  useEffect(() => {
+    if (!isFinalStep) {
+      return;
+    }
+
+    if (loginPrefetchUris.length === 0) {
+      return;
+    }
+
+    let mounted = true;
+
+    Image.prefetch(loginPrefetchUris, "memory-disk").catch((error) => {
+      if (mounted) {
+        console.log("Preload login assets failed:", error);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, [isFinalStep]);
 
   function animateToStep(nextIndex: number, direction: number) {
     if (isTransitioning || nextIndex === activeIndex) {
@@ -229,12 +258,7 @@ function OnboardingHeader({
         className="absolute inset-x-0 top-0 h-14 items-center justify-center"
         pointerEvents="none"
       >
-        <Image
-          accessibilityLabel="Nutelyt"
-          className="h-7 w-28"
-          resizeMode="contain"
-          source={wordmarkImage}
-        />
+        <Text className="text-2xl font-bold text-[#006D37]">Nutelyt</Text>
       </View>
 
       {canSkip ? (

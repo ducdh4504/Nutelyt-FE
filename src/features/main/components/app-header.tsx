@@ -1,5 +1,6 @@
 import { Feather } from '@expo/vector-icons';
-import { Image, Pressable, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Pressable, View } from 'react-native';
 
 import { colors } from '@/src/constants/tokens';
 
@@ -27,7 +28,7 @@ export function AppHeader({ onBack, onRightPress, rightIcon = 'bell' }: AppHeade
         </Pressable>
         <Image
           accessibilityIgnoresInvertColors
-          resizeMode="contain"
+          contentFit="contain"
           source={require('@/assets/images/Nutelyt-text.png')}
           style={{ height: 24, width: 88 }}
         />

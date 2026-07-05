@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
+import { ImageBackground } from "expo-image";
 import {
   Animated,
-  ImageBackground,
   Text,
   View,
   type DimensionValue,
@@ -10,8 +10,9 @@ import {
 import { colors } from "@/src/constants/tokens";
 
 import { FoodScanIllustration } from "./components/FoodScanIllustration";
+import { onboardingImages } from "./onboarding-assets";
 
-const analysisImage = require("../../../assets/images/Scan-Fruit-Vegetable.png");
+const analysisImage = onboardingImages.step2;
 const SCAN_LINE_TRAVEL_Y = 196;
 
 type IllustrationProps = {
@@ -97,10 +98,10 @@ function AnalyzeIllustration() {
         style={{ boxShadow: "0 16px 34px rgba(16, 24, 40, 0.10)" }}
       >
         <ImageBackground
+          contentFit="cover"
           imageStyle={{ opacity: 0.88 }}
-          resizeMode="cover"
           source={analysisImage}
-          className="flex-1"
+          style={{ flex: 1 }}
         >
           <View className="flex-1 bg-white/45 px-5 py-6">
             <View

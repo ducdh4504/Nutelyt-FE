@@ -1,37 +1,37 @@
-import { Feather } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Feather } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import {
-  Image,
   KeyboardAvoidingView,
   Pressable,
   ScrollView,
   Text,
   View,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+  useWindowDimensions,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Button, Typography } from '@/src/components/ui';
+import { Button, Typography } from "@/src/components/ui";
 
-import { AuthGoogleButton } from './components/auth-google-button';
-import { AuthTextInput } from './components/auth-text-input';
+import { loginAssets } from "@/src/features/onboarding/onboarding-assets";
+import { AuthGoogleButton } from "./components/auth-google-button";
+import { AuthTextInput } from "./components/auth-text-input";
 
-const logoImage = require('../../../assets/images/Nutelyt-logo.png');
-const wordmarkImage = require('../../../assets/images/Nutelyt-text.png');
+const [logoImage] = loginAssets;
+const wordmarkImage = require("../../../assets/images/Nutelyt-text.png");
 
 export function RegisterScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { height } = useWindowDimensions();
 
   function goToLogin() {
-    router.replace('/login');
+    router.replace("/login");
   }
 
   return (
     <KeyboardAvoidingView className="flex-1 bg-background" behavior="padding">
-      <View
-        className="flex-1 bg-background"
-        style={{ paddingTop: insets.top }}
-      >
+      <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
         <View className="h-14 flex-row items-center justify-center border-b border-[#EEF2EE] px-5">
           <Pressable
             accessibilityLabel="Quay lại đăng nhập"
@@ -41,10 +41,12 @@ export function RegisterScreen() {
           >
             <Feather color="#006D37" name="arrow-left" size={24} />
           </Pressable>
+
           <Image
             accessibilityLabel="Nutelyt"
             className="h-7 w-28"
-            resizeMode="contain"
+            contentFit="contain"
+            cachePolicy="memory-disk"
             source={wordmarkImage}
           />
         </View>
@@ -55,7 +57,7 @@ export function RegisterScreen() {
             flexGrow: 1,
             paddingBottom: Math.max(insets.bottom + 20, 40),
             paddingHorizontal: 20,
-            paddingTop: 56,
+            paddingTop: 36,
           }}
           contentInsetAdjustmentBehavior="automatic"
           keyboardShouldPersistTaps="handled"
@@ -63,14 +65,24 @@ export function RegisterScreen() {
         >
           <View className="w-full max-w-[448px] flex-1 self-center">
             <View className="items-center gap-5">
-              <Image
-                accessibilityLabel="Nutelyt logo"
-                className="h-[172px] w-[306px] rounded-[12px]"
-                resizeMode="cover"
-                source={logoImage}
-              />
-              <Typography className="max-w-[280px] text-center text-base leading-6" tone="muted">
-                Thấu hiểu hơn, chính xác hơn đồng hành cùng sức khỏe của bạn bằng sức mạnh AI.
+              <View className="w-full overflow-hidden rounded-[12px]">
+                <Image
+                  accessibilityLabel="Nutelyt logo"
+                  contentFit="contain"
+                  source={logoImage}
+                  style={{
+                    width: "100%",
+                    height: height * 0.1,
+                  }}
+                />
+              </View>
+
+              <Typography
+                className="max-w-[320px] text-center text-base leading-6"
+                tone="muted"
+              >
+                Thấu hiểu hơn, chính xác hơn đồng hành cùng sức khỏe của bạn
+                bằng sức mạnh AI.
               </Typography>
             </View>
 
@@ -82,6 +94,7 @@ export function RegisterScreen() {
                 placeholder="Họ và Tên"
                 textContentType="name"
               />
+
               <AuthTextInput
                 autoCapitalize="none"
                 autoComplete="email"
@@ -91,6 +104,7 @@ export function RegisterScreen() {
                 placeholder="yourname@example.com"
                 textContentType="emailAddress"
               />
+
               <AuthTextInput
                 autoCapitalize="none"
                 canToggleSecureEntry
@@ -100,8 +114,10 @@ export function RegisterScreen() {
                 secureTextEntry
                 textContentType="newPassword"
               />
+
               <AuthTextInput
                 autoCapitalize="none"
+                canToggleSecureEntry
                 icon="shield"
                 label="Xác nhận mật khẩu"
                 placeholder="Nhập lại mật khẩu"
@@ -141,13 +157,13 @@ export function RegisterScreen() {
               onPress={goToLogin}
             >
               <Text className="text-center text-base text-muted">
-                Bạn đã có tài khoản?{' '}
+                Bạn đã có tài khoản?{" "}
                 <Text className="font-bold text-[#006D37]">Đăng nhập</Text>
               </Text>
             </Pressable>
 
             <Text className="pt-5 text-center text-xs leading-[18px] text-[#6D7A6E] opacity-60">
-              By registering, you agree to Nutelyt Terms of Service{'\n'}
+              By registering, you agree to Nutelyt Terms of Service{"\n"}
               and Privacy Policy.
             </Text>
           </View>

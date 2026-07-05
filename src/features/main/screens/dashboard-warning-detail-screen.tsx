@@ -1,7 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { Image } from 'expo-image';
 import { useMemo } from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
@@ -65,7 +66,7 @@ function RelatedMeals() {
       <Text className="text-xl font-semibold leading-7 text-foreground">Chi tiết bữa ăn</Text>
       {detail.relatedMeals.map((meal) => (
         <View className="flex-row gap-3 rounded-[16px] border border-[#E1E3E4] bg-card p-3" key={meal.id}>
-          <Image accessibilityIgnoresInvertColors className="h-16 w-16 rounded-[12px]" resizeMode="cover" source={meal.image} />
+          <Image accessibilityIgnoresInvertColors className="h-16 w-16 rounded-[12px]" contentFit="cover" source={meal.image} />
           <View className="min-w-0 flex-1 gap-1">
             <Text className="text-base font-semibold leading-6 text-foreground">{meal.title}</Text>
             <Text className="text-sm leading-5 text-[#3D4A3F]">{meal.note}</Text>
@@ -80,7 +81,7 @@ function AIUrgentCard() {
   return (
     <View className="gap-3 rounded-[16px] border-l-4 border-l-primary-600 bg-white/90 px-[21px] py-[21px]" style={{ boxShadow: '0 8px 32px rgba(0, 109, 55, 0.05)' }}>
       <View className="flex-row items-center gap-2">
-        <Image accessibilityIgnoresInvertColors resizeMode="contain" source={aiImage} style={{ height: 28, width: 28 }} />
+        <Image accessibilityIgnoresInvertColors contentFit="contain" source={aiImage} style={{ height: 28, width: 28 }} />
         <Text className="text-xl font-semibold leading-7 text-foreground">AI khuyến nghị khẩn cấp</Text>
       </View>
       <View className="rounded-[8px] border border-[#BA1A1A33] bg-[#FFDAD680] p-[13px]">

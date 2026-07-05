@@ -1,5 +1,6 @@
 import { Feather } from '@expo/vector-icons';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { Pressable, Text, View } from 'react-native';
 
 import { colors } from '@/src/constants/tokens';
 
@@ -32,7 +33,7 @@ export function HealthProfileHeader({
         <Image
           accessibilityLabel="Nutelyt"
           className="h-7 w-28"
-          resizeMode="contain"
+          contentFit="contain"
           source={wordmarkImage}
         />
       </View>

@@ -1,8 +1,9 @@
 import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
@@ -305,7 +306,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
   const screenOpacity = useRef(new Animated.Value(0)).current;
   const screenTranslate = useRef(new Animated.Value(14)).current;
   const saveScale = useRef(new Animated.Value(1)).current;
-  const cardProgress = useRef(Array.from({ length: 7 }, () => new Animated.Value(0))).current;
+  const cardProgress = useRef(Array.from({ length: 8 }, () => new Animated.Value(0))).current;
 
   const profileParamValue = firstParam(params.profile);
   const routeMode = firstParam(params.mode);
@@ -392,8 +393,15 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
     router.push('/subscription' as Href);
   };
 
+  const openSettings = () => {
+    router.push({
+      pathname: '/settings',
+      params: { profile: profileParam },
+    } as unknown as Href);
+  };
+
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: isReviewMode ? insets.top : 0 }}>
+    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       {isReviewMode ? (
         <View className="h-14 flex-row items-center justify-between bg-background px-5" style={smallShadow}>
           <View className="h-12 w-12" />
@@ -401,7 +409,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
             <Image
               accessibilityLabel="Nutelyt"
               className="h-7 w-28"
-              resizeMode="contain"
+              contentFit="contain"
               source={wordmarkImage}
             />
           </View>
@@ -409,6 +417,17 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
         </View>
       ) : (
         <MainScreenHeader
+          rightSlot={
+            <Pressable
+              accessibilityLabel="Mở cài đặt"
+              accessibilityRole="button"
+              className="h-12 w-12 items-center justify-center rounded-full bg-primary-50"
+              onPress={openSettings}
+              style={smallShadow}
+            >
+              <Feather color={colors.primaryDark} name="settings" size={20} />
+            </Pressable>
+          }
           subtitle="Theo dõi thông tin sức khỏe đã thiết lập"
           title="Hồ sơ sức khỏe của bạn"
         />
@@ -550,6 +569,21 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
                     <Text className="text-sm font-bold leading-5 text-white">Nâng cấp ngay</Text>
                     <Feather color="#FFFFFF" name="arrow-right" size={14} />
                   </View>
+                </Pressable>
+              </CardShell>
+
+              <CardShell delayStyle={cardStyle(7)}>
+                <Pressable accessibilityRole="button" className="flex-row items-center gap-4" onPress={openSettings}>
+                  <View className="h-12 w-12 items-center justify-center rounded-[12px] bg-primary-50">
+                    <Feather color={colors.primaryDark} name="settings" size={21} />
+                  </View>
+                  <View className="min-w-0 flex-1 gap-1">
+                    <Text className="text-[18px] font-bold leading-7 text-foreground">Cài đặt</Text>
+                    <Text className="text-sm leading-5 text-muted">
+                      Quản lý tài khoản, bảo mật và quyền riêng tư
+                    </Text>
+                  </View>
+                  <Feather color={colors.primaryDark} name="chevron-right" size={20} />
                 </Pressable>
               </CardShell>
 

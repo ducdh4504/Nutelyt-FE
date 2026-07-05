@@ -1,51 +1,52 @@
-import { Feather } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { useEffect, useRef } from 'react';
-import type { ImageSourcePropType } from 'react-native';
-import { Animated, Image, Pressable, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from "@expo/vector-icons";
+import { type ImageSource } from "expo-image";
+import { useLocalSearchParams, useRouter, type Href } from "expo-router";
+import { useEffect, useRef } from "react";
+import { Animated, Pressable, ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors } from '@/src/constants/tokens';
+import { colors } from "@/src/constants/tokens";
 
-import { MainScreenHeader } from '../components/main-screen-header';
-import { useHydratedProfile } from '../context/profile-context';
-import type { RouteProfileParams } from '../types';
-import { getProfileFallback } from '../utils/health-profile';
+import { ImageWithSkeleton } from "@/src/components/ui";
+import { MainScreenHeader } from "../components/main-screen-header";
+import { useHydratedProfile } from "../context/profile-context";
+import type { RouteProfileParams } from "../types";
+import { getProfileFallback } from "../utils/health-profile";
 
 type FoodRecommendation = {
   id: string;
   name: string;
   description: string;
-  image: ImageSourcePropType;
+  image: ImageSource;
 };
 
 const foodRecommendations: FoodRecommendation[] = [
   {
-    id: 'honey-grilled-chicken',
-    name: 'Ức gà nướng mật ong',
-    description: 'Giàu protein - ít béo',
-    image: require('../../../../assets/images/Food/Uc-ga-mat-ong.png'),
+    id: "honey-grilled-chicken",
+    name: "Ức gà nướng mật ong",
+    description: "Giàu protein - ít béo",
+    image: require("../../../../assets/images/Food/Uc-ga-mat-ong.png"),
   },
   {
-    id: 'com-tam',
-    name: 'Cơm tấm',
-    description: 'Dinh dưỡng',
-    image: require('../../../../assets/images/Food/Com-tam.png'),
+    id: "com-tam",
+    name: "Cơm tấm",
+    description: "Dinh dưỡng",
+    image: require("../../../../assets/images/Food/Com-tam.png"),
   },
   {
-    id: 'salmon-salad',
-    name: 'Salad cá hồi',
-    description: 'Giàu vitamin - tiêu hóa tốt',
-    image: require('../../../../assets/images/Food/Salad-ca-hoi.png'),
+    id: "salmon-salad",
+    name: "Salad cá hồi",
+    description: "Giàu vitamin - tiêu hóa tốt",
+    image: require("../../../../assets/images/Food/Salad-ca-hoi.png"),
   },
 ];
 
 const cardShadow = {
-  boxShadow: '0 10px 24px rgba(0, 0, 0, 0.06)',
+  boxShadow: "0 10px 24px rgba(0, 0, 0, 0.06)",
 };
 
 const ctaShadow = {
-  boxShadow: '0 16px 34px rgba(39, 174, 96, 0.24)',
+  boxShadow: "0 16px 34px rgba(39, 174, 96, 0.24)",
 };
 
 function getGreetingName(fullName: string) {
@@ -53,7 +54,7 @@ function getGreetingName(fullName: string) {
   const trimmed = fullName.trim();
 
   if (!trimmed || trimmed === fallbackName) {
-    return 'bạn';
+    return "bạn";
   }
 
   return trimmed;
@@ -62,32 +63,43 @@ function getGreetingName(fullName: string) {
 function getAvatarInitial(name: string) {
   const trimmed = name.trim();
 
-  if (!trimmed || trimmed === 'bạn') {
-    return 'N';
+  if (!trimmed || trimmed === "bạn") {
+    return "N";
   }
 
-  return trimmed
-    .split(/\s+/)
-    .at(-1)
-    ?.charAt(0)
-    .toLocaleUpperCase('vi-VN') ?? 'N';
+  return (
+    trimmed.split(/\s+/).at(-1)?.charAt(0).toLocaleUpperCase("vi-VN") ?? "N"
+  );
 }
 
-function RecommendationCard({ item, style }: { item: FoodRecommendation; style: object }) {
+function RecommendationCard({
+  item,
+  style,
+}: {
+  item: FoodRecommendation;
+  style: object;
+}) {
   return (
     <Animated.View
       className="min-h-[88px] flex-row items-center rounded-[8px] border border-[#E5EEE7] bg-card px-4 py-4"
       style={[cardShadow, style]}
     >
-      <Image
+      <ImageWithSkeleton
         accessibilityIgnoresInvertColors
-        className="h-14 w-14 rounded-[8px]"
-        resizeMode="cover"
+        accessibilityLabel={item.name}
+        borderRadius={8}
+        contentFit="cover"
+        height={56}
         source={item.image}
+        transition={200}
+        width={56}
       />
 
       <View className="ml-4 flex-1 gap-1 pr-3">
-        <Text className="text-base font-semibold leading-6 text-foreground">{item.name}</Text>
+        <Text className="text-base font-semibold leading-6 text-foreground">
+          {item.name}
+        </Text>
+
         <Text className="text-sm leading-5 text-muted">{item.description}</Text>
       </View>
 
@@ -103,21 +115,45 @@ export function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile } = useHydratedProfile(params);
+
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(12)).current;
-  const cards = useRef(Array.from({ length: foodRecommendations.length }, () => new Animated.Value(0))).current;
+
+  const cards = useRef(
+    Array.from(
+      { length: foodRecommendations.length },
+      () => new Animated.Value(0),
+    ),
+  ).current;
+
   const greetingName = getGreetingName(profile.fullName);
   const avatarInitial = getAvatarInitial(greetingName);
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(opacity, { duration: 220, toValue: 1, useNativeDriver: true }),
-      Animated.spring(translateY, { damping: 18, stiffness: 150, toValue: 0, useNativeDriver: true }),
+      Animated.timing(opacity, {
+        duration: 220,
+        toValue: 1,
+        useNativeDriver: true,
+      }),
+
+      Animated.spring(translateY, {
+        damping: 18,
+        stiffness: 150,
+        toValue: 0,
+        useNativeDriver: true,
+      }),
+
       Animated.stagger(
         70,
         cards.map((card) =>
-          Animated.spring(card, { damping: 18, stiffness: 150, toValue: 1, useNativeDriver: true })
-        )
+          Animated.spring(card, {
+            damping: 18,
+            stiffness: 150,
+            toValue: 1,
+            useNativeDriver: true,
+          }),
+        ),
       ),
     ]).start();
   }, [cards, opacity, translateY]);
@@ -146,10 +182,13 @@ export function HomeScreen() {
             accessibilityLabel="Mở hồ sơ"
             accessibilityRole="button"
             className="h-16 w-16 items-center justify-center rounded-full bg-primary-50"
-            onPress={() => navigate('/profile')}
+            onPress={() => navigate("/profile")}
             style={cardShadow}
           >
-            <Text className="text-[24px] font-bold leading-8 text-primary-700">{avatarInitial}</Text>
+            <Text className="text-[24px] font-bold leading-8 text-primary-700">
+              {avatarInitial}
+            </Text>
+
             <View className="absolute bottom-1 right-1 h-5 w-5 items-center justify-center rounded-full border-2 border-background bg-primary-600">
               <Feather color="#FFFFFF" name="check" size={11} />
             </View>
@@ -158,7 +197,14 @@ export function HomeScreen() {
         subtitle="Hôm nay bạn muốn ăn gì?"
         title={`Chào mừng, ${greetingName}`}
       />
-      <Animated.View className="flex-1" style={{ opacity, transform: [{ translateY }] }}>
+
+      <Animated.View
+        className="flex-1"
+        style={{
+          opacity,
+          transform: [{ translateY }],
+        }}
+      >
         <ScrollView
           className="flex-1"
           contentContainerStyle={{
@@ -174,12 +220,14 @@ export function HomeScreen() {
               <Pressable
                 accessibilityRole="button"
                 className="h-[70px] overflow-hidden rounded-[8px] bg-primary-600 px-5"
-                onPress={() => navigate('/chat-ai')}
+                onPress={() => navigate("/chat-ai")}
                 style={ctaShadow}
               >
                 <View className="absolute -right-7 -top-16 h-32 w-32 rounded-full bg-white/15" />
+
                 <View className="h-full flex-row items-center justify-center gap-3">
                   <Feather color="#FFFFFF" name="message-circle" size={20} />
+
                   <Text className="text-center text-base font-semibold leading-6 text-white">
                     Trò chuyện với trợ lý dinh dưỡng
                   </Text>
@@ -193,16 +241,29 @@ export function HomeScreen() {
                   <Text className="text-[20px] font-semibold leading-7 text-foreground">
                     Gợi ý món ăn cho bạn
                   </Text>
-                  <Text className="text-sm leading-5 text-muted">Dựa trên tình trạng sức khỏe</Text>
+
+                  <Text className="text-sm leading-5 text-muted">
+                    Dựa trên tình trạng sức khỏe
+                  </Text>
                 </View>
-                <Pressable accessibilityRole="button" onPress={() => navigate('/history')}>
-                  <Text className="text-sm font-semibold leading-5 text-primary-700">Xem tất cả</Text>
+
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() => navigate("/history")}
+                >
+                  <Text className="text-sm font-semibold leading-5 text-primary-700">
+                    Xem tất cả
+                  </Text>
                 </Pressable>
               </View>
 
               <View className="gap-3">
                 {foodRecommendations.map((item, index) => (
-                  <RecommendationCard item={item} key={item.id} style={animatedCardStyle(index)} />
+                  <RecommendationCard
+                    key={item.id}
+                    item={item}
+                    style={animatedCardStyle(index)}
+                  />
                 ))}
               </View>
             </View>

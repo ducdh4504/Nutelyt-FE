@@ -1,4 +1,4 @@
-import type { ImageSourcePropType } from 'react-native';
+import type { ImageSource } from 'expo-image';
 
 export type DashboardMacro = {
   id: 'carb' | 'protein' | 'fat';
@@ -26,7 +26,7 @@ export type DashboardFoodEntry = {
   day: string;
   date: string;
   title: string;
-  image: ImageSourcePropType;
+  image: number | ImageSource;
   tags: { label: string; tone: 'danger' | 'success' | 'neutral' }[];
   suggestion: string;
 };

@@ -1,32 +1,55 @@
-import '../global.css';
+import "../global.css";
 
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
+import { Image } from "expo-image";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { cssInterop } from "nativewind";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { MainProfileProvider } from '@/src/features/main/context/profile-context';
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { MainProfileProvider } from "@/src/features/main/context/profile-context";
+
+cssInterop(Image, { className: "style" });
 
 export const unstable_settings = {
-  anchor: 'index',
+  anchor: "index",
 };
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <MainProfileProvider>
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ gestureEnabled: false, headerShown: false }} />
+          <Stack.Screen
+            name="(tabs)"
+            options={{ gestureEnabled: false, headerShown: false }}
+          />
           <Stack.Screen name="login" options={{ headerShown: false }} />
           <Stack.Screen name="register" options={{ headerShown: false }} />
-          <Stack.Screen name="health-profile" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="health-profile"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="settings" options={{ headerShown: false }} />
           <Stack.Screen name="subscription" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+          <Stack.Screen
+            name="modal"
+            options={{ presentation: "modal", title: "Modal" }}
+          />
+          <Stack.Screen
+            name="health-profile-summary"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="profile" options={{ headerShown: false }} />
         </Stack>
       </MainProfileProvider>
       <StatusBar style="auto" />

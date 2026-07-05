@@ -1,7 +1,9 @@
+import { Image } from "expo-image";
 import { useEffect, useRef } from "react";
-import { Animated, Image, View } from "react-native";
+import { Animated, View } from "react-native";
+import { onboardingImages } from "../onboarding-assets";
 
-const onboardingImage = require("../../../../assets/images/onboarding1-bg.png");
+const onboardingImage = onboardingImages.step1;
 
 export function FoodScanIllustration() {
   const floatProgress = useRef(new Animated.Value(0)).current;
@@ -53,9 +55,9 @@ export function FoodScanIllustration() {
         <View className="flex-1 overflow-hidden rounded-[22px] bg-[#EAF8EF]">
           <Image
             accessibilityLabel="Food scanning onboarding illustration"
-            className="h-full w-full"
-            resizeMode="cover"
+            contentFit="cover"
             source={onboardingImage}
+            style={{ width: "100%", height: "100%" }}
           />
           <View
             className="absolute inset-0"

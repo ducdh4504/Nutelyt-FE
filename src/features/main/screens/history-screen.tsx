@@ -1,11 +1,12 @@
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
+import { type ImageSource } from 'expo-image';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ImageSourcePropType } from 'react-native';
-import { Animated, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Animated, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
+import { ImageWithSkeleton } from '@/src/components/ui';
 
 import { MainScreenHeader } from '../components/main-screen-header';
 import { useHydratedProfile } from '../context/profile-context';
@@ -18,7 +19,7 @@ type HistoryItem = {
   title: string;
   status: HistoryStatus;
   time: string;
-  image: ImageSourcePropType;
+  image: number | ImageSource;
 };
 
 type HistorySection = {
@@ -103,11 +104,15 @@ function HistoryCard({ item, style }: { item: HistoryItem; style: object }) {
         onPress={() => undefined}
         style={cardShadow}
       >
-        <Image
+        <ImageWithSkeleton
           accessibilityIgnoresInvertColors
-          className="h-[72px] w-[72px] rounded-[12px]"
-          resizeMode="cover"
+          accessibilityLabel={item.title}
+          borderRadius={12}
+          contentFit="cover"
+          height={72}
           source={item.image}
+          transition={200}
+          width={72}
         />
 
         <View className="ml-4 min-w-0 flex-1 gap-2 pr-2">

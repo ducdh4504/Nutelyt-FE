@@ -4,5 +4,7 @@ export { DashboardScreen } from './screens/dashboard-screen';
 export { DashboardWarningDetailScreen } from './screens/dashboard-warning-detail-screen';
 export { HomeScreen } from './screens/home-screen';
 export { HistoryScreen } from './screens/history-screen';
+export { HealthProfileSummaryScreen } from './screens/HealthProfileSummaryScreen ';
 export { ProfileScreen } from './screens/profile-screen';
 export { ScanCameraScreen } from './screens/scan-camera-screen';
+export { SettingsScreen } from './screens/setting-screen';

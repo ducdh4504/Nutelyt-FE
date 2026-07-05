@@ -1,75 +1,209 @@
-import { Feather } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { useMemo } from 'react';
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Feather } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { useLocalSearchParams, useRouter, type Href } from "expo-router";
+import { useMemo } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors } from '@/src/constants/tokens';
+import {
+  dashboardMock,
+  type DashboardFoodEntry,
+  type DashboardMacro,
+  type DashboardWarning,
+} from "../data/mock-dashboard";
+import type { RouteProfileParams } from "../types";
+import {
+  parseHealthProfileParam,
+  serializeProfile,
+} from "../utils/health-profile";
 
-import { dashboardMock, type DashboardFoodEntry, type DashboardMacro, type DashboardWarning } from '../data/mock-dashboard';
-import type { RouteProfileParams } from '../types';
-import { parseHealthProfileParam, serializeProfile } from '../utils/health-profile';
+const dashboardColors = {
+  background: "#F6F8F7",
+  card: "#FFFFFF",
+  border: "#E3E8E4",
 
-const cardShadow = { boxShadow: '0 4px 10px rgba(0, 105, 109, 0.05)' };
-const greenShadow = { boxShadow: '0 8px 24px rgba(39, 174, 96, 0.15)' };
-const aiImage = require('../../../../assets/images/Nutelyt-AI.png');
-const wordmarkImage = require('../../../../assets/images/Nutelyt-text.png');
+  text: "#17231B",
+  mutedText: "#6B756E",
+
+  primary: "#22C55E",
+  primaryDark: "#15803D",
+  primarySoft: "#DCFCE7",
+
+  warningRedBg: "#FEE2E2",
+  warningRedText: "#B91C1C",
+
+  warningOrangeBg: "#FFF3D7",
+  warningOrangeText: "#B45309",
+
+  carb: "#FACC15",
+  protein: "#22C55E",
+  fat: "#EF4444",
+
+  chipBg: "#F1F5F2",
+  chartBg: "#F8FAF8",
+};
+
+const cardShadow = {
+  shadowColor: "#0F172A",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.06,
+  shadowRadius: 10,
+  elevation: 2,
+};
+
+const greenShadow = {
+  shadowColor: dashboardColors.primary,
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 0.18,
+  shadowRadius: 18,
+  elevation: 4,
+};
+
+const aiImage = require("../../../../assets/images/Nutelyt-AI.png");
 
 function Header({ onBack }: { onBack: () => void }) {
   return (
-    <View className="h-[56px] flex-row items-center bg-background px-5">
-      <Pressable accessibilityLabel="Quay lại" accessibilityRole="button" className="h-12 w-12 items-start justify-center" onPress={onBack}>
-        <Feather color={colors.primaryDark} name="arrow-left" size={20} />
+    <View
+      className="h-[54px] flex-row items-center px-4"
+      style={{ backgroundColor: dashboardColors.background }}
+    >
+      <Pressable
+        accessibilityLabel="Quay lại"
+        accessibilityRole="button"
+        className="h-11 w-10 items-start justify-center"
+        onPress={onBack}
+      >
+        <Feather
+          color={dashboardColors.primaryDark}
+          name="arrow-left"
+          size={20}
+        />
       </Pressable>
-      <View className="flex-row items-center gap-1">
-        <Image accessibilityIgnoresInvertColors resizeMode="contain" source={wordmarkImage} style={{ height: 30, width: 76 }} />
-        <Text className="text-xl font-bold leading-7 text-primary-700">phân tích</Text>
-      </View>
+
+      <Text
+        className="text-lg font-bold leading-7"
+        style={{ color: dashboardColors.primaryDark }}
+      >
+        phân tích
+      </Text>
     </View>
   );
 }
 
 function InsightCard() {
   return (
-    <View className="flex-row gap-3 rounded-[12px] border border-[#E1E3E4] bg-card p-[17px]" style={cardShadow}>
-      <View className="mt-1 h-6 w-6 items-center justify-center rounded-full bg-primary-50">
-        <Feather color={colors.primaryDark} name="zap" size={13} />
+    <View
+      className="flex-row gap-3 rounded-[14px] border p-4"
+      style={[
+        cardShadow,
+        {
+          backgroundColor: dashboardColors.card,
+          borderColor: dashboardColors.border,
+        },
+      ]}
+    >
+      <View
+        className="mt-0.5 h-6 w-6 items-center justify-center rounded-full"
+        style={{ backgroundColor: dashboardColors.primarySoft }}
+      >
+        <Feather color={dashboardColors.primaryDark} name="zap" size={13} />
       </View>
-      <View className="min-w-0 flex-1 gap-1">
-        <Text className="text-xs font-semibold uppercase tracking-[0.6px] text-primary-700">AI Insight tuần này</Text>
-        <Text className="text-sm leading-5 text-foreground">{dashboardMock.insight}</Text>
+
+      <View className="min-w-0 flex-1">
+        <Text
+          className="text-[11px] font-bold uppercase leading-4 tracking-[0.5px]"
+          style={{ color: dashboardColors.primaryDark }}
+        >
+          AI Insight tuần này
+        </Text>
+
+        <Text
+          className="mt-1 text-[13px] leading-5"
+          style={{ color: dashboardColors.text }}
+        >
+          {dashboardMock.insight}
+        </Text>
       </View>
     </View>
   );
 }
 
 function MacroRow({ macro }: { macro: DashboardMacro }) {
+  const macroColor = macro.label.toLowerCase().includes("carb")
+    ? dashboardColors.carb
+    : macro.label.toLowerCase().includes("protein")
+      ? dashboardColors.protein
+      : dashboardColors.fat;
+
   return (
-    <View className="h-[54px] flex-row items-center justify-between rounded-[12px] border border-[#BCCABC] bg-card px-[13px]">
+    <View
+      className="h-[49px] flex-row items-center justify-between rounded-[12px] border px-3"
+      style={{
+        backgroundColor: dashboardColors.card,
+        borderColor: dashboardColors.border,
+      }}
+    >
       <View className="flex-row items-center gap-2">
-        <View className="h-3 w-3 rounded-full" style={{ backgroundColor: macro.color }} />
-        <Text className="text-xs font-semibold leading-4 tracking-[0.6px] text-[#3D4A3F]">{macro.label}</Text>
+        <View
+          className="h-2.5 w-2.5 rounded-full"
+          style={{ backgroundColor: macro.color || macroColor }}
+        />
+
+        <Text
+          className="text-[11px] font-semibold leading-4"
+          style={{ color: dashboardColors.text }}
+        >
+          {macro.label}
+        </Text>
       </View>
-      <Text className="text-sm font-semibold leading-5 text-foreground">{macro.value}</Text>
+
+      <Text
+        className="text-xs font-bold leading-4"
+        style={{ color: dashboardColors.text }}
+      >
+        {macro.value}
+      </Text>
     </View>
   );
 }
 
 function SummaryCards() {
   return (
-    <View className="flex-row gap-3">
-      <View className="min-h-[170px] flex-1 justify-between overflow-hidden rounded-[20px] bg-primary-600 p-4" style={greenShadow}>
-        <View className="absolute -right-4 -top-4 h-20 w-20 rounded-full bg-white/15" />
-        <View className="gap-1 pt-1">
-          <Text className="text-xs font-semibold uppercase tracking-[0.6px] text-[#00391A]/80">Trung bình calo</Text>
-          <Text className="pt-1 text-[24px] font-semibold leading-8 text-[#00391A]">{dashboardMock.calories.average}</Text>
-          <Text className="text-sm leading-5 text-[#00391A]/90">{dashboardMock.calories.unit}</Text>
+    <View className="flex-row gap-2.5">
+      <View
+        className="min-h-[160px] flex-1 justify-between overflow-hidden rounded-[18px] p-4"
+        style={[
+          greenShadow,
+          {
+            backgroundColor: dashboardColors.primary,
+          },
+        ]}
+      >
+        <View className="absolute -right-7 -top-7 h-24 w-24 rounded-full bg-white/20" />
+        <View className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-white/10" />
+
+        <View>
+          <Text className="text-[11px] font-bold uppercase leading-4 tracking-[0.5px] text-white/80">
+            Trung bình calo
+          </Text>
+
+          <Text className="mt-2 text-[28px] font-bold leading-9 text-white">
+            {dashboardMock.calories.average}
+          </Text>
+
+          <Text className="text-xs font-medium leading-5 text-white/90">
+            {dashboardMock.calories.unit}
+          </Text>
         </View>
-        <View className="self-start rounded-[8px] bg-white/20 px-2 py-1">
-          <Text className="text-xs font-semibold leading-4 text-[#00391A]">{dashboardMock.calories.delta}</Text>
+
+        <View className="self-start rounded-full bg-white/20 px-3 py-1.5">
+          <Text className="text-[11px] font-bold leading-4 text-white">
+            {dashboardMock.calories.delta}
+          </Text>
         </View>
       </View>
-      <View className="flex-1 gap-1">
+
+      <View className="flex-1 gap-2">
         {dashboardMock.macros.map((macro) => (
           <MacroRow key={macro.id} macro={macro} />
         ))}
@@ -82,49 +216,144 @@ function ProgressCard() {
   const progress = dashboardMock.consistency.progress;
 
   return (
-    <View className="flex-row items-center justify-between rounded-[20px] border border-[#E1E3E4] bg-card p-[17px]">
-      <View className="gap-1">
-        <Text className="text-xl font-semibold leading-7 text-foreground">{dashboardMock.consistency.days}</Text>
-        <Text className="text-sm leading-5 text-[#3D4A3F]">{dashboardMock.consistency.label}</Text>
+    <View
+      className="flex-row items-center justify-between rounded-[18px] border p-4"
+      style={[
+        cardShadow,
+        {
+          backgroundColor: dashboardColors.card,
+          borderColor: dashboardColors.border,
+        },
+      ]}
+    >
+      <View>
+        <Text
+          className="text-xl font-bold leading-7"
+          style={{ color: dashboardColors.text }}
+        >
+          {dashboardMock.consistency.days}
+        </Text>
+
+        <Text
+          className="mt-0.5 text-[13px] leading-5"
+          style={{ color: dashboardColors.mutedText }}
+        >
+          {dashboardMock.consistency.label}
+        </Text>
       </View>
-      <View className="h-16 w-16 items-center justify-center rounded-full border-[6px] border-primary-100">
-        <View className="absolute h-16 w-16 rounded-full border-[6px] border-r-primary-600 border-t-primary-600 border-b-transparent border-l-transparent" />
-        <Text className="text-base font-bold leading-6 text-primary-700">{progress}%</Text>
+
+      <View
+        className="h-[58px] w-[58px] items-center justify-center rounded-full border-[6px]"
+        style={{ borderColor: dashboardColors.primarySoft }}
+      >
+        <View
+          className="absolute h-[58px] w-[58px] rounded-full border-[6px] border-b-transparent border-l-transparent"
+          style={{
+            borderRightColor: dashboardColors.primary,
+            borderTopColor: dashboardColors.primary,
+          }}
+        />
+
+        <Text
+          className="text-sm font-bold leading-5"
+          style={{ color: dashboardColors.primaryDark }}
+        >
+          {progress}%
+        </Text>
       </View>
     </View>
   );
 }
 
-function WarningCard({ warning, onPress }: { warning: DashboardWarning; onPress?: () => void }) {
-  const danger = warning.tone === 'danger';
+function WarningCard({
+  warning,
+  onPress,
+}: {
+  warning: DashboardWarning;
+  onPress?: () => void;
+}) {
+  const danger = warning.tone === "danger";
 
   return (
     <Pressable
-      accessibilityRole={onPress ? 'button' : undefined}
-      className={`flex-row gap-3 rounded-[16px] p-3 ${danger ? 'bg-[#FFDAD666]' : 'bg-[#D9843733]'}`}
+      accessibilityRole={onPress ? "button" : undefined}
+      className="flex-row gap-3 rounded-[14px] p-3"
+      style={{
+        backgroundColor: danger
+          ? dashboardColors.warningRedBg
+          : dashboardColors.warningOrangeBg,
+      }}
       onPress={onPress}
     >
-      <View className="mt-0.5 h-8 w-8 items-center justify-center rounded-full bg-white/45">
-        <Feather color={danger ? '#93000A' : '#904D00'} name={danger ? 'alert-triangle' : 'alert-circle'} size={15} />
+      <View className="mt-0.5 h-7 w-7 items-center justify-center rounded-full bg-white/60">
+        <Feather
+          color={
+            danger
+              ? dashboardColors.warningRedText
+              : dashboardColors.warningOrangeText
+          }
+          name={danger ? "alert-triangle" : "alert-circle"}
+          size={14}
+        />
       </View>
-      <View className="min-w-0 flex-1 gap-0.5">
-        <Text className={`text-xs font-bold leading-4 tracking-[0.6px] ${danger ? 'text-[#93000A]' : 'text-[#4D2700]'}`}>
+
+      <View className="min-w-0 flex-1">
+        <Text
+          className="text-xs font-bold leading-4"
+          style={{
+            color: danger
+              ? dashboardColors.warningRedText
+              : dashboardColors.warningOrangeText,
+          }}
+        >
           {warning.title}
         </Text>
-        <Text className={`text-sm leading-5 ${danger ? 'text-[#93000A]/80' : 'text-[#4D2700]/80'}`}>{warning.message}</Text>
+
+        <Text
+          className="mt-0.5 text-[12px] leading-[18px]"
+          style={{
+            color: danger
+              ? dashboardColors.warningRedText
+              : dashboardColors.warningOrangeText,
+            opacity: 0.85,
+          }}
+        >
+          {warning.message}
+        </Text>
       </View>
-      {onPress ? <Feather color="#93000A" name="chevron-right" size={18} /> : null}
+
+      {onPress ? (
+        <Feather
+          color={
+            danger
+              ? dashboardColors.warningRedText
+              : dashboardColors.warningOrangeText
+          }
+          name="chevron-right"
+          size={17}
+        />
+      ) : null}
     </Pressable>
   );
 }
 
 function HealthWarnings({ onOpenDetail }: { onOpenDetail: () => void }) {
   return (
-    <View className="gap-2">
-      <Text className="text-xl font-semibold leading-7 text-foreground">Cảnh báo sức khỏe tuần này</Text>
+    <View className="gap-2.5">
+      <Text
+        className="text-lg font-bold leading-7"
+        style={{ color: dashboardColors.text }}
+      >
+        Cảnh báo sức khỏe tuần này
+      </Text>
+
       <View className="gap-2">
         {dashboardMock.warnings.map((warning) => (
-          <WarningCard key={warning.id} onPress={warning.id === 'sodium' ? onOpenDetail : undefined} warning={warning} />
+          <WarningCard
+            key={warning.id}
+            onPress={warning.id === "sodium" ? onOpenDetail : undefined}
+            warning={warning}
+          />
         ))}
       </View>
     </View>
@@ -134,40 +363,114 @@ function HealthWarnings({ onOpenDetail }: { onOpenDetail: () => void }) {
 function LegendDot({ color, label }: { color: string; label: string }) {
   return (
     <View className="flex-row items-center gap-1">
-      <View className="h-2 w-2 rounded-full" style={{ backgroundColor: color }} />
-      <Text className="text-[10px] leading-[15px] text-[#3D4A3F]">{label}</Text>
+      <View
+        className="h-2 w-2 rounded-full"
+        style={{ backgroundColor: color }}
+      />
+
+      <Text
+        className="text-[10px] leading-[14px]"
+        style={{ color: dashboardColors.mutedText }}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
 
 function WeeklyChart() {
-  const maxValue = Math.max(...dashboardMock.chart.flatMap((day) => [day.carb, day.protein, day.fat]));
-  const barHeight = (value: number) => Math.max((value / maxValue) * 108, 16);
+  const maxValue = Math.max(
+    ...dashboardMock.chart.flatMap((day) => [day.carb, day.protein, day.fat]),
+  );
+
+  const barHeight = (value: number) => Math.max((value / maxValue) * 102, 12);
 
   return (
-    <View className="gap-3 rounded-[20px] border border-[#E1E3E4] bg-card p-[21px]" style={cardShadow}>
-      <View className="flex-row items-center justify-between">
-        <Text className="text-xl font-semibold leading-7 text-foreground">Theo dõi dinh dưỡng 7 ngày</Text>
-        <View className="flex-row gap-2">
-          <LegendDot color="#FBBC04" label="Carb" />
-          <LegendDot color="#27AE60" label="Protein" />
-          <LegendDot color="#EF4444" label="Fat" />
+    <View
+      className="rounded-[18px] border p-4"
+      style={[
+        cardShadow,
+        {
+          backgroundColor: dashboardColors.card,
+          borderColor: dashboardColors.border,
+        },
+      ]}
+    >
+      <View className="flex-col items-start justify-between">
+        <Text
+          className="flex-1 text-lg font-bold leading-7"
+          style={{ color: dashboardColors.text }}
+        >
+          Theo dõi dinh dưỡng 7 ngày
+        </Text>
+
+        <View className="mt-1 flex-row gap-2">
+          <LegendDot color={dashboardColors.carb} label="Carb" />
+          <LegendDot color={dashboardColors.protein} label="Protein" />
+          <LegendDot color={dashboardColors.fat} label="Fat" />
         </View>
       </View>
-      <View className="h-[150px] flex-row items-end justify-between rounded-[12px] bg-[#F8F9FA] px-2 pb-5 pt-4">
+
+      <View
+        className="mt-3 h-[145px] flex-row items-end justify-between rounded-[12px] px-2 pb-4 pt-3"
+        style={{ backgroundColor: dashboardColors.chartBg }}
+      >
         {dashboardMock.chart.map((day) => (
-          <View className="items-center gap-2" key={day.day}>
-            <View className="h-[112px] flex-row items-end gap-1">
-              <View className="w-2 rounded-t-full bg-[#FBBC04]" style={{ height: barHeight(day.carb) }} />
-              <View className="w-2 rounded-t-full bg-[#27AE60]" style={{ height: barHeight(day.protein) }} />
-              <View className="w-2 rounded-t-full bg-[#EF4444]" style={{ height: barHeight(day.fat) }} />
+          <View className="items-center gap-1.5" key={day.day}>
+            <View className="h-[106px] flex-row items-end gap-1">
+              <View
+                className="w-1.5 rounded-t-full"
+                style={{
+                  backgroundColor: dashboardColors.carb,
+                  height: barHeight(day.carb),
+                }}
+              />
+
+              <View
+                className="w-1.5 rounded-t-full"
+                style={{
+                  backgroundColor: dashboardColors.protein,
+                  height: barHeight(day.protein),
+                }}
+              />
+
+              <View
+                className="w-1.5 rounded-t-full"
+                style={{
+                  backgroundColor: dashboardColors.fat,
+                  height: barHeight(day.fat),
+                }}
+              />
             </View>
-            <Text className="text-[10px] font-semibold leading-[15px] text-[#6D7A6E]">{day.day}</Text>
+
+            <Text
+              className="text-[10px] font-semibold leading-[14px]"
+              style={{
+                color:
+                  day.day === "T5"
+                    ? dashboardColors.primaryDark
+                    : dashboardColors.mutedText,
+              }}
+            >
+              {day.day}
+            </Text>
           </View>
         ))}
       </View>
-      <View className="rounded-[8px] border border-[#BCCABC] bg-[#EDEEEF] p-[13px]">
-        <Text className="text-xs leading-[19px] text-[#3D4A3F]">{dashboardMock.chartNote}</Text>
+
+      <View
+        className="mt-3 rounded-[10px] border p-3"
+        style={{
+          backgroundColor: "#F3F5F4",
+          borderColor: dashboardColors.border,
+        }}
+      >
+        <Text
+          className="text-[11px] leading-[18px]"
+          style={{ color: dashboardColors.mutedText }}
+        >
+          {dashboardMock.chartNote}
+        </Text>
       </View>
     </View>
   );
@@ -175,13 +478,34 @@ function WeeklyChart() {
 
 function FoodGroups() {
   return (
-    <View className="gap-2">
-      <Text className="text-xl font-semibold leading-7 text-foreground">Nhóm thực phẩm dùng nhiều</Text>
+    <View className="gap-2.5">
+      <Text
+        className="text-lg font-bold leading-7"
+        style={{ color: dashboardColors.text }}
+      >
+        Nhóm thực phẩm dùng nhiều
+      </Text>
+
       <View className="flex-row flex-wrap gap-2">
         {dashboardMock.foodGroups.map((group) => (
-          <View className="flex-row items-center gap-1 rounded-full border border-[#E1E3E4] bg-[#EDEEEF] px-[13px] py-[7px]" key={group.id}>
-            <Feather color="#006D37" name={group.icon as never} size={13} />
-            <Text className="text-xs font-semibold leading-4 tracking-[0.6px] text-foreground">
+          <View
+            className="flex-row items-center gap-1.5 rounded-full border px-3 py-1.5"
+            key={group.id}
+            style={{
+              backgroundColor: dashboardColors.chipBg,
+              borderColor: dashboardColors.border,
+            }}
+          >
+            <Feather
+              color={dashboardColors.primaryDark}
+              name={group.icon as never}
+              size={12}
+            />
+
+            <Text
+              className="text-[11px] font-semibold leading-4"
+              style={{ color: dashboardColors.text }}
+            >
               {group.label} ({group.count})
             </Text>
           </View>
@@ -191,39 +515,107 @@ function FoodGroups() {
   );
 }
 
-function tagClass(tone: DashboardFoodEntry['tags'][number]['tone']) {
-  if (tone === 'danger') {
-    return 'bg-[#FFDAD680] text-[#93000A]';
+function getTagStyle(tone: DashboardFoodEntry["tags"][number]["tone"]) {
+  if (tone === "danger") {
+    return {
+      backgroundColor: "#FEE2E2",
+      color: dashboardColors.warningRedText,
+    };
   }
-  if (tone === 'success') {
-    return 'bg-primary-100 text-[#00391A]';
+
+  if (tone === "success") {
+    return {
+      backgroundColor: dashboardColors.primarySoft,
+      color: dashboardColors.primaryDark,
+    };
   }
-  return 'bg-[#EDEEEF] text-[#3D4A3F]';
+
+  return {
+    backgroundColor: "#EEF2F0",
+    color: dashboardColors.mutedText,
+  };
 }
 
 function DiaryCard({ entry }: { entry: DashboardFoodEntry }) {
   return (
-    <View className="gap-3 rounded-[16px] border border-[#E1E3E4] bg-card p-[17px]">
+    <View
+      className="rounded-[16px] border p-3"
+      style={[
+        cardShadow,
+        {
+          backgroundColor: dashboardColors.card,
+          borderColor: dashboardColors.border,
+        },
+      ]}
+    >
       <View className="flex-row items-center gap-2">
-        <View className="h-7 w-7 items-center justify-center rounded-full bg-primary-600">
-          <Text className="text-xs font-bold leading-4 text-[#00391A]">{entry.day}</Text>
+        <View
+          className="h-7 w-7 items-center justify-center rounded-full"
+          style={{ backgroundColor: dashboardColors.primary }}
+        >
+          <Text className="text-[11px] font-bold leading-4 text-white">
+            {entry.day}
+          </Text>
         </View>
-        <Text className="text-xs font-semibold leading-4 tracking-[0.6px] text-[#6D7A6E]">{entry.date}</Text>
+
+        <Text
+          className="text-[11px] font-semibold leading-4"
+          style={{ color: dashboardColors.mutedText }}
+        >
+          {entry.date}
+        </Text>
       </View>
-      <View className="flex-row gap-3">
-        <Image accessibilityIgnoresInvertColors className="h-16 w-16 rounded-[12px]" resizeMode="cover" source={entry.image} />
-        <View className="min-w-0 flex-1 gap-1">
-          <Text className="text-sm font-semibold leading-5 text-foreground">{entry.title}</Text>
-          <View className="flex-row flex-wrap gap-1">
-            {entry.tags.map((tag) => (
-              <View className={`rounded-[4px] px-2 py-0.5 ${tagClass(tag.tone).split(' ')[0]}`} key={tag.label}>
-                <Text className={`text-[10px] leading-[15px] ${tagClass(tag.tone).split(' ')[1]}`}>{tag.label}</Text>
-              </View>
-            ))}
+
+      <View className="mt-3 flex-row gap-3">
+        <Image
+          accessibilityIgnoresInvertColors
+          className="h-16 w-16 rounded-[12px]"
+          contentFit="cover"
+          source={entry.image}
+        />
+
+        <View className="min-w-0 flex-1">
+          <Text
+            className="text-sm font-bold leading-5"
+            style={{ color: dashboardColors.text }}
+          >
+            {entry.title}
+          </Text>
+
+          <View className="mt-1 flex-row flex-wrap gap-1">
+            {entry.tags.map((tag) => {
+              const tagStyle = getTagStyle(tag.tone);
+
+              return (
+                <View
+                  className="rounded-[5px] px-2 py-0.5"
+                  key={tag.label}
+                  style={{ backgroundColor: tagStyle.backgroundColor }}
+                >
+                  <Text
+                    className="text-[10px] font-medium leading-[14px]"
+                    style={{ color: tagStyle.color }}
+                  >
+                    {tag.label}
+                  </Text>
+                </View>
+              );
+            })}
           </View>
-          <View className="flex-row items-center gap-1 pt-1">
-            <Feather color="#00696D" name="map-pin" size={11} />
-            <Text className="flex-1 text-xs leading-4 text-[#00696D]">{entry.suggestion}</Text>
+
+          <View className="mt-2 flex-row items-center gap-1">
+            <Feather
+              color={dashboardColors.primaryDark}
+              name="map-pin"
+              size={11}
+            />
+
+            <Text
+              className="flex-1 text-[11px] leading-4"
+              style={{ color: dashboardColors.primaryDark }}
+            >
+              {entry.suggestion}
+            </Text>
           </View>
         </View>
       </View>
@@ -233,11 +625,23 @@ function DiaryCard({ entry }: { entry: DashboardFoodEntry }) {
 
 function FoodDiary() {
   return (
-    <View className="gap-2">
+    <View className="gap-2.5">
       <View className="flex-row items-center justify-between">
-        <Text className="text-xl font-semibold leading-7 text-foreground">Nhật ký món ăn 7 ngày</Text>
-        <Text className="text-xs font-semibold uppercase leading-4 tracking-[0.6px] text-primary-700">Xem tất cả</Text>
+        <Text
+          className="text-lg font-bold leading-7"
+          style={{ color: dashboardColors.text }}
+        >
+          Nhật ký món ăn 7 ngày
+        </Text>
+
+        <Text
+          className="text-[11px] font-bold uppercase leading-4 tracking-[0.5px]"
+          style={{ color: dashboardColors.primaryDark }}
+        >
+          Xem tất cả
+        </Text>
       </View>
+
       <View className="gap-3">
         {dashboardMock.diary.map((entry) => (
           <DiaryCard entry={entry} key={entry.id} />
@@ -249,18 +653,55 @@ function FoodDiary() {
 
 function AISuggestionCard() {
   return (
-    <View className="overflow-hidden rounded-[20px] border border-primary-700/20 bg-[#DDF5EA] p-[21px]">
-      <View className="gap-2 pr-16">
+    <View
+      className="overflow-hidden rounded-[20px] border p-4"
+      style={{
+        backgroundColor: "#DDF5EA",
+        borderColor: "#B7E7CC",
+      }}
+    >
+      <View className="pr-[70px]">
         <View className="flex-row items-center gap-2">
-          <Feather color={colors.primaryDark} name="star" size={19} />
-          <Text className="text-xl font-semibold leading-7 text-primary-700">AI Nutelyt gợi ý</Text>
+          <Feather color={dashboardColors.primaryDark} name="star" size={18} />
+
+          <Text
+            className="text-lg font-bold leading-7"
+            style={{ color: dashboardColors.primaryDark }}
+          >
+            AI Nutelyt gợi ý
+          </Text>
         </View>
-        <Text className="text-sm leading-5 text-foreground">{dashboardMock.aiAdvice}</Text>
-        <Pressable accessibilityRole="button" className="mt-2 h-11 items-center justify-center rounded-full bg-primary-700">
-          <Text className="text-xs font-semibold leading-4 tracking-[0.6px] text-white">Xem thực đơn đề xuất</Text>
+
+        <Text
+          className="mt-1.5 text-[13px] leading-5"
+          style={{ color: dashboardColors.text }}
+        >
+          {dashboardMock.aiAdvice}
+        </Text>
+
+        <Pressable
+          accessibilityRole="button"
+          className="mt-3 h-10 items-center justify-center rounded-full"
+          style={{ backgroundColor: dashboardColors.primaryDark }}
+        >
+          <Text className="text-[11px] font-bold leading-4 tracking-[0.4px] text-white">
+            Xem thực đơn đề xuất
+          </Text>
         </Pressable>
       </View>
-      <Image accessibilityIgnoresInvertColors resizeMode="contain" source={aiImage} style={{ bottom: -4, height: 82, position: 'absolute', right: -2, width: 82 }} />
+
+      <Image
+        accessibilityIgnoresInvertColors
+        contentFit="contain"
+        source={aiImage}
+        style={{
+          bottom: -3,
+          height: 78,
+          position: "absolute",
+          right: -2,
+          width: 78,
+        }}
+      />
     </View>
   );
 }
@@ -269,6 +710,7 @@ export function DashboardScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<RouteProfileParams>();
+
   const profile = useMemo(() => parseHealthProfileParam(params), [params]);
   const profileParam = useMemo(() => serializeProfile(profile), [profile]);
 
@@ -277,19 +719,38 @@ export function DashboardScreen() {
       router.back();
       return;
     }
-    router.replace({ pathname: '/home', params: { profile: profileParam } } as unknown as Href);
+
+    router.replace({
+      pathname: "/home",
+      params: { profile: profileParam },
+    } as unknown as Href);
   };
 
   const openWarningDetail = () => {
-    router.push({ pathname: '/dashboard/warning-detail', params: { profile: profileParam } } as unknown as Href);
+    router.push({
+      pathname: "/dashboard/warning-detail",
+      params: { profile: profileParam },
+    } as unknown as Href);
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+    <View
+      className="flex-1"
+      style={{
+        backgroundColor: dashboardColors.background,
+        paddingTop: insets.top,
+      }}
+    >
       <Header onBack={goBack} />
+
       <ScrollView
         className="flex-1"
-        contentContainerStyle={{ gap: 24, paddingBottom: Math.max(insets.bottom + 34, 64), paddingHorizontal: 20, paddingTop: 16 }}
+        contentContainerStyle={{
+          gap: 16,
+          paddingBottom: Math.max(insets.bottom + 28, 56),
+          paddingHorizontal: 16,
+          paddingTop: 10,
+        }}
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}
       >
