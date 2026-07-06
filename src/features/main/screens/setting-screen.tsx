@@ -53,6 +53,17 @@ function isHealthProfileReviewPayload(profileParam: string | undefined) {
   }
 }
 
+function hasCurrentSessionHealthProfile(profile: HealthProfileSummary) {
+  return Boolean(
+    profile.dateOfBirth.trim() &&
+      profile.height.trim() &&
+      profile.height !== "--" &&
+      profile.weight.trim() &&
+      profile.weight !== "--" &&
+      profile.goal,
+  );
+}
+
 function getProfileDisplay(profile: HealthProfileSummary) {
   const fullName = profile.fullName.trim();
   const fallback = "Người dùng Nutelyt";
@@ -301,6 +312,21 @@ export function SettingsScreen() {
     } as unknown as Href);
   };
 
+  const openHealthProfile = () => {
+    if (hasCurrentSessionHealthProfile(displayProfile)) {
+      router.push({
+        pathname: "/health-profile-summary",
+        params: { profile: profileParamString },
+      } as unknown as Href);
+      return;
+    }
+
+    router.push({
+      pathname: "/health-profile",
+      params: { profile: profileParamString },
+    } as unknown as Href);
+  };
+
   return (
     <View
       className="flex-1"
@@ -343,7 +369,7 @@ export function SettingsScreen() {
             <SettingRow
               icon="heart"
               title="Hồ sơ sức khỏe"
-              onPress={openEditProfile}
+              onPress={openHealthProfile}
             />
           </SettingsCard>
         </View>
