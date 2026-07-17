@@ -298,13 +298,6 @@ export function SettingsScreen() {
     } as unknown as Href);
   };
 
-  const openEditProfile = () => {
-    router.push({
-      pathname: "/health-profile",
-      params: { profile: profileParamString },
-    } as unknown as Href);
-  };
-
   const openProfile = () => {
     router.push({
       pathname: "/health-profile-summary",
@@ -325,6 +318,10 @@ export function SettingsScreen() {
       pathname: "/health-profile",
       params: { profile: profileParamString },
     } as unknown as Href);
+  };
+
+  const handleLogout = () => {
+    router.replace("/login");
   };
 
   return (
@@ -356,13 +353,6 @@ export function SettingsScreen() {
               title="Hồ sơ"
               value={displayProfile.fullName.trim() || "Người dùng"}
               onPress={openProfile}
-            />
-            <Divider />
-
-            <SettingRow
-              icon="edit-2"
-              title="Thông tin cá nhân"
-              onPress={openEditProfile}
             />
             <Divider />
 
@@ -418,7 +408,7 @@ export function SettingsScreen() {
           <SettingRow danger icon="slash" title="Xóa tài khoản" />
           <Divider />
 
-          <SettingRow icon="log-out" title="Đăng xuất" />
+          <SettingRow icon="log-out" title="Đăng xuất" onPress={handleLogout} />
         </View>
       </ScrollView>
     </View>

@@ -14,12 +14,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Button, Typography } from "@/src/components/ui";
 
+import { useMainProfile } from "@/src/features/main/context/profile-context";
 import { loginAssets } from "@/src/features/onboarding/onboarding-assets";
 import { AuthGoogleButton } from "./components/auth-google-button";
 import { AuthTextInput } from "./components/auth-text-input";
 
 const [logoImage] = loginAssets;
-const wordmarkImage = require("../../../assets/images/Nutelyt-text.png");
 
 export function LoginScreen() {
   const [rememberMe, setRememberMe] = useState(false);
@@ -30,6 +30,7 @@ export function LoginScreen() {
   const { height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { hasCompletedHealthProfileThisRuntime } = useMainProfile();
 
   const clearLoginError = () => {
     if (loginError) {
@@ -40,7 +41,9 @@ export function LoginScreen() {
   const handleLogin = () => {
     if (email === "admin@gmail.com" && password === "Test@123") {
       setLoginError("");
-      router.push("/health-profile");
+      router.replace(
+        hasCompletedHealthProfileThisRuntime ? "/home" : "/health-profile",
+      );
       return;
     }
 
@@ -50,16 +53,6 @@ export function LoginScreen() {
   return (
     <KeyboardAvoidingView className="flex-1 bg-background" behavior="padding">
       <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-        <View className="h-14 items-center justify-center border-b border-[#EEF2EE] px-5">
-          <Image
-            accessibilityLabel="Nutelyt"
-            className="h-7 w-28"
-            contentFit="contain"
-            cachePolicy="memory-disk"
-            source={wordmarkImage}
-          />
-        </View>
-
         <ScrollView
           className="flex-1"
           contentContainerStyle={{

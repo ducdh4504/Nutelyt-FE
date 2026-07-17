@@ -301,7 +301,12 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<RouteProfileParams & { mode?: string | string[] }>();
-  const { profile: storedProfile, profileParam: storedProfileParam, saveProfile: saveProfileToStore } = useHydratedProfile(params);
+  const {
+    markHealthProfileCompleted,
+    profile: storedProfile,
+    profileParam: storedProfileParam,
+    saveProfile: saveProfileToStore,
+  } = useHydratedProfile(params);
   const [saved, setSaved] = useState(false);
   const screenOpacity = useRef(new Animated.Value(0)).current;
   const screenTranslate = useRef(new Animated.Value(14)).current;
@@ -374,6 +379,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
 
   const saveProfile = () => {
     saveProfileToStore(parseHealthProfileParam({ profile: profileParam }));
+    markHealthProfileCompleted();
     setSaved(true);
     router.setParams({ mode: 'tab', profile: profileParam });
     router.replace({

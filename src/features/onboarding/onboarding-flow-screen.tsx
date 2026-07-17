@@ -258,7 +258,12 @@ function OnboardingHeader({
         className="absolute inset-x-0 top-0 h-14 items-center justify-center"
         pointerEvents="none"
       >
-        <Text className="text-2xl font-bold text-[#006D37]">Nutelyt</Text>
+        <Image
+          accessibilityLabel="Nutelyt"
+          className="h-7 w-28"
+          contentFit="contain"
+          source={wordmarkImage}
+        />
       </View>
 
       {canSkip ? (

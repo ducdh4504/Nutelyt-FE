@@ -65,7 +65,7 @@ function Header({ onBack }: { onBack: () => void }) {
       </Pressable>
 
       <View
-        className="absolute left-0 right-0 items-center"
+        className="absolute inset-y-0 left-0 right-0 items-center justify-center"
         pointerEvents="none"
       >
         <Image
@@ -74,10 +74,6 @@ function Header({ onBack }: { onBack: () => void }) {
           contentFit="contain"
           source={wordmarkImage}
         />
-
-        <Text className="-mt-1 text-[10px] font-medium text-[#0F9F5A]">
-          Săn sáng hệ tạo bạn
-        </Text>
       </View>
 
       <View className="h-11 w-11" />

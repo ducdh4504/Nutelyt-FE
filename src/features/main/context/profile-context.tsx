@@ -5,6 +5,8 @@ import type { HealthProfileSummary, RouteProfileParams } from '../types';
 import { getProfileFallback, parseHealthProfileParam, serializeProfile } from '../utils/health-profile';
 
 type ProfileContextValue = {
+  hasCompletedHealthProfileThisRuntime: boolean;
+  markHealthProfileCompleted: () => void;
   profile: HealthProfileSummary;
   profileParam: string;
   setProfile: (profile: HealthProfileSummary) => void;
@@ -18,8 +20,21 @@ function firstParam(value: string | string[] | undefined) {
 
 export function MainProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<HealthProfileSummary>(() => getProfileFallback());
+  const [hasCompletedHealthProfileThisRuntime, setHasCompletedHealthProfileThisRuntime] = useState(false);
   const profileParam = useMemo(() => serializeProfile(profile), [profile]);
-  const value = useMemo(() => ({ profile, profileParam, setProfile }), [profile, profileParam]);
+  const markHealthProfileCompleted = useCallback(() => {
+    setHasCompletedHealthProfileThisRuntime(true);
+  }, []);
+  const value = useMemo(
+    () => ({
+      hasCompletedHealthProfileThisRuntime,
+      markHealthProfileCompleted,
+      profile,
+      profileParam,
+      setProfile,
+    }),
+    [hasCompletedHealthProfileThisRuntime, markHealthProfileCompleted, profile, profileParam]
+  );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;
 }
@@ -35,7 +50,13 @@ export function useMainProfile() {
 }
 
 export function useHydratedProfile(params: RouteProfileParams) {
-  const { profile, profileParam, setProfile } = useMainProfile();
+  const {
+    hasCompletedHealthProfileThisRuntime,
+    markHealthProfileCompleted,
+    profile,
+    profileParam,
+    setProfile,
+  } = useMainProfile();
   const routeProfileParam = firstParam(params.profile);
   const routeProfile = useMemo(
     () => parseHealthProfileParam({ profile: routeProfileParam }),
@@ -59,6 +80,8 @@ export function useHydratedProfile(params: RouteProfileParams) {
   );
 
   return {
+    hasCompletedHealthProfileThisRuntime,
+    markHealthProfileCompleted,
     profile: activeProfile,
     profileParam: hasRouteProfile ? activeProfileParam : profileParam,
     saveProfile,

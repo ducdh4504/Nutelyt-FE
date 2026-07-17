@@ -24,7 +24,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
   {
     id: 'monthly',
     title: 'Gói Hàng Tháng',
-    price: '79.000đ',
+    price: '59.000đ',
     period: '/ tháng',
     tagline: 'Linh hoạt theo từng tháng',
     features: ['Không quảng cáo', 'Tăng số lượt tư vấn AI', 'Phân tích chuyên sâu', 'Ăn uống cá nhân hóa & theo dõi dài hạn'],
@@ -32,7 +32,7 @@ export const subscriptionPlans: SubscriptionPlan[] = [
   {
     id: 'yearly',
     title: 'Gói Hàng Năm',
-    price: '790.000đ',
+    price: '590.000đ',
     period: '/ năm',
     tagline: 'Tiết kiệm 20% so với tháng',
     features: ['Mọi tính năng của gói tháng', 'Ưu tiên cập nhật tính năng mới', 'Hỗ trợ 24/7 trực tiếp'],

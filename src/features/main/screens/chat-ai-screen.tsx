@@ -1,7 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter, type Href } from "expo-router";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, Dispatch, ReactNode, SetStateAction } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -16,80 +15,34 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/src/constants/tokens";
-import { useHydratedProfile } from "@/src/features/main/context/profile-context";
-import type { RouteProfileParams } from "@/src/features/main/types";
+import {
+  alternateMealSuggestionRecipeIds,
+  firstMealSuggestionRecipeIds,
+  getMockRecipe,
+  mockRecipes,
+  type MockRecipe,
+  type RecipeId,
+} from "@/src/features/main/data/mock-recipes";
 
 import { MainScreenHeader } from "../components/main-screen-header";
 
 type FeatherName = ComponentProps<typeof Feather>["name"];
 type ChatMode = "entry" | "chat" | "detail";
+type ChatIntent = "self-select" | "meal-suggestion";
+type ChatOptionId = ChatIntent | "eat-out";
 type RecipeTab = "overview" | "ingredients" | "steps" | "nutrition";
 type ChatMessage =
   | { id: string; role: "user" | "assistant"; text: string }
-  | { id: string; role: "assistant"; type: "bun-bo-card" };
+  | { id: string; role: "assistant"; type: "recipe-card"; recipeId: RecipeId };
 
-const recipe = {
-  name: "Bún bò",
-  chips: ["Giảm muối", "Ít béo", "Tăng rau xanh"],
-  nutrition: {
-    calories: "520 kcal",
-    protein: "28g",
-    carb: "65g",
-    fat: "15g",
-  },
-  overview: {
-    goodPoints: [
-      "Giàu protein từ nạc",
-      "Bổ sung chất sắt, kẽm",
-      "Có rau thơm, hỗ trợ tiêu hóa",
-    ],
-    notes: ["Nước dùng nhiều muối", "Bún chứa nhiều tinh bột"],
-  },
-  ingredients: [
-    {
-      title: "Thịt",
-      items: ["Bắp bò ............ 500g", "Giò heo ............ 300g"],
-    },
-    {
-      title: "Nước dùng",
-      items: [
-        "Xương bò ............ 1.5kg",
-        "Sả ............ 3 cây",
-        "Hành tây ............ 1 củ",
-        "Gừng ............ 1 củ",
-      ],
-    },
-    {
-      title: "Gia vị",
-      items: [
-        "Mắm ruốc ............ 2 muỗng",
-        "Muối ............ 1 thìa",
-        "Đường ............ 2 muỗng",
-        "Hạt nêm ............ 1 thìa",
-        "Sa tế ............ Tùy chọn",
-      ],
-    },
-    {
-      title: "Ăn kèm",
-      items: [
-        "Bún tươi ............ 500g",
-        "Rau sống",
-        "Giá đỗ",
-        "Hành lá, ngò rí",
-        "Chanh, ớt",
-      ],
-    },
-  ],
-  steps: [
-    "Sơ chế: Chần bắp bò và giò heo, rửa sạch. Đập dập sả, nướng gừng và hành.",
-    "Nấu nước dùng: Hầm xương hoặc bắp bò, giò heo cùng sả, gừng, hành khoảng 1,5–2 giờ.",
-    "Nêm gia vị: Hòa mắm ruốc, lọc lấy nước, cho vào nồi. Nêm muối, đường phèn, hạt nêm vừa ăn.",
-    "Chuẩn bị tô: Trụng bún, xếp thịt bò, giò heo vào tô.",
-    "Hoàn thành: Chan nước dùng nóng, thêm hành, ngò, ăn kèm rau sống, chanh và sa tế.",
-  ],
-};
+const BUN_BO_RECIPE_ID: RecipeId = "bun-bo";
+const mealSuggestionIntro =
+  "Đây là gợi ý bữa cơm 3 món Việt Nam đơn giản dành cho bạn:";
+const alternateMealSuggestionIntro =
+  "Đây là một gợi ý bữa cơm 3 món khác để bạn thay đổi khẩu vị:";
 
 const optionCards: {
+  id: ChatOptionId;
   icon: FeatherName;
   title: string;
   subtitle: string;
@@ -98,6 +51,7 @@ const optionCards: {
   enabled: boolean;
 }[] = [
   {
+    id: "self-select",
     icon: "book-open",
     title: "Nấu tại nhà (tự chọn món)",
     subtitle: "Tôi muốn tự chọn món mình sẽ nấu",
@@ -106,14 +60,16 @@ const optionCards: {
     enabled: true,
   },
   {
+    id: "meal-suggestion",
     icon: "shopping-bag",
     title: "Nấu tại nhà (gợi ý món)",
     subtitle: "Tôi muốn gợi ý món phù hợp",
     tone: "#EAF7EF",
     iconColor: "#16A34A",
-    enabled: false,
+    enabled: true,
   },
   {
+    id: "eat-out",
     icon: "shopping-cart",
     title: "Ăn ngoài",
     subtitle: "Tôi muốn kiểm tra món ăn",
@@ -130,16 +86,6 @@ const detailTabs: { id: RecipeTab; label: string }[] = [
   { id: "nutrition", label: "Dinh dưỡng" },
 ];
 
-const nutritionTableRows = [
-  ["Năng lượng", "520 kcal", "26%"],
-  ["Carbohydrate", "65 g", "22%"],
-  ["Protein", "28 g", "56%"],
-  ["Chất béo", "16 g", "30%"],
-  ["Chất xơ", "6 g", "12%"],
-  ["Đường", "6 g", "4%"],
-  ["Natri", "1250 mg", "54%"],
-];
-
 const cardShadow = { boxShadow: "0 14px 28px rgba(0, 0, 0, 0.06)" };
 const softShadow = { boxShadow: "0 8px 18px rgba(39, 174, 96, 0.18)" };
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -150,6 +96,49 @@ function normalizeForSearch(value: string) {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/đ/g, "d");
+}
+
+function isFirstMealSuggestionRequest(normalized: string) {
+  const hasVietnameseMealIntent =
+    normalized.includes("viet nam") ||
+    normalized.includes("mon viet") ||
+    normalized.includes("bua com viet");
+  const hasMealWords =
+    normalized.includes("bua an") ||
+    normalized.includes("bua com") ||
+    normalized.includes("nau bua") ||
+    normalized.includes("goi y mon");
+  const hasThreeDishIntent =
+    normalized.includes("3 mon") ||
+    normalized.includes("ba mon") ||
+    normalized.includes("co ban");
+
+  return hasVietnameseMealIntent || (hasMealWords && hasThreeDishIntent);
+}
+
+function isAlternateMealSuggestionRequest(normalized: string) {
+  const asksForDifferent =
+    normalized.includes("khac") || normalized.includes("doi");
+  const mentionsMenu =
+    normalized.includes("mon") ||
+    normalized.includes("thuc don") ||
+    normalized.includes("bua com") ||
+    normalized.includes("bua an");
+  const mentionsThreeItems =
+    normalized.includes("3 mon") || normalized.includes("ba mon");
+
+  return (
+    normalized.includes("doi mon khac") ||
+    normalized.includes("thuc don khac") ||
+    normalized.includes("bua com khac") ||
+    normalized.includes("mon khac") ||
+    (asksForDifferent && mentionsMenu) ||
+    (mentionsThreeItems && asksForDifferent)
+  );
+}
+
+function isChatIntent(optionId: ChatOptionId): optionId is ChatIntent {
+  return optionId !== "eat-out";
 }
 
 function ChatHeader({
@@ -224,7 +213,13 @@ function Chip({ label, solid = false }: { label: string; solid?: boolean }) {
   );
 }
 
-function FoodPlaceholder({ compact = false }: { compact?: boolean }) {
+function FoodPlaceholder({
+  compact = false,
+  recipe,
+}: {
+  compact?: boolean;
+  recipe: MockRecipe;
+}) {
   return (
     <View
       className={`${compact ? "h-[148px]" : "h-[286px]"} overflow-hidden bg-[#B97945]`}
@@ -232,12 +227,12 @@ function FoodPlaceholder({ compact = false }: { compact?: boolean }) {
       <Image
         accessibilityIgnoresInvertColors
         contentFit="cover"
-        source={require("../../../../assets/images/Food/Bun-bo.png")}
+        source={recipe.image}
         style={{ height: "100%", width: "100%" }}
       />
       <View className="absolute bottom-0 left-0 right-0 h-16 bg-black/15" />
       <Text className="absolute bottom-4 right-5 text-sm font-bold text-white">
-        Bún bò
+        {recipe.name}
       </Text>
     </View>
   );
@@ -245,16 +240,18 @@ function FoodPlaceholder({ compact = false }: { compact?: boolean }) {
 
 function NutritionSummary({
   compact = false,
-  fatValue = recipe.nutrition.fat,
+  fatValue,
+  recipe,
 }: {
   compact?: boolean;
   fatValue?: string;
+  recipe: MockRecipe;
 }) {
   const items = [
-    ["CALORIE", recipe.nutrition.calories],
-    ["PROTEIN", recipe.nutrition.protein],
-    ["CARB", recipe.nutrition.carb],
-    ["FAT", fatValue],
+    ["CALORIE", recipe.summaryNutrition.calories],
+    ["PROTEIN", recipe.summaryNutrition.protein],
+    ["CARB", recipe.summaryNutrition.carb],
+    ["FAT", fatValue ?? recipe.summaryNutrition.fat],
   ];
 
   return (
@@ -276,7 +273,7 @@ function NutritionSummary({
   );
 }
 
-function EntryScreen({ onSelect }: { onSelect: () => void }) {
+function EntryScreen({ onSelect }: { onSelect: (intent: ChatIntent) => void }) {
   return (
     <ScrollView
       className="flex-1"
@@ -297,32 +294,44 @@ function EntryScreen({ onSelect }: { onSelect: () => void }) {
       </View>
 
       <View className="gap-3">
-        {optionCards.map((option) => (
-          <Pressable
-            accessibilityRole="button"
-            className="min-h-[76px] flex-row items-center rounded-[4px] border border-[#F3F4F5] bg-card px-4 py-4"
-            disabled={!option.enabled}
-            key={option.title}
-            onPress={option.enabled ? onSelect : undefined}
-            style={cardShadow}
-          >
-            <View
-              className="h-[42px] w-[42px] items-center justify-center rounded-[12px]"
-              style={{ backgroundColor: option.tone }}
+        {optionCards.map((option) => {
+          const optionIntent = isChatIntent(option.id) ? option.id : null;
+
+          return (
+            <Pressable
+              accessibilityRole="button"
+              className="min-h-[76px] flex-row items-center rounded-[4px] border border-[#F3F4F5] bg-card px-4 py-4"
+              disabled={!option.enabled}
+              key={option.title}
+              onPress={
+                option.enabled && optionIntent
+                  ? () => onSelect(optionIntent)
+                  : undefined
+              }
+              style={cardShadow}
             >
-              <Feather color={option.iconColor} name={option.icon} size={22} />
-            </View>
-            <View className="min-w-0 flex-1 px-4">
-              <Text className="text-[14px] font-bold leading-5 text-[#585D6E]">
-                {option.title}
-              </Text>
-              <Text className="text-[12px] leading-[18px] text-[#9FA0B0]">
-                {option.subtitle}
-              </Text>
-            </View>
-            <Feather color="#C6CAD3" name="chevron-right" size={20} />
-          </Pressable>
-        ))}
+              <View
+                className="h-[42px] w-[42px] items-center justify-center rounded-[12px]"
+                style={{ backgroundColor: option.tone }}
+              >
+                <Feather
+                  color={option.iconColor}
+                  name={option.icon}
+                  size={22}
+                />
+              </View>
+              <View className="min-w-0 flex-1 px-4">
+                <Text className="text-[14px] font-bold leading-5 text-[#585D6E]">
+                  {option.title}
+                </Text>
+                <Text className="text-[12px] leading-[18px] text-[#9FA0B0]">
+                  {option.subtitle}
+                </Text>
+              </View>
+              <Feather color="#C6CAD3" name="chevron-right" size={20} />
+            </Pressable>
+          );
+        })}
       </View>
     </ScrollView>
   );
@@ -345,13 +354,19 @@ function ChatBubble({
   );
 }
 
-function RecipeSuggestionCard({ onOpen }: { onOpen: () => void }) {
+function RecipeSuggestionCard({
+  onOpen,
+  recipe,
+}: {
+  onOpen: () => void;
+  recipe: MockRecipe;
+}) {
   return (
     <View
       className="w-[90%] self-center overflow-hidden rounded-[14px] bg-[#DADADA] p-2"
       style={cardShadow}
     >
-      <FoodImageWithSkeleton compact />
+      <FoodImageWithSkeleton compact recipe={recipe} />
 
       <View className="mt-2 rounded-[16px] bg-white p-4">
         <Text className="text-[14px] font-bold leading-5 text-black">
@@ -365,11 +380,7 @@ function RecipeSuggestionCard({ onOpen }: { onOpen: () => void }) {
         </View>
 
         <View className="mt-3 flex-row border-t border-[#F2F2F2] pt-3">
-          {[
-            ["Calorie", recipe.nutrition.calories],
-            ["Protein", recipe.nutrition.protein],
-            ["Carb", recipe.nutrition.carb],
-          ].map(([label, value]) => (
+          {recipe.previewNutrition.map(({ label, value }) => (
             <View className="flex-1" key={label}>
               <Text className="text-[14px] leading-5 text-black">{label}</Text>
               <Text className="text-[14px] font-bold leading-5 text-[#818182]">
@@ -395,7 +406,13 @@ function RecipeSuggestionCard({ onOpen }: { onOpen: () => void }) {
   );
 }
 
-function FoodImageWithSkeleton({ compact = false }: { compact?: boolean }) {
+function FoodImageWithSkeleton({
+  compact = false,
+  recipe,
+}: {
+  compact?: boolean;
+  recipe: MockRecipe;
+}) {
   const [isLoading, setIsLoading] = useState(true);
 
   return (
@@ -409,7 +426,7 @@ function FoodImageWithSkeleton({ compact = false }: { compact?: boolean }) {
       <Image
         accessibilityIgnoresInvertColors
         contentFit="cover"
-        source={require("../../../../assets/images/Food/Bun-bo.png")}
+        source={recipe.image}
         style={{
           height: "100%",
           width: "100%",
@@ -459,17 +476,22 @@ function ImageSkeleton() {
 }
 
 function ChatScreen({
+  intent,
   keyboardHeight,
+  messages,
   onOpenDetail,
+  setMessages,
 }: {
+  intent: ChatIntent;
   keyboardHeight: number;
-  onOpenDetail: () => void;
+  messages: ChatMessage[];
+  onOpenDetail: (recipeId: RecipeId) => void;
+  setMessages: Dispatch<SetStateAction<ChatMessage[]>>;
 }) {
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const [input, setInput] = useState("");
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const isKeyboardOpen = keyboardHeight > 0;
   const bottomPadding = isKeyboardOpen
     ? keyboardHeight + (isVoiceRecording ? 144 : 112)
@@ -485,28 +507,72 @@ function ChatScreen({
     }
 
     const normalized = normalizeForSearch(trimmed);
-    const isBunBo = normalized.includes("bun bo");
     const timestamp = Date.now().toString();
     const nextMessages: ChatMessage[] = [
       { id: `user-${timestamp}`, role: "user", text: trimmed },
-      isBunBo
-        ? {
-            id: `assistant-${timestamp}`,
-            role: "assistant",
-            text: "Đây là gợi ý công thức bún bò phù hợp với tình trạng sức khỏe của bạn:",
-          }
-        : {
-            id: `assistant-${timestamp}`,
-            role: "assistant",
-            text: `Nutelyt vẫn đang phát triển, hiện chưa có thông tin về "${trimmed}". Bạn có thể thử nhập "bún bò" để xem gợi ý mẫu trong bản MVP.`,
-          },
     ];
 
-    if (isBunBo) {
+    if (intent === "self-select") {
+      const isBunBo = normalized.includes("bun bo");
+      const bunBoRecipe = mockRecipes[BUN_BO_RECIPE_ID];
+
+      nextMessages.push(
+        isBunBo
+          ? {
+              id: `assistant-${timestamp}`,
+              role: "assistant",
+              text: bunBoRecipe.assistantIntro,
+            }
+          : {
+              id: `assistant-${timestamp}`,
+              role: "assistant",
+              text: `Nutelyt v\u1eabn \u0111ang ph\u00e1t tri\u1ec3n, hi\u1ec7n ch\u01b0a c\u00f3 th\u00f4ng tin v\u1ec1 "${trimmed}". B\u1ea1n c\u00f3 th\u1ec3 th\u1eed nh\u1eadp "b\u00fan b\u00f2" \u0111\u1ec3 xem g\u1ee3i \u00fd m\u1eabu trong b\u1ea3n MVP.`,
+            },
+      );
+
+      if (isBunBo) {
+        nextMessages.push({
+          id: `recipe-card-${BUN_BO_RECIPE_ID}-${timestamp}`,
+          role: "assistant",
+          type: "recipe-card",
+          recipeId: BUN_BO_RECIPE_ID,
+        });
+      }
+    } else if (isAlternateMealSuggestionRequest(normalized)) {
       nextMessages.push({
-        id: `bun-bo-card-${timestamp}`,
+        id: `assistant-${timestamp}`,
         role: "assistant",
-        type: "bun-bo-card",
+        text: alternateMealSuggestionIntro,
+      });
+
+      alternateMealSuggestionRecipeIds.forEach((recipeId) => {
+        nextMessages.push({
+          id: `recipe-card-${recipeId}-${timestamp}`,
+          role: "assistant",
+          type: "recipe-card",
+          recipeId,
+        });
+      });
+    } else if (isFirstMealSuggestionRequest(normalized)) {
+      nextMessages.push({
+        id: `assistant-${timestamp}`,
+        role: "assistant",
+        text: mealSuggestionIntro,
+      });
+
+      firstMealSuggestionRecipeIds.forEach((recipeId) => {
+        nextMessages.push({
+          id: `recipe-card-${recipeId}-${timestamp}`,
+          role: "assistant",
+          type: "recipe-card",
+          recipeId,
+        });
+      });
+    } else {
+      nextMessages.push({
+        id: `assistant-${timestamp}`,
+        role: "assistant",
+        text: `M\u00ecnh ch\u01b0a nh\u1eadn ra y\u00eau c\u1ea7u n\u00e0y. B\u1ea1n c\u00f3 th\u1ec3 th\u1eed nh\u1eadp "T\u00f4i mu\u1ed1n n\u1ea5u m\u1ed9t b\u1eefa \u0103n Vi\u1ec7t Nam c\u01a1 b\u1ea3n" \u0111\u1ec3 xem g\u1ee3i \u00fd m\u1eabu.`,
       });
     }
 
@@ -520,7 +586,11 @@ function ChatScreen({
 
   const toggleVoiceRecording = () => {
     if (isVoiceRecording && !input.trim()) {
-      setInput("Tôi muốn nấu bún bò");
+      setInput(
+        intent === "meal-suggestion"
+          ? "T\u00f4i mu\u1ed1n n\u1ea5u m\u1ed9t b\u1eefa \u0103n Vi\u1ec7t Nam c\u01a1 b\u1ea3n"
+          : "T\u00f4i mu\u1ed1n n\u1ea5u b\u00fan b\u00f2",
+      );
     }
 
     setIsVoiceRecording((current) => !current);
@@ -553,18 +623,28 @@ function ChatScreen({
           </View>
         </View>
 
-        {messages.map((message) =>
-          "type" in message ? (
-            <RecipeSuggestionCard key={message.id} onOpen={onOpenDetail} />
-          ) : (
+        {messages.map((message) => {
+          if ("type" in message) {
+            const recipe = getMockRecipe(message.recipeId);
+
+            return recipe ? (
+              <RecipeSuggestionCard
+                key={message.id}
+                onOpen={() => onOpenDetail(recipe.id)}
+                recipe={recipe}
+              />
+            ) : null;
+          }
+
+          return (
             <ChatBubble
               align={message.role === "user" ? "user" : "assistant"}
               key={message.id}
             >
               {message.text}
             </ChatBubble>
-          ),
-        )}
+          );
+        })}
       </ScrollView>
 
       <View
@@ -625,7 +705,7 @@ function ChatScreen({
   );
 }
 
-function OverviewTab() {
+function OverviewTab({ recipe }: { recipe: MockRecipe }) {
   return (
     <View className="gap-6">
       <Text className="text-[20px] font-bold leading-7 text-[#3F4854]">
@@ -665,7 +745,7 @@ function OverviewTab() {
   );
 }
 
-function IngredientsTab() {
+function IngredientsTab({ recipe }: { recipe: MockRecipe }) {
   return (
     <View className="gap-5">
       <Text className="text-[20px] font-bold leading-7 text-[#3F4854]">
@@ -689,7 +769,7 @@ function IngredientsTab() {
   );
 }
 
-function StepsTab() {
+function StepsTab({ recipe }: { recipe: MockRecipe }) {
   return (
     <View className="gap-5">
       <Text className="text-[20px] font-bold leading-7 text-[#3F4854]">
@@ -714,7 +794,7 @@ function StepsTab() {
   );
 }
 
-function NutritionTab() {
+function NutritionTab({ recipe }: { recipe: MockRecipe }) {
   return (
     <View className="gap-4">
       <Text className="text-[20px] font-bold leading-7 text-[#3F4854]">
@@ -742,25 +822,25 @@ function NutritionTab() {
           </Text>
         </View>
         <View className="gap-4">
-          {nutritionTableRows.map(([component, amount, value]) => (
-            <View className="flex-row" key={component}>
+          {recipe.nutritionRows.map((row) => (
+            <View className="flex-row" key={row.component}>
               <Text
                 className="text-base leading-6 text-black"
                 style={{ flex: 1.35 }}
               >
-                {component}
+                {row.component}
               </Text>
               <Text
                 className="text-base leading-6 text-black"
                 style={{ flex: 1 }}
               >
-                {amount}
+                {row.amount}
               </Text>
               <Text
                 className="text-base leading-6 text-black"
                 style={{ flex: 0.75 }}
               >
-                {value}
+                {row.value}
               </Text>
             </View>
           ))}
@@ -770,22 +850,28 @@ function NutritionTab() {
   );
 }
 
-function RecipeDetailScreen({ onBack }: { onBack: () => void }) {
+function RecipeDetailScreen({
+  onBack,
+  recipe,
+}: {
+  onBack: () => void;
+  recipe: MockRecipe;
+}) {
   const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState<RecipeTab>("overview");
   const [saved, setSaved] = useState(false);
   const saveScale = useRef(new Animated.Value(1)).current;
 
   const tabContent = {
-    overview: <OverviewTab />,
-    ingredients: <IngredientsTab />,
-    steps: <StepsTab />,
-    nutrition: <NutritionTab />,
+    overview: <OverviewTab recipe={recipe} />,
+    ingredients: <IngredientsTab recipe={recipe} />,
+    steps: <StepsTab recipe={recipe} />,
+    nutrition: <NutritionTab recipe={recipe} />,
   }[activeTab];
 
   return (
     <View className="flex-1 bg-primary-600">
-      <FoodPlaceholder />
+      <FoodPlaceholder recipe={recipe} />
       <Pressable
         accessibilityLabel="Quay lại"
         accessibilityRole="button"
@@ -846,7 +932,10 @@ function RecipeDetailScreen({ onBack }: { onBack: () => void }) {
           </ScrollView>
 
           <NutritionSummary
-            fatValue={activeTab === "nutrition" ? "16g" : undefined}
+            fatValue={
+              activeTab === "nutrition" ? recipe.summaryNutrition.fat : undefined
+            }
+            recipe={recipe}
           />
           {tabContent}
         </ScrollView>
@@ -888,12 +977,13 @@ function RecipeDetailScreen({ onBack }: { onBack: () => void }) {
 }
 
 export function ChatAIScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<RouteProfileParams>();
-  const { profileParam } = useHydratedProfile(params);
   const [mode, setMode] = useState<ChatMode>("entry");
+  const [chatIntent, setChatIntent] = useState<ChatIntent>("self-select");
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [selectedRecipeId, setSelectedRecipeId] =
+    useState<RecipeId>(BUN_BO_RECIPE_ID);
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(12)).current;
 
@@ -936,27 +1026,36 @@ export function ChatAIScreen() {
     };
   }, []);
 
-  const goBack = () => {
-    if (mode === "detail") {
-      setMode("chat");
-      return;
-    }
-    if (mode === "chat") {
-      setMode("entry");
-      return;
-    }
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.replace({
-      pathname: "/home",
-      params: { profile: profileParam },
-    } as unknown as Href);
+  const handleChatBack = () => {
+    setMessages([]);
+    setSelectedRecipeId(BUN_BO_RECIPE_ID);
+    setMode("entry");
   };
 
+  const handleDetailBack = () => {
+    setSelectedRecipeId(BUN_BO_RECIPE_ID);
+    setMode("chat");
+  };
+
+  const openChat = (intent: ChatIntent) => {
+    setChatIntent(intent);
+    setMessages([]);
+    setSelectedRecipeId(BUN_BO_RECIPE_ID);
+    setMode("chat");
+  };
+
+  const openRecipeDetail = (recipeId: RecipeId) => {
+    setSelectedRecipeId(recipeId);
+    setMode("detail");
+  };
+
+  const selectedRecipe =
+    getMockRecipe(selectedRecipeId) ?? mockRecipes[BUN_BO_RECIPE_ID];
+
   if (mode === "detail") {
-    return <RecipeDetailScreen onBack={goBack} />;
+    return (
+      <RecipeDetailScreen onBack={handleDetailBack} recipe={selectedRecipe} />
+    );
   }
 
   return (
@@ -968,18 +1067,21 @@ export function ChatAIScreen() {
           title="Trợ lý dinh dưỡng AI"
         />
       ) : (
-        <ChatHeader onBack={goBack} showBack topInset={insets.top} />
+        <ChatHeader onBack={handleChatBack} showBack topInset={insets.top} />
       )}
       <Animated.View
         className="flex-1"
         style={{ opacity, transform: [{ translateY }] }}
       >
         {mode === "entry" ? (
-          <EntryScreen onSelect={() => setMode("chat")} />
+          <EntryScreen onSelect={openChat} />
         ) : (
           <ChatScreen
+            intent={chatIntent}
             keyboardHeight={keyboardHeight}
-            onOpenDetail={() => setMode("detail")}
+            messages={messages}
+            onOpenDetail={openRecipeDetail}
+            setMessages={setMessages}
           />
         )}
       </Animated.View>
