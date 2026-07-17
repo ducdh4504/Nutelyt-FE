@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { type ImageSource } from "expo-image";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useEffect, useRef } from "react";
-import { Animated, Pressable, ScrollView, Text, View } from "react-native";
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/src/constants/tokens";
@@ -175,7 +175,7 @@ export function HomeScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background" style={styles.screen}>
       <MainScreenHeader
         rightSlot={
           <Pressable
@@ -200,14 +200,15 @@ export function HomeScreen() {
 
       <Animated.View
         className="flex-1"
-        style={{
+        style={[styles.scrollRegion, {
           opacity,
           transform: [{ translateY }],
-        }}
+        }]}
       >
         <ScrollView
           className="flex-1"
           contentContainerStyle={{
+            flexGrow: 1,
             paddingBottom: Math.max(insets.bottom + 112, 136),
             paddingHorizontal: 20,
             paddingTop: 0,
@@ -273,3 +274,17 @@ export function HomeScreen() {
     </View>
   );
 }
+
+const webShrink = Platform.OS === "web" ? { minHeight: 0 } : null;
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    overflow: "hidden",
+    ...webShrink,
+  },
+  scrollRegion: {
+    flex: 1,
+    ...webShrink,
+  },
+});

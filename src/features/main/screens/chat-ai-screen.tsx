@@ -8,6 +8,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -278,6 +279,7 @@ function EntryScreen({ onSelect }: { onSelect: (intent: ChatIntent) => void }) {
     <ScrollView
       className="flex-1"
       contentContainerStyle={{
+        flexGrow: 1,
         gap: 28,
         paddingBottom: 128,
         paddingHorizontal: 12,
@@ -597,11 +599,12 @@ function ChatScreen({
   };
 
   return (
-    <View className="flex-1">
+    <View className="flex-1" style={styles.flexShrink}>
       <ScrollView
         ref={scrollRef}
         className="flex-1"
         contentContainerStyle={{
+          flexGrow: 1,
           gap: 18,
           paddingBottom: bottomPadding,
           paddingHorizontal: 20,
@@ -870,7 +873,7 @@ function RecipeDetailScreen({
   }[activeTab];
 
   return (
-    <View className="flex-1 bg-primary-600">
+    <View className="flex-1 bg-primary-600" style={styles.screen}>
       <FoodPlaceholder recipe={recipe} />
       <Pressable
         accessibilityLabel="Quay lại"
@@ -882,10 +885,11 @@ function RecipeDetailScreen({
         <Feather color={colors.primaryDark} name="chevron-left" size={24} />
       </Pressable>
 
-      <View className="-mt-8 flex-1 overflow-hidden rounded-t-[28px] bg-card">
+      <View className="-mt-8 flex-1 overflow-hidden rounded-t-[28px] bg-card" style={styles.flexShrink}>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{
+            flexGrow: 1,
             gap: 22,
             paddingBottom: Math.max(insets.bottom + 118, 144),
             paddingHorizontal: 20,
@@ -1059,7 +1063,7 @@ export function ChatAIScreen() {
   }
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background" style={styles.screen}>
       {mode === "entry" ? (
         <MainScreenHeader
           align="center"
@@ -1071,7 +1075,7 @@ export function ChatAIScreen() {
       )}
       <Animated.View
         className="flex-1"
-        style={{ opacity, transform: [{ translateY }] }}
+        style={[styles.flexShrink, { opacity, transform: [{ translateY }] }]}
       >
         {mode === "entry" ? (
           <EntryScreen onSelect={openChat} />
@@ -1088,3 +1092,17 @@ export function ChatAIScreen() {
     </View>
   );
 }
+
+const webShrink = Platform.OS === "web" ? { minHeight: 0 } : null;
+
+const styles = StyleSheet.create({
+  flexShrink: {
+    flex: 1,
+    ...webShrink,
+  },
+  screen: {
+    flex: 1,
+    overflow: "hidden",
+    ...webShrink,
+  },
+});

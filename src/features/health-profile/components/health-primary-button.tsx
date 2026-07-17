@@ -1,6 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { useRef } from 'react';
-import { Animated, Pressable, Text } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text } from 'react-native';
+
+import { colors } from '@/src/constants/tokens';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const shadow = { boxShadow: '0 4px 6px rgba(39, 174, 96, 0.3)' };
@@ -11,7 +13,6 @@ export function HealthPrimaryButton({ disabled, onPress }: { disabled: boolean; 
   return (
     <AnimatedPressable
       accessibilityRole="button"
-      className="h-14 flex-row items-center justify-center gap-2 rounded-[12px] bg-primary-600"
       disabled={disabled}
       onPress={onPress}
       onPressIn={() => {
@@ -30,10 +31,35 @@ export function HealthPrimaryButton({ disabled, onPress }: { disabled: boolean; 
           useNativeDriver: true,
         }).start();
       }}
-      style={[shadow, { opacity: disabled ? 0.45 : 1, transform: [{ scale }] }]}
+      style={[
+        styles.button,
+        shadow,
+        disabled ? styles.disabled : null,
+        { transform: [{ scale }] },
+      ]}
     >
-      <Text className="text-base font-semibold text-white">Tiếp tục</Text>
+      <Text style={styles.label}>Tiếp tục</Text>
       <Feather color="#FFFFFF" name="arrow-right" size={17} />
     </AnimatedPressable>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    alignItems: 'center',
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    flexDirection: 'row',
+    gap: 8,
+    height: 56,
+    justifyContent: 'center',
+  },
+  disabled: {
+    opacity: 0.45,
+  },
+  label: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});

@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import type { ComponentProps, ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, ScrollView, Text, View } from 'react-native';
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
@@ -407,7 +407,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-background" style={[styles.screen, { paddingTop: insets.top }]}>
       {isReviewMode ? (
         <View className="h-14 flex-row items-center justify-between bg-background px-5" style={smallShadow}>
           <View className="h-12 w-12" />
@@ -441,11 +441,12 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
 
         <Animated.View
           className="flex-1"
-          style={{ opacity: screenOpacity, transform: [{ translateY: screenTranslate }] }}
+          style={[styles.scrollRegion, { opacity: screenOpacity, transform: [{ translateY: screenTranslate }] }]}
         >
           <ScrollView
             className="flex-1"
             contentContainerStyle={{
+              flexGrow: 1,
               gap: 32,
               paddingBottom: isReviewMode ? Math.max(insets.bottom + 132, 156) : Math.max(insets.bottom + 112, 136),
               paddingHorizontal: 20,
@@ -677,3 +678,17 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
     </View>
   );
 }
+
+const webShrink = Platform.OS === 'web' ? { minHeight: 0 } : null;
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    overflow: 'hidden',
+    ...webShrink,
+  },
+  scrollRegion: {
+    flex: 1,
+    ...webShrink,
+  },
+});

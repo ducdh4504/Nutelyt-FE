@@ -1,6 +1,6 @@
 import { useRouter, type Href } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, KeyboardAvoidingView, ScrollView, View } from 'react-native';
+import { Animated, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { conditions, diets, goals } from './data/health-profile-options';
@@ -137,17 +137,22 @@ export function HealthProfileFlowScreen() {
     <KeyboardAvoidingView
       behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
       className="flex-1 bg-background"
+      style={styles.screen}
     >
-      <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+      <View className="flex-1 bg-background" style={[styles.screen, { paddingTop: insets.top }]}>
         <HealthProfileHeader onBack={goBack} step={step} totalSteps={TOTAL_STEPS} />
         <HealthProgress width={progressWidth} />
 
-        <Animated.View className="flex-1" style={{ opacity, transform: [{ translateX }] }}>
+        <Animated.View
+          className="flex-1"
+          style={[styles.scrollRegion, { opacity, transform: [{ translateX }] }]}
+        >
           <ScrollView
             className="flex-1"
             contentContainerStyle={{
+              flexGrow: 1,
               gap: 24,
-              paddingBottom: 24,
+              paddingBottom: 40,
               paddingHorizontal: 20,
               paddingTop: 24,
             }}
@@ -229,3 +234,15 @@ export function HealthProfileFlowScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    overflow: 'hidden',
+    ...(Platform.OS === 'web' ? { minHeight: 0 } : null),
+  },
+  scrollRegion: {
+    flex: 1,
+    ...(Platform.OS === 'web' ? { minHeight: 0 } : null),
+  },
+});

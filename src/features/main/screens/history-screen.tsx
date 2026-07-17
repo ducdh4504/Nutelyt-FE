@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
 import { type ImageSource } from 'expo-image';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/src/constants/tokens';
@@ -166,16 +166,17 @@ export function HistoryScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <View className="flex-1 bg-background" style={styles.screen}>
       <MainScreenHeader
         align="center"
         subtitle="Tìm lại các món ăn và gợi ý đã xem"
         title="Lịch sử tìm kiếm"
       />
-      <Animated.View className="flex-1" style={{ opacity, transform: [{ translateY }] }}>
+      <Animated.View className="flex-1" style={[styles.scrollRegion, { opacity, transform: [{ translateY }] }]}>
         <ScrollView
           className="flex-1"
           contentContainerStyle={{
+            flexGrow: 1,
             gap: 24,
             paddingBottom: Math.max(insets.bottom + 184, 208),
             paddingHorizontal: 20,
@@ -251,3 +252,17 @@ export function HistoryScreen() {
     </View>
   );
 }
+
+const webShrink = Platform.OS === 'web' ? { minHeight: 0 } : null;
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    overflow: 'hidden',
+    ...webShrink,
+  },
+  scrollRegion: {
+    flex: 1,
+    ...webShrink,
+  },
+});

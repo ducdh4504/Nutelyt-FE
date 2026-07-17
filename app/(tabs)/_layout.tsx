@@ -1,18 +1,21 @@
 import { Tabs } from "expo-router";
+import { Platform, StyleSheet, View } from "react-native";
 
 import { BottomTabBar } from "@/src/features/main/components/bottom-tab-bar";
 
 export default function MainTabsLayout() {
   return (
-    <Tabs
-      backBehavior="none"
-      initialRouteName="home"
-      screenOptions={{
-        headerShown: false,
-        lazy: true,
-      }}
-      tabBar={(props) => <BottomTabBar {...props} />}
-    >
+    <View style={styles.tabHost}>
+      <Tabs
+        backBehavior="none"
+        initialRouteName="home"
+        screenOptions={{
+          headerShown: false,
+          lazy: true,
+          sceneStyle: styles.scene,
+        }}
+        tabBar={(props) => <BottomTabBar {...props} />}
+      >
       <Tabs.Screen name="home" options={{ title: "Nhà" }} />
       <Tabs.Screen name="history" options={{ title: "Lịch sử" }} />
       <Tabs.Screen name="chat-ai" options={{ title: "Chat AI" }} />
@@ -31,6 +34,22 @@ export default function MainTabsLayout() {
         }}
       />
       
-    </Tabs>
+      </Tabs>
+    </View>
   );
 }
+
+const webShrink = Platform.OS === "web" ? { minHeight: 0 } : null;
+
+const styles = StyleSheet.create({
+  scene: {
+    backgroundColor: "#FAFAF7",
+    flex: 1,
+    ...webShrink,
+  },
+  tabHost: {
+    flex: 1,
+    overflow: "hidden",
+    ...webShrink,
+  },
+});
