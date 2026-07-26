@@ -1,4 +1,4 @@
-import { ChatAIScreen } from '@/src/features/main';
+import { ChatAIScreen } from '@/src/features/ai-chat';
 
 export default function ChatAITabRoute() {
   return <ChatAIScreen />;

@@ -8,12 +8,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { parseHealthProfileParam, serializeProfile } from "@/src/features/health-profile/utils/health-profile";
 import type { RouteProfileParams } from "@/src/features/profile/profile.types";
 
-import {
-  dashboardMock,
-  type DashboardFoodEntry,
-  type DashboardMacro,
-  type DashboardWarning,
-} from "../data/mock-dashboard";
+import { dashboardMock } from "../data/mock-dashboard";
+import type { DashboardFoodEntry, DashboardMacro, DashboardWarning } from "../dashboard.types";
 
 const dashboardColors = {
   background: "#F6F8F7",

@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { DashboardWarningDetailScreen } from '@/src/features/main';
+import { DashboardWarningDetailScreen } from '@/src/features/dashboard';
 
 export default function DashboardWarningDetailRoute() {
   return (

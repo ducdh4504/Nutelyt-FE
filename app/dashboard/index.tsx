@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { DashboardScreen } from '@/src/features/main';
+import { DashboardScreen } from '@/src/features/dashboard';
 
 export default function DashboardRoute() {
   return (

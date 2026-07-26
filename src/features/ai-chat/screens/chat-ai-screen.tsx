@@ -22,9 +22,8 @@ import {
   firstMealSuggestionRecipeIds,
   getMockRecipe,
   mockRecipes,
-  type MockRecipe,
-  type RecipeId,
-} from "@/src/features/main/data/mock-recipes";
+} from "../data/mock-recipes";
+import type { MockRecipe, RecipeId } from "../ai-chat.types";
 
 type FeatherName = ComponentProps<typeof Feather>["name"];
 type ChatMode = "entry" | "chat" | "detail";
