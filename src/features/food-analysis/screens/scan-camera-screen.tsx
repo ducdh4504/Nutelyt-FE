@@ -5,9 +5,9 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppHeader } from '../components/app-header';
-import type { RouteProfileParams } from '../types';
-import { parseHealthProfileParam, serializeProfile } from '../utils/health-profile';
+import { AppHeader } from '@/src/components/layout/app-header';
+import { parseHealthProfileParam, serializeProfile } from '@/src/features/health-profile/utils/health-profile';
+import type { RouteProfileParams } from '@/src/features/profile/profile.types';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 

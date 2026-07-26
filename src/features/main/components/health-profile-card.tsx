@@ -2,9 +2,8 @@ import { Feather } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
 
 import { colors } from '@/src/constants/tokens';
-
-import type { HealthProfileSummary } from '../types';
-import { getProfileDietChips, getProfileScore } from '../utils/health-profile';
+import { getProfileDietChips, getProfileScore } from '@/src/features/health-profile/utils/health-profile';
+import type { HealthProfileSummary } from '@/src/features/profile/profile.types';
 
 export function HealthProfileCard({
   onEdit,

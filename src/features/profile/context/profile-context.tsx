@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import type { HealthProfileSummary, RouteProfileParams } from '../types';
-import { getProfileFallback, parseHealthProfileParam, serializeProfile } from '../utils/health-profile';
+import { getProfileFallback, parseHealthProfileParam, serializeProfile } from '@/src/features/health-profile/utils/health-profile';
+
+import type { HealthProfileSummary, RouteProfileParams } from '../profile.types';
 
 type ProfileContextValue = {
   hasCompletedHealthProfileThisRuntime: boolean;

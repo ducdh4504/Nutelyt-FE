@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
 
-import type { NutritionFacts } from '../types';
+import type { NutritionFacts } from '../food-analysis.types';
 
 function Macro({ label, value }: { label: string; value: string }) {
   return (

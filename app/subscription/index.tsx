@@ -1,4 +1,4 @@
-import { SubscriptionScreen } from '@/src/features/main/screens/subscription-screen';
+import { SubscriptionScreen } from '@/src/features/subscription';
 
 export default function SubscriptionRoute() {
   return <SubscriptionScreen />;

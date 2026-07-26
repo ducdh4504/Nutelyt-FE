@@ -7,11 +7,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/src/constants/tokens";
 
+import { MainScreenHeader } from "@/src/components/layout/main-screen-header";
 import { ImageWithSkeleton } from "@/src/components/ui";
-import { MainScreenHeader } from "../components/main-screen-header";
-import { useHydratedProfile } from "../context/profile-context";
-import type { RouteProfileParams } from "../types";
-import { getProfileFallback } from "../utils/health-profile";
+import { getProfileFallback } from "@/src/features/health-profile/utils/health-profile";
+import { useHydratedProfile } from "@/src/features/profile";
+import type { RouteProfileParams } from "@/src/features/profile/profile.types";
 
 type FoodRecommendation = {
   id: string;

@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { getSubscriptionPlan } from "@/src/features/main/data/subscription-plans";
+import { getSubscriptionPlan } from "../data/subscription-plans";
 
 const wordmarkImage = require("../../../../assets/images/Nutelyt-text.png");
 const mascotImage = require("../../../../assets/images/Nutelyt-AI.png");

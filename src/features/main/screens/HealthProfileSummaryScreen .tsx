@@ -5,12 +5,12 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { routes } from "@/src/config/routes";
-import { useHydratedProfile } from "../context/profile-context";
-import type { HealthProfileSummary, RouteProfileParams } from "../types";
+import { useHydratedProfile } from "@/src/features/profile";
+import type { HealthProfileSummary, RouteProfileParams } from "@/src/features/profile/profile.types";
 import {
   parseHealthProfileParam,
   serializeProfile,
-} from "../utils/health-profile";
+} from "@/src/features/health-profile/utils/health-profile";
 
 const ui = {
   background: "#FAFAFA",

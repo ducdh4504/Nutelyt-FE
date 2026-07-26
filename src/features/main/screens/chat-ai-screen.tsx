@@ -16,6 +16,7 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/src/constants/tokens";
+import { MainScreenHeader } from "@/src/components/layout/main-screen-header";
 import {
   alternateMealSuggestionRecipeIds,
   firstMealSuggestionRecipeIds,
@@ -24,8 +25,6 @@ import {
   type MockRecipe,
   type RecipeId,
 } from "@/src/features/main/data/mock-recipes";
-
-import { MainScreenHeader } from "../components/main-screen-header";
 
 type FeatherName = ComponentProps<typeof Feather>["name"];
 type ChatMode = "entry" | "chat" | "detail";

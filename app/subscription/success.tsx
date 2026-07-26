@@ -1,4 +1,4 @@
-import { SubscriptionSuccessScreen } from '@/src/features/main/screens/subscription-success-screen';
+import { SubscriptionSuccessScreen } from '@/src/features/subscription';
 
 export default function SubscriptionSuccessRoute() {
   return <SubscriptionSuccessScreen />;

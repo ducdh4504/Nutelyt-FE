@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { ScanCameraScreen } from '@/src/features/main';
+import { ScanCameraScreen } from '@/src/features/food-analysis';
 
 export default function ScanRoute() {
   return (

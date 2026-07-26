@@ -7,9 +7,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   subscriptionPlans,
-  type SubscriptionPlan,
-  type SubscriptionPlanId,
-} from "@/src/features/main/data/subscription-plans";
+} from "../data/subscription-plans";
+import type { SubscriptionPlan, SubscriptionPlanId } from "../subscription.types";
 
 const wordmarkImage = require("../../../../assets/images/Nutelyt-text.png");
 const mascotImage = require("../../../../assets/images/Nutelyt-AI.png");

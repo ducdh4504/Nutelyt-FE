@@ -1,5 +1,7 @@
-import type { FoodStatus, HealthProfileSummary, MockFood } from '../types';
-import { normalizeToken, profileHas } from './health-profile';
+import { normalizeToken, profileHas } from '@/src/features/health-profile/utils/health-profile';
+import type { HealthProfileSummary } from '@/src/features/profile/profile.types';
+
+import type { FoodStatus, MockFood } from '../food-analysis.types';
 
 export function getFoodStatusForProfile(profile: HealthProfileSummary, food: MockFood): FoodStatus {
   if (

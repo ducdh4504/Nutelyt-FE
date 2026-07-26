@@ -1,10 +1,10 @@
 import { Feather } from "@expo/vector-icons";
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ComponentProps } from "react";
 import { Animated, Pressable, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import type { FeatherName } from "../types";
+type FeatherName = ComponentProps<typeof Feather>["name"];
 
 type TabConfig = {
   icon: FeatherName;

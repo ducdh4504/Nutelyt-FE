@@ -8,9 +8,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/src/constants/tokens';
 import { ImageWithSkeleton } from '@/src/components/ui';
 
-import { MainScreenHeader } from '../components/main-screen-header';
-import { useHydratedProfile } from '../context/profile-context';
-import type { RouteProfileParams } from '../types';
+import { MainScreenHeader } from '@/src/components/layout/main-screen-header';
+import { useHydratedProfile } from '@/src/features/profile';
+import type { RouteProfileParams } from '@/src/features/profile/profile.types';
 
 type HistoryStatus = 'Đã xem' | 'Đã lưu';
 

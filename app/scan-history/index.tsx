@@ -1,7 +1,7 @@
 import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
 
 import { routes } from '@/src/config/routes';
-import type { RouteProfileParams } from '@/src/features/main/types';
+import type { RouteProfileParams } from '@/src/features/profile/profile.types';
 
 export default function LegacyHistoryRedirect() {
   const params = useLocalSearchParams<RouteProfileParams>();

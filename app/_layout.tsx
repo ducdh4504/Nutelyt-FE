@@ -13,7 +13,7 @@ import "react-native-reanimated";
 import { Platform, StyleSheet, View, type ViewStyle } from "react-native";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
-import { MainProfileProvider } from "@/src/features/main/context/profile-context";
+import { MainProfileProvider } from "@/src/features/profile";
 
 cssInterop(Image, { className: "style" });
 

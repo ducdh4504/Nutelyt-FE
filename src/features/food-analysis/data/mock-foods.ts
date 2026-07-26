@@ -1,4 +1,4 @@
-import type { MockFood } from '../types';
+import type { MockFood } from '../food-analysis.types';
 
 export const mockFoods: MockFood[] = [
   {

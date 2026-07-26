@@ -9,11 +9,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { routes } from '@/src/config/routes';
 import { colors } from '@/src/constants/tokens';
 import type { HealthProfilePayload } from '@/src/features/health-profile/types';
-import { useHydratedProfile } from '@/src/features/main/context/profile-context';
-import type { HealthProfileSummary, RouteProfileParams } from '@/src/features/main/types';
-import { parseHealthProfileParam } from '@/src/features/main/utils/health-profile';
-
-import { MainScreenHeader } from '../components/main-screen-header';
+import { MainScreenHeader } from '@/src/components/layout/main-screen-header';
+import { parseHealthProfileParam } from '@/src/features/health-profile/utils/health-profile';
+import { useHydratedProfile } from '@/src/features/profile';
+import type { HealthProfileSummary, RouteProfileParams } from '@/src/features/profile/profile.types';
 
 const wordmarkImage = require('../../../../assets/images/Nutelyt-text.png');
 
