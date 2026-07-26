@@ -37,7 +37,10 @@ export default function RootLayout() {
             <Stack.Screen name="login" options={{ headerShown: false }} />
             <Stack.Screen name="register" options={{ headerShown: false }} />
             <Stack.Screen name="health-profile" options={{ headerShown: false }} />
-            <Stack.Screen name="settings" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="profile/settings"
+              options={{ headerShown: false }}
+            />
             <Stack.Screen name="subscription" options={{ headerShown: false }} />
             <Stack.Screen
               name="modal"
@@ -47,7 +50,6 @@ export default function RootLayout() {
               name="health-profile-summary"
               options={{ headerShown: false }}
             />
-            <Stack.Screen name="profile" options={{ headerShown: false }} />
           </Stack>
         </View>
       </MainProfileProvider>

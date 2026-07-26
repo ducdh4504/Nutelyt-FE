@@ -1,9 +1,10 @@
 import { Feather } from "@expo/vector-icons";
-import { useLocalSearchParams, useRouter, type Href } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { Pressable, ScrollView, Switch, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { routes } from "@/src/config/routes";
 import { useHydratedProfile } from "../context/profile-context";
 import type { HealthProfileSummary, RouteProfileParams } from "../types";
 import {
@@ -293,31 +294,31 @@ export function SettingsScreen() {
     }
 
     router.replace({
-      pathname: "/profile",
+      pathname: routes.profile,
       params: { profile: profileParamString },
-    } as unknown as Href);
+    });
   };
 
   const openProfile = () => {
     router.push({
-      pathname: "/health-profile-summary",
+      pathname: routes.healthProfileSummary,
       params: { profile: profileParamString },
-    } as unknown as Href);
+    });
   };
 
   const openHealthProfile = () => {
     if (hasCurrentSessionHealthProfile(displayProfile)) {
       router.push({
-        pathname: "/health-profile-summary",
+        pathname: routes.healthProfileSummary,
         params: { profile: profileParamString },
-      } as unknown as Href);
+      });
       return;
     }
 
     router.push({
-      pathname: "/health-profile",
+      pathname: routes.healthProfile,
       params: { profile: profileParamString },
-    } as unknown as Href);
+    });
   };
 
   const handleLogout = () => {

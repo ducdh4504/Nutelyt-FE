@@ -16,24 +16,10 @@ export default function MainTabsLayout() {
         }}
         tabBar={(props) => <BottomTabBar {...props} />}
       >
-      <Tabs.Screen name="home" options={{ title: "Nhà" }} />
-      <Tabs.Screen name="history" options={{ title: "Lịch sử" }} />
-      <Tabs.Screen name="chat-ai" options={{ title: "Chat AI" }} />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          headerShown: false,
-          tabBarStyle: { display: "none" },
-        }}
-      />
-      <Tabs.Screen
-        name="setting"
-        options={{
-          headerShown: false,
-          tabBarStyle: { display: "none" },
-        }}
-      />
-      
+        <Tabs.Screen name="home" options={{ title: "Nhà" }} />
+        <Tabs.Screen name="history" options={{ title: "Lịch sử" }} />
+        <Tabs.Screen name="chat-ai" options={{ title: "Chat AI" }} />
+        <Tabs.Screen name="profile" options={{ title: "Hồ sơ" }} />
       </Tabs>
     </View>
   );

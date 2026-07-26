@@ -1,5 +1,6 @@
-import { Redirect, Stack, useLocalSearchParams, type Href } from 'expo-router';
+import { Redirect, Stack, useLocalSearchParams } from 'expo-router';
 
+import { routes } from '@/src/config/routes';
 import type { RouteProfileParams } from '@/src/features/main/types';
 
 export default function LegacyHistoryRedirect() {
@@ -8,7 +9,7 @@ export default function LegacyHistoryRedirect() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <Redirect href={{ pathname: '/history', params } as unknown as Href} />
+      <Redirect href={{ pathname: routes.history, params }} />
     </>
   );
 }

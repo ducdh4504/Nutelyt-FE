@@ -15,10 +15,10 @@ const tabs: Record<string, TabConfig> = {
   home: { icon: "home", label: "Nhà" },
   history: { icon: "clock", label: "Lịch sử" },
   "chat-ai": { icon: "message-circle", label: "Chat AI" },
-  setting: { icon: "user", label: "Hồ sơ" },
+  profile: { icon: "user", label: "Hồ sơ" },
 };
 
-const visibleTabNames = ["home", "history", "chat-ai", "setting"];
+const visibleTabNames = ["home", "history", "chat-ai", "profile"];
 
 function BottomTabButton({
   isFocused,

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { routes } from '@/src/config/routes';
 import { colors } from '@/src/constants/tokens';
 import type { HealthProfilePayload } from '@/src/features/health-profile/types';
 import { useHydratedProfile } from '@/src/features/main/context/profile-context';
@@ -383,25 +384,25 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
     setSaved(true);
     router.setParams({ mode: 'tab', profile: profileParam });
     router.replace({
-      pathname: '/home',
+      pathname: routes.home,
       params: { profile: profileParam },
-    } as unknown as Href);
+    });
   };
 
   const openDashboard = () => {
     router.push({
-      pathname: '/dashboard',
+      pathname: routes.dashboard,
       params: { profile: profileParam },
-    } as unknown as Href);
+    });
   };
 
   const openSubscription = () => {
-    router.push('/subscription' as Href);
+    router.push(routes.subscription);
   };
 
   const openSettings = () => {
     router.push({
-      pathname: '/settings',
+      pathname: routes.profileSettings,
       params: { profile: profileParam },
     } as unknown as Href);
   };
@@ -495,7 +496,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
                   <Pressable
                     accessibilityRole="button"
                     className="self-end flex-row items-center gap-1 pt-2"
-                    onPress={() => router.push('/health-profile' as Href)}
+                    onPress={() => router.push(routes.healthProfile)}
                   >
                     <Text className="text-base font-bold leading-6 text-[#006492]">Chỉnh sửa</Text>
                     <Feather color="#006492" name="edit-2" size={13} />
@@ -534,7 +535,7 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
                   <Pressable
                     accessibilityRole="button"
                     className="self-end flex-row items-center gap-1"
-                    onPress={() => router.push('/health-profile' as Href)}
+                    onPress={() => router.push(routes.healthProfile)}
                   >
                     <Text className="text-base leading-6 text-[#006492]">Chỉnh sửa</Text>
                     <Feather color="#006492" name="edit-2" size={13} />

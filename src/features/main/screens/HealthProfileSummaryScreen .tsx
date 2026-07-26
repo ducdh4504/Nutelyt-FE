@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { routes } from "@/src/config/routes";
 import { useHydratedProfile } from "../context/profile-context";
 import type { HealthProfileSummary, RouteProfileParams } from "../types";
 import {
@@ -427,27 +428,27 @@ export function HealthProfileSummaryScreen() {
     }
 
     router.replace({
-      pathname: "/setting",
+      pathname: routes.profileSettings,
       params: { profile: profileParamString },
     } as unknown as Href);
   };
 
   const openEditProfile = () => {
     router.push({
-      pathname: "/health-profile",
+      pathname: routes.healthProfile,
       params: { profile: profileParamString },
-    } as unknown as Href);
+    });
   };
 
   const openDashboard = () => {
     router.push({
-      pathname: "/dashboard",
+      pathname: routes.dashboard,
       params: { profile: profileParamString },
-    } as unknown as Href);
+    });
   };
 
   const openSubscription = () => {
-    router.push("/subscription" as Href);
+    router.push(routes.subscription);
   };
 
   return (

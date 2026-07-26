@@ -1,0 +1,15 @@
+export const routes = {
+  home: "/home",
+  history: "/history",
+  chatAi: "/chat-ai",
+  profile: "/profile",
+  profileSettings: "/profile/settings",
+  dashboard: "/dashboard",
+  dashboardWarningDetail: "/dashboard/warning-detail",
+  subscription: "/subscription",
+  subscriptionSuccess: "/subscription/success",
+  healthProfile: "/health-profile",
+  healthProfileSummary: "/health-profile-summary",
+  scan: "/scan",
+  analysisResult: "/analysis-result",
+} as const;
