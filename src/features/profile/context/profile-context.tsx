@@ -1,9 +1,14 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { getProfileFallback, parseHealthProfileParam, serializeProfile } from '@/features/health-profile/utils/health-profile';
-
-import type { HealthProfileSummary, RouteProfileParams } from '../profile.types';
+import {
+  getProfileFallback,
+  parseHealthProfileParam,
+  serializeProfile,
+  type HealthProfileSummary,
+} from '@/features/health-profile';
+import type { RouteProfileParams } from '@/types/navigation.types';
+import { getFirstRouteParam } from '@/utils/route-params';
 
 type ProfileContextValue = {
   hasCompletedHealthProfileThisRuntime: boolean;
@@ -14,10 +19,6 @@ type ProfileContextValue = {
 };
 
 const ProfileContext = createContext<ProfileContextValue | null>(null);
-
-function firstParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
 
 export function MainProfileProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<HealthProfileSummary>(() => getProfileFallback());
@@ -58,7 +59,7 @@ export function useHydratedProfile(params: RouteProfileParams) {
     profileParam,
     setProfile,
   } = useMainProfile();
-  const routeProfileParam = firstParam(params.profile);
+  const routeProfileParam = getFirstRouteParam(params.profile);
   const routeProfile = useMemo(
     () => parseHealthProfileParam({ profile: routeProfileParam }),
     [routeProfileParam]

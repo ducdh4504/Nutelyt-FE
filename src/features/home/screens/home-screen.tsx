@@ -5,13 +5,13 @@ import { useEffect, useRef } from "react";
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors } from "@/constants/tokens";
+import { colors } from "@/theme/tokens";
 
 import { MainScreenHeader } from "@/components/layout/main-screen-header";
 import { ImageWithSkeleton } from "@/components/ui";
-import { getProfileFallback } from "@/features/health-profile/utils/health-profile";
+import { getProfileFallback } from "@/features/health-profile";
 import { useHydratedProfile } from "@/features/profile";
-import type { RouteProfileParams } from "@/features/profile/profile.types";
+import type { RouteProfileParams } from "@/types/navigation.types";
 
 type FoodRecommendation = {
   id: string;
@@ -25,19 +25,19 @@ const foodRecommendations: FoodRecommendation[] = [
     id: "honey-grilled-chicken",
     name: "Ức gà nướng mật ong",
     description: "Giàu protein - ít béo",
-    image: require("../../../../assets/images/Food/Uc-ga-mat-ong.png"),
+    image: require("@assets/images/Food/Uc-ga-mat-ong.png"),
   },
   {
     id: "com-tam",
     name: "Cơm tấm",
     description: "Dinh dưỡng",
-    image: require("../../../../assets/images/Food/Com-tam.png"),
+    image: require("@assets/images/Food/Com-tam.png"),
   },
   {
     id: "salmon-salad",
     name: "Salad cá hồi",
     description: "Giàu vitamin - tiêu hóa tốt",
-    image: require("../../../../assets/images/Food/Salad-ca-hoi.png"),
+    image: require("@assets/images/Food/Salad-ca-hoi.png"),
   },
 ];
 

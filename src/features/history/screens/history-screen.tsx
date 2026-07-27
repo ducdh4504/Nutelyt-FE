@@ -5,12 +5,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/constants/tokens';
+import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/ui';
 
 import { MainScreenHeader } from '@/components/layout/main-screen-header';
 import { useHydratedProfile } from '@/features/profile';
-import type { RouteProfileParams } from '@/features/profile/profile.types';
+import type { RouteProfileParams } from '@/types/navigation.types';
 
 type HistoryStatus = 'Đã xem' | 'Đã lưu';
 
@@ -36,21 +36,21 @@ const historySections: HistorySection[] = [
         title: 'Bún bò lành mạnh',
         status: 'Đã xem',
         time: '10:32AM',
-        image: require('../../../../assets/images/Food/Bun-bo.png'),
+        image: require('@assets/images/Food/Bun-bo.png'),
       },
       {
         id: 'goi-y-3-mon-giam-can',
         title: 'Bữa ăn Việt Nam 3 món',
         status: 'Đã xem',
         time: '09:15AM',
-        image: require('../../../../assets/images/Food/Bua-an-3-mon.png'),
+        image: require('@assets/images/Food/Bua-an-3-mon.png'),
       },
       {
         id: 'uc-ga-nuong-mat-ong',
         title: 'Ức gà nướng mật ong',
         status: 'Đã lưu',
         time: '08:20AM',
-        image: require('../../../../assets/images/Food/Uc-ga-mat-ong.png'),
+        image: require('@assets/images/Food/Uc-ga-mat-ong.png'),
       },
     ],
   },
@@ -62,14 +62,14 @@ const historySections: HistorySection[] = [
         title: 'Cơm tấm sườn bì chả',
         status: 'Đã xem',
         time: '15:45PM',
-        image: require('../../../../assets/images/Food/Com-tam.png'),
+        image: require('@assets/images/Food/Com-tam.png'),
       },
       {
         id: 'salad-ca-hoi',
         title: 'Salad cá hồi',
         status: 'Đã xem',
         time: '17:22PM',
-        image: require('../../../../assets/images/Food/Salad-ca-hoi.png'),
+        image: require('@assets/images/Food/Salad-ca-hoi.png'),
       },
     ],
   },
@@ -81,7 +81,7 @@ const historySections: HistorySection[] = [
         title: 'Gợi ý món ăn tập gym',
         status: 'Đã xem',
         time: '18:30PM',
-        image: require('../../../../assets/images/Food/Mon-an-tap-gym.png'),
+        image: require('@assets/images/Food/Mon-an-tap-gym.png'),
       },
     ],
   },

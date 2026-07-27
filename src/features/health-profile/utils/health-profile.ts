@@ -1,4 +1,9 @@
-import type { HealthProfileSummary, RouteProfileParams } from '@/features/profile/profile.types';
+import type { RouteProfileParams } from '@/types/navigation.types';
+import { parsePositiveNumber } from '@/utils/numbers';
+import { getFirstRouteParam } from '@/utils/route-params';
+import { safeStringArray, safeText } from '@/utils/safe-values';
+
+import type { HealthProfileSummary } from '../health-profile.types';
 
 export function getProfileFallback(): HealthProfileSummary {
   return {
@@ -20,26 +25,14 @@ export function getProfileFallback(): HealthProfileSummary {
   };
 }
 
-function firstParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function safeText(value: unknown, fallback = '--') {
-  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
-}
-
-function safeArray(value: unknown) {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
-}
-
 function safeNullableText(value: unknown) {
   return typeof value === 'string' && value.trim() ? value.trim() : null;
 }
 
-function calculateAgeFromBirthDate(value: string) {
+export function calculateAgeFromBirthDate(value: string, fallback = '--') {
   const [year, month, day] = value.split('-').map(Number);
   if (!year || !month || !day) {
-    return '--';
+    return fallback;
   }
 
   const today = new Date();
@@ -50,11 +43,11 @@ function calculateAgeFromBirthDate(value: string) {
     age -= 1;
   }
 
-  return age > 0 ? `${age} tuổi` : '--';
+  return age > 0 ? `${age} tuổi` : fallback;
 }
 
 export function parseHealthProfileParam(params: RouteProfileParams): HealthProfileSummary {
-  const profileParam = firstParam(params.profile);
+  const profileParam = getFirstRouteParam(params.profile);
 
   if (!profileParam) {
     return getProfileFallback();
@@ -64,9 +57,9 @@ export function parseHealthProfileParam(params: RouteProfileParams): HealthProfi
     const parsed = JSON.parse(profileParam) as Partial<HealthProfileSummary>;
     const fallback = getProfileFallback();
     const dateOfBirth = safeText(parsed.dateOfBirth, '');
-    const conditionLabels = safeArray(parsed.conditionLabels);
-    const diseases = safeArray(parsed.diseases);
-    const conditions = safeArray(parsed.conditions);
+    const conditionLabels = safeStringArray(parsed.conditionLabels);
+    const diseases = safeStringArray(parsed.diseases);
+    const conditions = safeStringArray(parsed.conditions);
     const goal = safeNullableText(parsed.goal);
     const diet = safeNullableText(parsed.diet);
 
@@ -98,30 +91,15 @@ export function serializeProfile(profile: HealthProfileSummary) {
   return JSON.stringify(profile);
 }
 
-function parseNumeric(value: string) {
-  const normalized = value.replace(',', '.').replace(/[^\d.]/g, '');
-  const parsed = Number.parseFloat(normalized);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-}
-
 export function calculateBMI(heightCm: string, weightKg: string) {
-  const height = parseNumeric(heightCm);
-  const weight = parseNumeric(weightKg);
+  const height = parsePositiveNumber(heightCm);
+  const weight = parsePositiveNumber(weightKg);
 
   if (!height || !weight) {
     return null;
   }
 
   return weight / Math.pow(height / 100, 2);
-}
-
-export function getFirstName(fullName: string) {
-  const fallback = 'bạn';
-  if (!fullName || fullName === getProfileFallback().fullName) {
-    return fallback;
-  }
-
-  return fullName.trim().split(/\s+/).at(-1) ?? fallback;
 }
 
 export function normalizeToken(value: string) {
@@ -138,62 +116,4 @@ export function profileHas(profile: HealthProfileSummary, ids: string[], words: 
     const normalized = normalizeToken(value);
     return ids.includes(value) || words.some((word) => normalized.includes(word));
   });
-}
-
-export function getProfileDietChips(profile: HealthProfileSummary) {
-  const chips: string[] = [];
-  const add = (label: string) => {
-    if (!chips.includes(label)) {
-      chips.push(label);
-    }
-  };
-
-  if (profile.diet) {
-    const diet = normalizeToken(profile.diet);
-    if (diet.includes('keto')) {
-      add('Keto');
-    } else if (diet.includes('vegan') || diet.includes('chay')) {
-      add('Ăn chay');
-    } else if (diet.includes('low-carb') || diet.includes('giam tinh bot')) {
-      add('Ít tinh bột');
-    } else {
-      add(profile.diet);
-    }
-  }
-
-  if (profile.goal) {
-    const goal = normalizeToken(profile.goal);
-    if (profile.goal === 'loss' || goal.includes('giam can')) {
-      add('Giảm cân');
-    } else if (profile.goal === 'muscle' || goal.includes('tang co')) {
-      add('Tăng cơ');
-    } else if (profile.goal === 'maintain' || goal.includes('duy tri')) {
-      add('Duy trì sức khỏe');
-    } else {
-      add(profile.goal);
-    }
-  }
-
-  if (profileHas(profile, ['pressure', 'hypertension'], ['tang huyet ap'])) {
-    add('Hạn chế muối');
-  }
-
-  return chips.length ? chips.slice(0, 3) : ['Hồ sơ đang cập nhật'];
-}
-
-export function getProfileScore(profile: HealthProfileSummary) {
-  const bmi = calculateBMI(profile.height, profile.weight);
-  if (!bmi) {
-    return 85;
-  }
-
-  if (bmi >= 18.5 && bmi < 23) {
-    return 92;
-  }
-
-  if (bmi < 18.5 || bmi >= 25) {
-    return 78;
-  }
-
-  return 84;
 }

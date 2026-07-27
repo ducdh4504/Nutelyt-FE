@@ -1,3 +1,5 @@
+import { getFirstRouteParam } from '@/utils/route-params';
+
 import type { SubscriptionPlan } from '../subscription.types';
 
 export const subscriptionPlans: SubscriptionPlan[] = [
@@ -30,6 +32,6 @@ export const subscriptionPlans: SubscriptionPlan[] = [
 ];
 
 export function getSubscriptionPlan(planId: string | string[] | undefined) {
-  const normalizedPlanId = Array.isArray(planId) ? planId[0] : planId;
+  const normalizedPlanId = getFirstRouteParam(planId);
   return subscriptionPlans.find((plan) => plan.id === normalizedPlanId && !plan.isCurrent) ?? subscriptionPlans[1];
 }

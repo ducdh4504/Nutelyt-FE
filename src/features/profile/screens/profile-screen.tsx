@@ -1,20 +1,30 @@
 import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { routes } from '@/config/routes';
-import { colors } from '@/constants/tokens';
-import type { HealthProfilePayload } from '@/features/health-profile/types';
+import { colors } from '@/theme/tokens';
+import {
+  calculateAgeFromBirthDate,
+  calculateBMI,
+  parseHealthProfileParam,
+  type HealthProfilePayload,
+  type HealthProfileSummary,
+} from '@/features/health-profile';
 import { MainScreenHeader } from '@/components/layout/main-screen-header';
-import { parseHealthProfileParam } from '@/features/health-profile/utils/health-profile';
+import type { RouteProfileParams } from '@/types/navigation.types';
+import type { FeatherIconName } from '@/types/icon.types';
+import { parsePositiveNumber } from '@/utils/numbers';
+import { getFirstRouteParam } from '@/utils/route-params';
+import { safeStringArray, safeText } from '@/utils/safe-values';
 import { useHydratedProfile } from '../context/profile-context';
-import type { HealthProfileSummary, RouteProfileParams } from '../profile.types';
+import { isHealthProfileReviewPayload } from '../utils/profile-display';
 
-const wordmarkImage = require('../../../../assets/images/Nutelyt-text.png');
+const wordmarkImage = require('@assets/images/Nutelyt-text.png');
 
 type ProfileDisplayData = HealthProfilePayload & {
   age?: string;
@@ -37,7 +47,6 @@ const fallbackProfile: ProfileDisplayData = {
   weight: '--',
 };
 
-type FeatherName = ComponentProps<typeof Feather>['name'];
 type SummaryChipData = {
   id: string;
   label: string;
@@ -49,18 +58,6 @@ const cardShadow = { boxShadow: '0 16px 32px rgba(45, 156, 219, 0.06)' };
 const smallShadow = { boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' };
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function firstParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function safeText(value: unknown, fallback = '--') {
-  return typeof value === 'string' && value.trim() ? value.trim() : fallback;
-}
-
-function safeArray(value: unknown) {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
-}
-
 function parseProfileParam(profileParam: string | undefined): ProfileDisplayData {
   if (!profileParam) {
     return fallbackProfile;
@@ -68,9 +65,9 @@ function parseProfileParam(profileParam: string | undefined): ProfileDisplayData
 
   try {
     const parsed = JSON.parse(profileParam) as Partial<ProfileDisplayData>;
-    const conditionLabels = safeArray(parsed.conditionLabels);
-    const diseases = safeArray(parsed.diseases);
-    const conditions = safeArray(parsed.conditions);
+    const conditionLabels = safeStringArray(parsed.conditionLabels);
+    const diseases = safeStringArray(parsed.diseases);
+    const conditions = safeStringArray(parsed.conditions);
     const goal = safeText(parsed.goal, '');
     const diet = typeof parsed.diet === 'string' && parsed.diet.trim() ? parsed.diet.trim() : null;
 
@@ -116,42 +113,6 @@ function toProfileDisplayData(profile: HealthProfileSummary): ProfileDisplayData
   };
 }
 
-function isHealthProfileReviewPayload(profileParam: string | undefined) {
-  if (!profileParam) {
-    return false;
-  }
-
-  try {
-    const parsed = JSON.parse(profileParam) as Partial<HealthProfilePayload> & { age?: unknown; diseases?: unknown };
-    return (
-      typeof parsed.dateOfBirth === 'string' &&
-      typeof parsed.goalLabel === 'string' &&
-      typeof parsed.dietLabel === 'string' &&
-      typeof parsed.age === 'undefined' &&
-      typeof parsed.diseases === 'undefined'
-    );
-  } catch {
-    return false;
-  }
-}
-
-function parseNumeric(value: string) {
-  const normalized = value.replace(',', '.').replace(/[^\d.]/g, '');
-  const parsed = Number.parseFloat(normalized);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-}
-
-function calculateBMI(heightCm: string, weightKg: string) {
-  const height = parseNumeric(heightCm);
-  const weight = parseNumeric(weightKg);
-
-  if (!height || !weight) {
-    return null;
-  }
-
-  return weight / Math.pow(height / 100, 2);
-}
-
 function getBMILabel(bmi: number) {
   if (bmi < 18.5) {
     return 'Thiếu cân';
@@ -166,7 +127,7 @@ function getBMILabel(bmi: number) {
 }
 
 function formatMeasurement(value: string, unit: string) {
-  const numeric = parseNumeric(value);
+  const numeric = parsePositiveNumber(value);
   if (!numeric) {
     return '--';
   }
@@ -186,22 +147,8 @@ function formatDateOfBirth(value: string) {
   return `${day}/${month}/${year}`;
 }
 
-function calculateAge(value: string) {
-  const [year, month, day] = value.split('-').map(Number);
-  if (!year || !month || !day) {
-    return '--';
-  }
-  const today = new Date();
-  let age = today.getFullYear() - year;
-  const hasHadBirthday = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
-  if (!hasHadBirthday) {
-    age -= 1;
-  }
-  return age > 0 ? `${age} tuổi` : '--';
-}
-
 function getAgeDisplay(profile: ProfileDisplayData) {
-  const ageFromBirthDate = calculateAge(profile.dateOfBirth);
+  const ageFromBirthDate = calculateAgeFromBirthDate(profile.dateOfBirth);
   if (ageFromBirthDate !== '--') {
     return ageFromBirthDate;
   }
@@ -234,7 +181,7 @@ function SectionTitle({
   title,
 }: {
   color?: string;
-  icon: FeatherName;
+  icon: FeatherIconName;
   title: string;
 }) {
   return (
@@ -313,8 +260,8 @@ export function ProfileScreen({ mode: forcedMode }: { mode?: ProfileScreenMode }
   const saveScale = useRef(new Animated.Value(1)).current;
   const cardProgress = useRef(Array.from({ length: 8 }, () => new Animated.Value(0))).current;
 
-  const profileParamValue = firstParam(params.profile);
-  const routeMode = firstParam(params.mode);
+  const profileParamValue = getFirstRouteParam(params.profile);
+  const routeMode = getFirstRouteParam(params.mode);
   const reviewProfile = useMemo(() => parseProfileParam(profileParamValue), [profileParamValue]);
   const tabProfile = useMemo(() => toProfileDisplayData(storedProfile), [storedProfile]);
   const isReviewMode =

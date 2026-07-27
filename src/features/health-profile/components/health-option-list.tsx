@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import type { HealthOption } from '../types';
+import type { HealthOption } from '../health-profile.types';
 import { HealthOptionCard } from './health-option-card';
 
 export function HealthOptionList({

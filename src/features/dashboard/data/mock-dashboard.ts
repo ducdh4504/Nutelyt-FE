@@ -58,7 +58,7 @@ export const dashboardMock = {
       day: 'T2',
       date: '08/06',
       title: 'Cơm tấm',
-      image: require('../../../../assets/images/Food/Com-tam.png'),
+      image: require('@assets/images/Food/Com-tam.png'),
       tags: [
         { label: 'Natri cao', tone: 'danger' },
         { label: 'Ít rau', tone: 'neutral' },
@@ -71,7 +71,7 @@ export const dashboardMock = {
       day: 'T3',
       date: '09/06',
       title: 'Salad cá hồi',
-      image: require('../../../../assets/images/Food/Salad-ca-hoi.png'),
+      image: require('@assets/images/Food/Salad-ca-hoi.png'),
       tags: [
         { label: 'An toàn', tone: 'success' },
         { label: 'Béo tốt', tone: 'success' },
@@ -83,7 +83,7 @@ export const dashboardMock = {
       day: 'T4',
       date: '10/06',
       title: 'Bún bò lành mạnh',
-      image: require('../../../../assets/images/Food/Bun-bo.png'),
+      image: require('@assets/images/Food/Bun-bo.png'),
       tags: [
         { label: 'Natri cao', tone: 'danger' },
         { label: 'Đạm cao', tone: 'danger' },
@@ -106,19 +106,19 @@ export const dashboardMock = {
       {
         id: 'detail-com-tam',
         title: 'Cơm tấm',
-        image: require('../../../../assets/images/Food/Com-tam.png'),
+        image: require('@assets/images/Food/Com-tam.png'),
         note: 'Nên giảm nước mắm và đồ chua mặn.',
       },
       {
         id: 'detail-bun-bo',
         title: 'Bún bò lành mạnh',
-        image: require('../../../../assets/images/Food/Bun-bo.png'),
+        image: require('@assets/images/Food/Bun-bo.png'),
         note: 'Cân nhắc giảm nước dùng và thêm rau.',
       },
       {
         id: 'detail-salad-ca-hoi',
         title: 'Salad cá hồi',
-        image: require('../../../../assets/images/Food/Salad-ca-hoi.png'),
+        image: require('@assets/images/Food/Salad-ca-hoi.png'),
         note: 'Ưu tiên sốt ít muối.',
       },
     ],

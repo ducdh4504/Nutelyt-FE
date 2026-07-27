@@ -5,12 +5,16 @@ import { Pressable, ScrollView, Switch, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { routes } from "@/config/routes";
-import { useHydratedProfile } from "../context/profile-context";
-import type { HealthProfileSummary, RouteProfileParams } from "../profile.types";
 import {
+  calculateAgeFromBirthDate,
   parseHealthProfileParam,
   serializeProfile,
-} from "@/features/health-profile/utils/health-profile";
+  type HealthProfileSummary,
+} from "@/features/health-profile";
+import type { RouteProfileParams } from "@/types/navigation.types";
+import { getFirstRouteParam } from "@/utils/route-params";
+import { useHydratedProfile } from "../context/profile-context";
+import { getInitials, isHealthProfileReviewPayload } from "../utils/profile-display";
 
 const ui = {
   background: "#FAFAFA",
@@ -23,36 +27,6 @@ const ui = {
   greenSoft: "#E5F4EA",
   danger: "#E11D48",
 };
-
-function firstParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function isHealthProfileReviewPayload(profileParam: string | undefined) {
-  if (!profileParam) {
-    return false;
-  }
-
-  try {
-    const parsed = JSON.parse(profileParam) as {
-      dateOfBirth?: unknown;
-      goalLabel?: unknown;
-      dietLabel?: unknown;
-      age?: unknown;
-      diseases?: unknown;
-    };
-
-    return (
-      typeof parsed.dateOfBirth === "string" &&
-      typeof parsed.goalLabel === "string" &&
-      typeof parsed.dietLabel === "string" &&
-      typeof parsed.age === "undefined" &&
-      typeof parsed.diseases === "undefined"
-    );
-  } catch {
-    return false;
-  }
-}
 
 function hasCurrentSessionHealthProfile(profile: HealthProfileSummary) {
   return Boolean(
@@ -78,7 +52,7 @@ function getProfileDisplay(profile: HealthProfileSummary) {
     profile.age && profile.age !== "--"
       ? profile.age
       : profile.dateOfBirth
-        ? calculateAgeString(profile.dateOfBirth)
+        ? calculateAgeFromBirthDate(profile.dateOfBirth, "Chưa cập nhật")
         : "Chưa cập nhật";
 
   return {
@@ -87,28 +61,6 @@ function getProfileDisplay(profile: HealthProfileSummary) {
     age,
     initials: getInitials(displayName),
   };
-}
-
-function calculateAgeString(dateOfBirth: string) {
-  const [year, month, day] = dateOfBirth.split("-").map(Number);
-  if (!year || !month || !day) {
-    return "Chưa cập nhật";
-  }
-  const today = new Date();
-  let age = today.getFullYear() - year;
-  const hasHadBirthday =
-    today.getMonth() + 1 > month ||
-    (today.getMonth() + 1 === month && today.getDate() >= day);
-  if (!hasHadBirthday) {
-    age -= 1;
-  }
-  return age > 0 ? `${age} tuổi` : "Chưa cập nhật";
-}
-
-function getInitials(name: string) {
-  const parts = name.split(/\s+/).filter(Boolean);
-  const last = parts.at(-1) ?? "";
-  return (last.charAt(0) || "N").toLocaleUpperCase("vi-VN");
 }
 
 function Header({ onBack }: { onBack: () => void }) {
@@ -268,8 +220,8 @@ export function ProfileSettingsScreen() {
 
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(true);
 
-  const profileParamValue = firstParam(params.profile);
-  const routeMode = firstParam(params.mode);
+  const profileParamValue = getFirstRouteParam(params.profile);
+  const routeMode = getFirstRouteParam(params.mode);
   const isReviewMode =
     routeMode === "review" ||
     (!routeMode && isHealthProfileReviewPayload(profileParamValue));

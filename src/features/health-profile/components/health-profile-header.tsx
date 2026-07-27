@@ -2,10 +2,10 @@ import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Pressable, Text, View } from 'react-native';
 
-import { colors } from '@/constants/tokens';
+import { colors } from '@/theme/tokens';
 
 const brand = colors.primaryDark;
-const wordmarkImage = require('../../../../assets/images/Nutelyt-text.png');
+const wordmarkImage = require('@assets/images/Nutelyt-text.png');
 
 export function HealthProfileHeader({
   onBack,

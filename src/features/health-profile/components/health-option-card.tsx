@@ -2,9 +2,9 @@ import { Feather } from '@expo/vector-icons';
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
 
-import { colors } from '@/constants/tokens';
+import { colors } from '@/theme/tokens';
 
-import type { HealthOption } from '../types';
+import type { HealthOption } from '../health-profile.types';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const shadow = { boxShadow: '0 4px 8px rgba(0, 0, 0, 0.06)' };

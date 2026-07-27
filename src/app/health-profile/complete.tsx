@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/constants/tokens';
+import { colors } from '@/theme/tokens';
 
 export default function HealthProfileCompleteRoute() {
   const insets = useSafeAreaInsets();

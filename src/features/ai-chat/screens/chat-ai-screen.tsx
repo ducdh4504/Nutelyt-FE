@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
-import type { ComponentProps, Dispatch, ReactNode, SetStateAction } from "react";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -15,8 +15,9 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors } from "@/constants/tokens";
+import { colors } from "@/theme/tokens";
 import { MainScreenHeader } from "@/components/layout/main-screen-header";
+import type { FeatherIconName } from "@/types/icon.types";
 import {
   alternateMealSuggestionRecipeIds,
   firstMealSuggestionRecipeIds,
@@ -25,7 +26,6 @@ import {
 } from "../data/mock-recipes";
 import type { MockRecipe, RecipeId } from "../ai-chat.types";
 
-type FeatherName = ComponentProps<typeof Feather>["name"];
 type ChatMode = "entry" | "chat" | "detail";
 type ChatIntent = "self-select" | "meal-suggestion";
 type ChatOptionId = ChatIntent | "eat-out";
@@ -42,7 +42,7 @@ const alternateMealSuggestionIntro =
 
 const optionCards: {
   id: ChatOptionId;
-  icon: FeatherName;
+  icon: FeatherIconName;
   title: string;
   subtitle: string;
   tone: string;
@@ -191,7 +191,7 @@ function AIEntryImage() {
       <Image
         accessibilityIgnoresInvertColors
         contentFit="contain"
-        source={require("../../../../assets/images/Nutelyt-AI.png")}
+        source={require("@assets/images/Nutelyt-AI.png")}
         style={{ height: 116, width: 116 }}
       />
     </View>

@@ -16,7 +16,7 @@ export const mockRecipes: Record<RecipeId, MockRecipe> = {
   "bun-bo": {
     id: "bun-bo",
     name: "Bún bò",
-    image: require("../../../../assets/images/Food/Bun-bo.png"),
+    image: require("@assets/images/Food/Bun-bo.png"),
     chips: ["Giảm muối", "Ít béo", "Tăng rau xanh"],
     assistantIntro:
       "Đây là gợi ý công thức bún bò phù hợp với tình trạng sức khỏe của bạn:",
@@ -88,7 +88,7 @@ export const mockRecipes: Record<RecipeId, MockRecipe> = {
   "canh-chua": {
     id: "canh-chua",
     name: "Canh chua",
-    image: require("../../../../assets/images/Food/Canh-chua.png"),
+    image: require("@assets/images/Food/Canh-chua.png"),
     chips: ["Thanh nhẹ", "Nhiều rau", "Dễ ăn"],
     assistantIntro: "Canh chua giúp bữa cơm cân bằng vị chua nhẹ và rau củ.",
     previewNutrition: [
@@ -151,7 +151,7 @@ export const mockRecipes: Record<RecipeId, MockRecipe> = {
   "thit-kho": {
     id: "thit-kho",
     name: "Thịt kho",
-    image: require("../../../../assets/images/Food/Thit-kho.png"),
+    image: require("@assets/images/Food/Thit-kho.png"),
     chips: ["Đậm đà", "Giàu đạm", "Ăn cùng cơm"],
     assistantIntro: "Thịt kho là món mặn chính quen thuộc trong bữa cơm Việt.",
     previewNutrition: [
@@ -214,7 +214,7 @@ export const mockRecipes: Record<RecipeId, MockRecipe> = {
   "chom-chom": {
     id: "chom-chom",
     name: "Chôm chôm",
-    image: require("../../../../assets/images/Food/Chom-chom.png"),
+    image: require("@assets/images/Food/Chom-chom.png"),
     chips: ["Tráng miệng", "Khẩu phần nhỏ", "Trái cây"],
     assistantIntro: "Chôm chôm dùng như món trái cây tráng miệng sau bữa cơm.",
     previewNutrition: [
@@ -277,7 +277,7 @@ export const mockRecipes: Record<RecipeId, MockRecipe> = {
   "canh-kho-qua-nhoi-thit": {
     id: "canh-kho-qua-nhoi-thit",
     name: "Canh khổ qua nhồi thịt",
-    image: require("../../../../assets/images/Food/Canh-kho-qua.png"),
+    image: require("@assets/images/Food/Canh-kho-qua.png"),
     chips: ["Thanh nhẹ", "Có rau", "Đạm vừa"],
     assistantIntro:
       "Canh khổ qua nhồi thịt là món canh ấm, có rau và phần nhân đạm vừa phải.",
@@ -346,7 +346,7 @@ export const mockRecipes: Record<RecipeId, MockRecipe> = {
   "tom-rim": {
     id: "tom-rim",
     name: "Tôm rim",
-    image: require("../../../../assets/images/Food/Tom-rim.png"),
+    image: require("@assets/images/Food/Tom-rim.png"),
     chips: ["Giàu đạm", "Đậm vị", "Ăn với cơm"],
     assistantIntro:
       "Tôm rim là món mặn giàu đạm, phù hợp dùng như món chính trong bữa cơm.",
@@ -410,7 +410,7 @@ export const mockRecipes: Record<RecipeId, MockRecipe> = {
   chuoi: {
     id: "chuoi",
     name: "Chuối",
-    image: require("../../../../assets/images/Food/Chuoi.png"),
+    image: require("@assets/images/Food/Chuoi.png"),
     chips: ["Tráng miệng", "Khẩu phần nhỏ", "Trái cây"],
     assistantIntro:
       "Chuối là món trái cây tráng miệng đơn giản, tiện dùng sau bữa cơm.",

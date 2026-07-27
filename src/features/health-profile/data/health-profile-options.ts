@@ -1,6 +1,6 @@
-import { colors } from '@/constants/tokens';
+import { colors } from '@/theme/tokens';
 
-import type { HealthOption } from '../types';
+import type { HealthOption } from '../health-profile.types';
 
 const brand = colors.primaryDark;
 

@@ -10,8 +10,8 @@ import {
 } from "../data/subscription-plans";
 import type { SubscriptionPlan, SubscriptionPlanId } from "../subscription.types";
 
-const wordmarkImage = require("../../../../assets/images/Nutelyt-text.png");
-const mascotImage = require("../../../../assets/images/Nutelyt-AI.png");
+const wordmarkImage = require("@assets/images/Nutelyt-text.png");
+const mascotImage = require("@assets/images/Nutelyt-AI.png");
 
 const ui = {
   background: "#F7F8FC",

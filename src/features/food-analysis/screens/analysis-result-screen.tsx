@@ -4,10 +4,11 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Animated, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppHeader } from '@/components/layout/app-header';
-import { parseHealthProfileParam, serializeProfile } from '@/features/health-profile/utils/health-profile';
-import type { RouteProfileParams } from '@/features/profile/profile.types';
+import { parseHealthProfileParam, serializeProfile } from '@/features/health-profile';
+import type { RouteProfileParams } from '@/types/navigation.types';
+import { getFirstRouteParam } from '@/utils/route-params';
 
+import { AppHeader } from '../components/app-header';
 import { AIAnalysisCard } from '../components/ai-analysis-card';
 import { NutritionCard } from '../components/nutrition-card';
 import { getFoodById } from '../data/mock-foods';
@@ -34,7 +35,7 @@ export function AnalysisResultScreen() {
   const params = useLocalSearchParams<RouteProfileParams>();
   const profile = useMemo(() => parseHealthProfileParam(params), [params]);
   const profileParam = useMemo(() => serializeProfile(profile), [profile]);
-  const foodId = Array.isArray(params.foodId) ? params.foodId[0] : params.foodId;
+  const foodId = getFirstRouteParam(params.foodId);
   const food = useMemo(() => getFoodById(foodId), [foodId]);
   const status = getFoodStatusForProfile(profile, food);
   const statusTone = tone(status);

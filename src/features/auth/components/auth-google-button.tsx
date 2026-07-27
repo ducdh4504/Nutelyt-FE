@@ -1,6 +1,6 @@
 import { Pressable, Text, View, type PressableProps } from 'react-native';
 
-import { cn } from '@/lib/cn';
+import { cn } from '@/utils/cn';
 
 type AuthGoogleButtonProps = PressableProps & {
   className?: string;

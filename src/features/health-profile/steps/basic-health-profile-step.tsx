@@ -5,7 +5,7 @@ import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import { HealthField } from '../components/health-field';
 import { HealthInfoCard } from '../components/health-info-card';
 import { HealthSectionHeader } from '../components/health-profile-header';
-import type { Gender } from '../types';
+import type { Gender } from '../health-profile.types';
 
 const shadow = { boxShadow: '0 16px 16px rgba(0, 0, 0, 0.06)' };
 const years = Array.from({ length: 86 }, (_, index) => String(new Date().getFullYear() - 10 - index));

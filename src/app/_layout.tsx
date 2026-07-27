@@ -1,4 +1,4 @@
-import "../../global.css";
+import "@/theme/global.css";
 
 import {
   DarkTheme,

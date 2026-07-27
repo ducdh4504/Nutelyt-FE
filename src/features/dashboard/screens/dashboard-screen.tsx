@@ -5,8 +5,8 @@ import { useMemo } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { parseHealthProfileParam, serializeProfile } from "@/features/health-profile/utils/health-profile";
-import type { RouteProfileParams } from "@/features/profile/profile.types";
+import { parseHealthProfileParam, serializeProfile } from "@/features/health-profile";
+import type { RouteProfileParams } from "@/types/navigation.types";
 
 import { dashboardMock } from "../data/mock-dashboard";
 import type { DashboardFoodEntry, DashboardMacro, DashboardWarning } from "../dashboard.types";
@@ -53,7 +53,7 @@ const greenShadow = {
   elevation: 4,
 };
 
-const aiImage = require("../../../../assets/images/Nutelyt-AI.png");
+const aiImage = require("@assets/images/Nutelyt-AI.png");
 
 function Header({ onBack }: { onBack: () => void }) {
   return (

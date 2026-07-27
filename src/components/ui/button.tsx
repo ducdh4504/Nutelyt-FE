@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, Text, type PressableProps } from 'react-native';
 
-import { colors } from '@/constants/tokens';
-import { cn } from '@/lib/cn';
+import { colors } from '@/theme/tokens';
+import { cn } from '@/utils/cn';
 
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'warning';
 type ButtonSize = 'sm' | 'md' | 'lg';

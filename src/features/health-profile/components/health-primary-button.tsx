@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text } from 'react-native';
 
-import { colors } from '@/constants/tokens';
+import { colors } from '@/theme/tokens';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const shadow = { boxShadow: '0 4px 6px rgba(39, 174, 96, 0.3)' };
