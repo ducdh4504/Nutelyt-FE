@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 import { ScrollView, View, type ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { spacing } from '@/src/constants/tokens';
-import { cn } from '@/src/lib/cn';
+import { spacing } from '@/constants/tokens';
+import { cn } from '@/lib/cn';
 
 type ScreenContainerProps = ViewProps & {
   children: ReactNode;

@@ -1,4 +1,4 @@
-import { colors } from '@/src/constants/tokens';
+import { colors } from '@/constants/tokens';
 
 import type { HealthOption } from '../types';
 

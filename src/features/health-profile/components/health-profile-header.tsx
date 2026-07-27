@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { Pressable, Text, View } from 'react-native';
 
-import { colors } from '@/src/constants/tokens';
+import { colors } from '@/constants/tokens';
 
 const brand = colors.primaryDark;
 const wordmarkImage = require('../../../../assets/images/Nutelyt-text.png');

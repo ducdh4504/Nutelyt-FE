@@ -11,9 +11,9 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Button, Typography } from "@/src/components/ui";
+import { Button, Typography } from "@/components/ui";
 
-import { loginAssets } from "@/src/features/onboarding/onboarding-assets";
+import { loginAssets } from "@/features/onboarding/onboarding-assets";
 import { AuthGoogleButton } from "./components/auth-google-button";
 import { AuthTextInput } from "./components/auth-text-input";
 

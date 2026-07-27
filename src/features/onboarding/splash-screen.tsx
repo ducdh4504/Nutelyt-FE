@@ -5,8 +5,8 @@ import { useEffect, useRef } from "react";
 import { Animated, Easing, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { ScreenContainer } from "@/src/components/layout";
-import { onboardingAssets } from "@/src/features/onboarding/onboarding-assets";
+import { ScreenContainer } from "@/components/layout";
+import { onboardingAssets } from "@/features/onboarding/onboarding-assets";
 
 const logoImage = require("../../../assets/images/Nutelyt-logo.png");
 const onboardingWordmarkImage = require("../../../assets/images/Nutelyt-text.png");

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
-import { getProfileFallback, parseHealthProfileParam, serializeProfile } from '@/src/features/health-profile/utils/health-profile';
+import { getProfileFallback, parseHealthProfileParam, serializeProfile } from '@/features/health-profile/utils/health-profile';
 
 import type { HealthProfileSummary, RouteProfileParams } from '../profile.types';
 

@@ -1,7 +1,7 @@
 import type { TextProps } from 'react-native';
 import { Text } from 'react-native';
 
-import { cn } from '@/src/lib/cn';
+import { cn } from '@/lib/cn';
 
 type TextVariant = 'title' | 'subtitle' | 'body' | 'caption' | 'label';
 type TextTone = 'default' | 'muted' | 'primary' | 'warning' | 'inverse';

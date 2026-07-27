@@ -5,9 +5,9 @@ import { useMemo } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/src/constants/tokens';
-import { parseHealthProfileParam, serializeProfile } from '@/src/features/health-profile/utils/health-profile';
-import type { RouteProfileParams } from '@/src/features/profile/profile.types';
+import { colors } from '@/constants/tokens';
+import { parseHealthProfileParam, serializeProfile } from '@/features/health-profile/utils/health-profile';
+import type { RouteProfileParams } from '@/features/profile/profile.types';
 
 import { dashboardMock } from '../data/mock-dashboard';
 

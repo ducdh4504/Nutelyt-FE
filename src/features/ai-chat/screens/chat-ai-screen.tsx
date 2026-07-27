@@ -15,8 +15,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors } from "@/src/constants/tokens";
-import { MainScreenHeader } from "@/src/components/layout/main-screen-header";
+import { colors } from "@/constants/tokens";
+import { MainScreenHeader } from "@/components/layout/main-screen-header";
 import {
   alternateMealSuggestionRecipeIds,
   firstMealSuggestionRecipeIds,

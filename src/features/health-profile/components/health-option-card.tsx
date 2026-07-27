@@ -2,7 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
 
-import { colors } from '@/src/constants/tokens';
+import { colors } from '@/constants/tokens';
 
 import type { HealthOption } from '../types';
 

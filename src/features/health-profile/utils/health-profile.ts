@@ -1,4 +1,4 @@
-import type { HealthProfileSummary, RouteProfileParams } from '@/src/features/profile/profile.types';
+import type { HealthProfileSummary, RouteProfileParams } from '@/features/profile/profile.types';
 
 export function getProfileFallback(): HealthProfileSummary {
   return {

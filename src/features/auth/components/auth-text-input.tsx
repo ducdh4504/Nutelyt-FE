@@ -2,9 +2,9 @@ import { Feather } from '@expo/vector-icons';
 import { useState, type ComponentProps } from 'react';
 import { Pressable, TextInput, View, type TextInputProps } from 'react-native';
 
-import { Typography } from '@/src/components/ui';
-import { colors } from '@/src/constants/tokens';
-import { cn } from '@/src/lib/cn';
+import { Typography } from '@/components/ui';
+import { colors } from '@/constants/tokens';
+import { cn } from '@/lib/cn';
 
 type FeatherIconName = ComponentProps<typeof Feather>['name'];
 

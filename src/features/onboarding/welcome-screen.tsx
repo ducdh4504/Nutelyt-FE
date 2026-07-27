@@ -1,8 +1,8 @@
 import { Link } from 'expo-router';
 import { View } from 'react-native';
 
-import { ScreenContainer } from '@/src/components/layout';
-import { Button, Card, Typography } from '@/src/components/ui';
+import { ScreenContainer } from '@/components/layout';
+import { Button, Card, Typography } from '@/components/ui';
 
 export function WelcomeScreen() {
   return (

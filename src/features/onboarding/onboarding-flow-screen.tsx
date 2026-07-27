@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { Animated, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { ScreenContainer } from "@/src/components/layout";
-import { Button, Typography } from "@/src/components/ui";
+import { ScreenContainer } from "@/components/layout";
+import { Button, Typography } from "@/components/ui";
 
 import { ONBOARDING_STEPS } from "./onboarding-data";
 import { OnboardingIllustration } from "./onboarding-illustrations";

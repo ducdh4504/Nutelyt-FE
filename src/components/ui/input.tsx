@@ -1,8 +1,8 @@
 import { TextInput, View, type TextInputProps } from 'react-native';
 
-import { colors } from '@/src/constants/tokens';
-import { cn } from '@/src/lib/cn';
-import { Typography } from '@/src/components/ui/typography';
+import { colors } from '@/constants/tokens';
+import { cn } from '@/lib/cn';
+import { Typography } from '@/components/ui/typography';
 
 type InputProps = TextInputProps & {
   className?: string;

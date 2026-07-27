@@ -4,9 +4,9 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Animated, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppHeader } from '@/src/components/layout/app-header';
-import { parseHealthProfileParam, serializeProfile } from '@/src/features/health-profile/utils/health-profile';
-import type { RouteProfileParams } from '@/src/features/profile/profile.types';
+import { AppHeader } from '@/components/layout/app-header';
+import { parseHealthProfileParam, serializeProfile } from '@/features/health-profile/utils/health-profile';
+import type { RouteProfileParams } from '@/features/profile/profile.types';
 
 import { AIAnalysisCard } from '../components/ai-analysis-card';
 import { NutritionCard } from '../components/nutrition-card';

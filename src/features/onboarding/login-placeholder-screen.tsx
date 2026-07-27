@@ -1,7 +1,7 @@
 import { View } from 'react-native';
 
-import { ScreenContainer } from '@/src/components/layout';
-import { Button, Typography } from '@/src/components/ui';
+import { ScreenContainer } from '@/components/layout';
+import { Button, Typography } from '@/components/ui';
 
 export function LoginPlaceholderScreen() {
   return (

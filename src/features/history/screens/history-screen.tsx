@@ -5,12 +5,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/src/constants/tokens';
-import { ImageWithSkeleton } from '@/src/components/ui';
+import { colors } from '@/constants/tokens';
+import { ImageWithSkeleton } from '@/components/ui';
 
-import { MainScreenHeader } from '@/src/components/layout/main-screen-header';
-import { useHydratedProfile } from '@/src/features/profile';
-import type { RouteProfileParams } from '@/src/features/profile/profile.types';
+import { MainScreenHeader } from '@/components/layout/main-screen-header';
+import { useHydratedProfile } from '@/features/profile';
+import type { RouteProfileParams } from '@/features/profile/profile.types';
 
 type HistoryStatus = 'Đã xem' | 'Đã lưu';
 

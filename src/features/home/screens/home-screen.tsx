@@ -5,13 +5,13 @@ import { useEffect, useRef } from "react";
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors } from "@/src/constants/tokens";
+import { colors } from "@/constants/tokens";
 
-import { MainScreenHeader } from "@/src/components/layout/main-screen-header";
-import { ImageWithSkeleton } from "@/src/components/ui";
-import { getProfileFallback } from "@/src/features/health-profile/utils/health-profile";
-import { useHydratedProfile } from "@/src/features/profile";
-import type { RouteProfileParams } from "@/src/features/profile/profile.types";
+import { MainScreenHeader } from "@/components/layout/main-screen-header";
+import { ImageWithSkeleton } from "@/components/ui";
+import { getProfileFallback } from "@/features/health-profile/utils/health-profile";
+import { useHydratedProfile } from "@/features/profile";
+import type { RouteProfileParams } from "@/features/profile/profile.types";
 
 type FoodRecommendation = {
   id: string;

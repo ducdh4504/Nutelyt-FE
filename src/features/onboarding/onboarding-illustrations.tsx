@@ -7,7 +7,7 @@ import {
   type DimensionValue,
 } from "react-native";
 
-import { colors } from "@/src/constants/tokens";
+import { colors } from "@/constants/tokens";
 
 import { FoodScanIllustration } from "./components/FoodScanIllustration";
 import { onboardingImages } from "./onboarding-assets";

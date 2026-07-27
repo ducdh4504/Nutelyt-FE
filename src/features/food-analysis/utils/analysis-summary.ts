@@ -1,5 +1,5 @@
-import { normalizeToken, profileHas } from '@/src/features/health-profile/utils/health-profile';
-import type { HealthProfileSummary } from '@/src/features/profile/profile.types';
+import { normalizeToken, profileHas } from '@/features/health-profile/utils/health-profile';
+import type { HealthProfileSummary } from '@/features/profile/profile.types';
 
 import type { FoodStatus, MockFood } from '../food-analysis.types';
 
