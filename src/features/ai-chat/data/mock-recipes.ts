@@ -472,7 +472,3 @@ export const mockRecipes: Record<RecipeId, MockRecipe> = {
     ],
   },
 };
-
-export function getMockRecipe(recipeId: RecipeId | null | undefined) {
-  return recipeId ? mockRecipes[recipeId] : undefined;
-}

@@ -6,15 +6,15 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/theme/tokens';
+import { useDashboard } from '@/features/dashboard/hooks/use-dashboard';
 import { parseHealthProfileParam, serializeProfile } from '@/features/health-profile';
 import type { RouteProfileParams } from '@/types/navigation.types';
 
-import { dashboardMock } from '../data/mock-dashboard';
-
 const aiImage = require('@assets/images/Nutelyt-AI.png');
-const detail = dashboardMock.sodiumDetail;
 
 function Header({ onBack }: { onBack: () => void }) {
+  const detail = useDashboard().data.sodiumDetail;
+
   return (
     <View className="h-[56px] flex-row items-center bg-background px-5">
       <Pressable accessibilityLabel="Quay lại" accessibilityRole="button" className="h-12 w-12 items-start justify-center" onPress={onBack}>
@@ -26,6 +26,8 @@ function Header({ onBack }: { onBack: () => void }) {
 }
 
 function WarningSummaryCard() {
+  const detail = useDashboard().data.sodiumDetail;
+
   return (
     <View className="overflow-hidden rounded-[16px] border border-[#BA1A1A26] bg-[#FFF0EB] p-[17px]" style={{ boxShadow: '0 4px 20px rgba(186, 26, 26, 0.08)' }}>
       <View className="absolute right-0 top-0 rounded-bl-[8px] bg-[#BA1A1A] px-3 py-1">
@@ -61,6 +63,8 @@ function WarningSummaryCard() {
 }
 
 function RelatedMeals() {
+  const detail = useDashboard().data.sodiumDetail;
+
   return (
     <View className="gap-3">
       <Text className="text-xl font-semibold leading-7 text-foreground">Chi tiết bữa ăn</Text>
@@ -98,6 +102,8 @@ function AIUrgentCard() {
 }
 
 function SuggestedActions() {
+  const detail = useDashboard().data.sodiumDetail;
+
   return (
     <View className="gap-3 rounded-[16px] border border-[#E1E3E4] bg-card p-[17px]">
       <Text className="text-xl font-semibold leading-7 text-foreground">Gợi ý điều chỉnh</Text>
@@ -114,6 +120,8 @@ function SuggestedActions() {
 }
 
 function NutritionSummary() {
+  const detail = useDashboard().data.sodiumDetail;
+
   return (
     <View className="gap-3 opacity-80">
       <Text className="text-xl font-semibold leading-7 text-foreground">Tổng quan dinh dưỡng</Text>
@@ -137,6 +145,8 @@ export function DashboardWarningDetailScreen() {
   const params = useLocalSearchParams<RouteProfileParams>();
   const profile = useMemo(() => parseHealthProfileParam(params), [params]);
   const profileParam = useMemo(() => serializeProfile(profile), [profile]);
+  const dashboard = useDashboard().data;
+  const detail = dashboard.sodiumDetail;
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -157,7 +167,7 @@ export function DashboardWarningDetailScreen() {
       >
         <View className="items-center gap-2">
           <Text className="text-center text-[28px] font-bold leading-9 text-foreground">{detail.subtitle}</Text>
-          <Text className="text-center text-sm leading-5 text-[#3D4A3F]">Phân tích dựa trên các bữa ăn đã lưu từ {dashboardMock.period}</Text>
+          <Text className="text-center text-sm leading-5 text-[#3D4A3F]">Phân tích dựa trên các bữa ăn đã lưu từ {dashboard.period}</Text>
         </View>
         <View className="gap-4">
           <View className="flex-row items-center gap-2">

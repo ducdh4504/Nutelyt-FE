@@ -5,9 +5,8 @@ import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {
-  subscriptionPlans,
-} from "../data/subscription-plans";
+import { useSubscriptionPlans } from "@/features/subscription/hooks/use-subscription";
+
 import type { SubscriptionPlan, SubscriptionPlanId } from "../subscription.types";
 
 const wordmarkImage = require("@assets/images/Nutelyt-text.png");
@@ -437,6 +436,7 @@ function Footer() {
 export function SubscriptionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { data: subscriptionPlans } = useSubscriptionPlans();
 
   const [selectedPlanId, setSelectedPlanId] =
     useState<SubscriptionPlanId>("monthly");

@@ -40,3 +40,9 @@ export type MockRecipe = {
     value: string;
   }[];
 };
+
+export type RecipeCatalog = {
+  recipes: Record<RecipeId, MockRecipe>;
+  firstMealSuggestionRecipeIds: RecipeId[];
+  alternateMealSuggestionRecipeIds: RecipeId[];
+};

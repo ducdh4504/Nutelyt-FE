@@ -6,9 +6,9 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { parseHealthProfileParam, serializeProfile } from "@/features/health-profile";
+import { useDashboard } from "@/features/dashboard/hooks/use-dashboard";
 import type { RouteProfileParams } from "@/types/navigation.types";
 
-import { dashboardMock } from "../data/mock-dashboard";
 import type { DashboardFoodEntry, DashboardMacro, DashboardWarning } from "../dashboard.types";
 
 const dashboardColors = {
@@ -85,6 +85,8 @@ function Header({ onBack }: { onBack: () => void }) {
 }
 
 function InsightCard() {
+  const dashboard = useDashboard().data;
+
   return (
     <View
       className="flex-row gap-3 rounded-[14px] border p-4"
@@ -115,7 +117,7 @@ function InsightCard() {
           className="mt-1 text-[13px] leading-5"
           style={{ color: dashboardColors.text }}
         >
-          {dashboardMock.insight}
+          {dashboard.insight}
         </Text>
       </View>
     </View>
@@ -162,6 +164,8 @@ function MacroRow({ macro }: { macro: DashboardMacro }) {
 }
 
 function SummaryCards() {
+  const dashboard = useDashboard().data;
+
   return (
     <View className="flex-row gap-2.5">
       <View
@@ -182,23 +186,23 @@ function SummaryCards() {
           </Text>
 
           <Text className="mt-2 text-[28px] font-bold leading-9 text-white">
-            {dashboardMock.calories.average}
+            {dashboard.calories.average}
           </Text>
 
           <Text className="text-xs font-medium leading-5 text-white/90">
-            {dashboardMock.calories.unit}
+            {dashboard.calories.unit}
           </Text>
         </View>
 
         <View className="self-start rounded-full bg-white/20 px-3 py-1.5">
           <Text className="text-[11px] font-bold leading-4 text-white">
-            {dashboardMock.calories.delta}
+            {dashboard.calories.delta}
           </Text>
         </View>
       </View>
 
       <View className="flex-1 gap-2">
-        {dashboardMock.macros.map((macro) => (
+        {dashboard.macros.map((macro) => (
           <MacroRow key={macro.id} macro={macro} />
         ))}
       </View>
@@ -207,7 +211,8 @@ function SummaryCards() {
 }
 
 function ProgressCard() {
-  const progress = dashboardMock.consistency.progress;
+  const dashboard = useDashboard().data;
+  const progress = dashboard.consistency.progress;
 
   return (
     <View
@@ -225,14 +230,14 @@ function ProgressCard() {
           className="text-xl font-bold leading-7"
           style={{ color: dashboardColors.text }}
         >
-          {dashboardMock.consistency.days}
+          {dashboard.consistency.days}
         </Text>
 
         <Text
           className="mt-0.5 text-[13px] leading-5"
           style={{ color: dashboardColors.mutedText }}
         >
-          {dashboardMock.consistency.label}
+          {dashboard.consistency.label}
         </Text>
       </View>
 
@@ -332,6 +337,8 @@ function WarningCard({
 }
 
 function HealthWarnings({ onOpenDetail }: { onOpenDetail: () => void }) {
+  const dashboard = useDashboard().data;
+
   return (
     <View className="gap-2.5">
       <Text
@@ -342,7 +349,7 @@ function HealthWarnings({ onOpenDetail }: { onOpenDetail: () => void }) {
       </Text>
 
       <View className="gap-2">
-        {dashboardMock.warnings.map((warning) => (
+        {dashboard.warnings.map((warning) => (
           <WarningCard
             key={warning.id}
             onPress={warning.id === "sodium" ? onOpenDetail : undefined}
@@ -373,8 +380,9 @@ function LegendDot({ color, label }: { color: string; label: string }) {
 }
 
 function WeeklyChart() {
+  const dashboard = useDashboard().data;
   const maxValue = Math.max(
-    ...dashboardMock.chart.flatMap((day) => [day.carb, day.protein, day.fat]),
+    ...dashboard.chart.flatMap((day) => [day.carb, day.protein, day.fat]),
   );
 
   const barHeight = (value: number) => Math.max((value / maxValue) * 102, 12);
@@ -409,7 +417,7 @@ function WeeklyChart() {
         className="mt-3 h-[145px] flex-row items-end justify-between rounded-[12px] px-2 pb-4 pt-3"
         style={{ backgroundColor: dashboardColors.chartBg }}
       >
-        {dashboardMock.chart.map((day) => (
+        {dashboard.chart.map((day) => (
           <View className="items-center gap-1.5" key={day.day}>
             <View className="h-[106px] flex-row items-end gap-1">
               <View
@@ -463,7 +471,7 @@ function WeeklyChart() {
           className="text-[11px] leading-[18px]"
           style={{ color: dashboardColors.mutedText }}
         >
-          {dashboardMock.chartNote}
+          {dashboard.chartNote}
         </Text>
       </View>
     </View>
@@ -471,6 +479,8 @@ function WeeklyChart() {
 }
 
 function FoodGroups() {
+  const dashboard = useDashboard().data;
+
   return (
     <View className="gap-2.5">
       <Text
@@ -481,7 +491,7 @@ function FoodGroups() {
       </Text>
 
       <View className="flex-row flex-wrap gap-2">
-        {dashboardMock.foodGroups.map((group) => (
+        {dashboard.foodGroups.map((group) => (
           <View
             className="flex-row items-center gap-1.5 rounded-full border px-3 py-1.5"
             key={group.id}
@@ -618,6 +628,8 @@ function DiaryCard({ entry }: { entry: DashboardFoodEntry }) {
 }
 
 function FoodDiary() {
+  const dashboard = useDashboard().data;
+
   return (
     <View className="gap-2.5">
       <View className="flex-row items-center justify-between">
@@ -637,7 +649,7 @@ function FoodDiary() {
       </View>
 
       <View className="gap-3">
-        {dashboardMock.diary.map((entry) => (
+        {dashboard.diary.map((entry) => (
           <DiaryCard entry={entry} key={entry.id} />
         ))}
       </View>
@@ -646,6 +658,8 @@ function FoodDiary() {
 }
 
 function AISuggestionCard() {
+  const dashboard = useDashboard().data;
+
   return (
     <View
       className="overflow-hidden rounded-[20px] border p-4"
@@ -670,7 +684,7 @@ function AISuggestionCard() {
           className="mt-1.5 text-[13px] leading-5"
           style={{ color: dashboardColors.text }}
         >
-          {dashboardMock.aiAdvice}
+          {dashboard.aiAdvice}
         </Text>
 
         <Pressable

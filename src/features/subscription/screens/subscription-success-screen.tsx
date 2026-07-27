@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { getSubscriptionPlan } from "../data/subscription-plans";
+import { useSubscriptionPlan } from "@/features/subscription/hooks/use-subscription";
 
 const wordmarkImage = require("@assets/images/Nutelyt-text.png");
 const mascotImage = require("@assets/images/Nutelyt-AI.png");
@@ -353,11 +353,7 @@ export function SubscriptionSuccessScreen() {
   const insets = useSafeAreaInsets();
 
   const params = useLocalSearchParams<{ planId?: string | string[] }>();
-
-  const plan = useMemo(
-    () => getSubscriptionPlan(params.planId),
-    [params.planId],
-  );
+  const { data: plan } = useSubscriptionPlan(params.planId);
 
   const periodLabel = plan.period.trim();
 

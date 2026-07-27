@@ -17,13 +17,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/theme/tokens";
 import { MainScreenHeader } from "@/components/layout/main-screen-header";
+import { useRecipes } from "@/features/ai-chat/hooks/use-recipes";
 import type { FeatherIconName } from "@/types/icon.types";
-import {
-  alternateMealSuggestionRecipeIds,
-  firstMealSuggestionRecipeIds,
-  getMockRecipe,
-  mockRecipes,
-} from "../data/mock-recipes";
 import type { MockRecipe, RecipeId } from "../ai-chat.types";
 
 type ChatMode = "entry" | "chat" | "detail";
@@ -489,6 +484,12 @@ function ChatScreen({
   setMessages: Dispatch<SetStateAction<ChatMessage[]>>;
 }) {
   const insets = useSafeAreaInsets();
+  const { data: recipeCatalog } = useRecipes();
+  const {
+    alternateMealSuggestionRecipeIds,
+    firstMealSuggestionRecipeIds,
+    recipes,
+  } = recipeCatalog;
   const scrollRef = useRef<ScrollView>(null);
   const [input, setInput] = useState("");
   const [isVoiceRecording, setIsVoiceRecording] = useState(false);
@@ -514,7 +515,7 @@ function ChatScreen({
 
     if (intent === "self-select") {
       const isBunBo = normalized.includes("bun bo");
-      const bunBoRecipe = mockRecipes[BUN_BO_RECIPE_ID];
+      const bunBoRecipe = recipes[BUN_BO_RECIPE_ID];
 
       nextMessages.push(
         isBunBo
@@ -626,7 +627,7 @@ function ChatScreen({
 
         {messages.map((message) => {
           if ("type" in message) {
-            const recipe = getMockRecipe(message.recipeId);
+            const recipe = recipes[message.recipeId];
 
             return recipe ? (
               <RecipeSuggestionCard
@@ -980,6 +981,7 @@ function RecipeDetailScreen({
 
 export function ChatAIScreen() {
   const insets = useSafeAreaInsets();
+  const { data: recipeCatalog } = useRecipes();
   const [mode, setMode] = useState<ChatMode>("entry");
   const [chatIntent, setChatIntent] = useState<ChatIntent>("self-select");
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -1052,7 +1054,8 @@ export function ChatAIScreen() {
   };
 
   const selectedRecipe =
-    getMockRecipe(selectedRecipeId) ?? mockRecipes[BUN_BO_RECIPE_ID];
+    recipeCatalog.recipes[selectedRecipeId] ??
+    recipeCatalog.recipes[BUN_BO_RECIPE_ID];
 
   if (mode === "detail") {
     return (

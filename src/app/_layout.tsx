@@ -14,6 +14,7 @@ import { Platform, StyleSheet, View, type ViewStyle } from "react-native";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { MainProfileProvider } from "@/features/profile";
+import { QueryProvider } from "@/providers/query-provider";
 
 cssInterop(Image, { className: "style" });
 
@@ -25,34 +26,36 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const appContent = (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <MainProfileProvider>
-        <View style={styles.appHost}>
-          <Stack screenOptions={{ contentStyle: styles.navigatorContent }}>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="(tabs)"
-              options={{ gestureEnabled: false, headerShown: false }}
-            />
-            <Stack.Screen name="login" options={{ headerShown: false }} />
-            <Stack.Screen name="register" options={{ headerShown: false }} />
-            <Stack.Screen name="health-profile" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="profile/settings"
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen name="subscription" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="modal"
-              options={{ presentation: "modal", title: "Modal" }}
-            />
-            <Stack.Screen
-              name="health-profile-summary"
-              options={{ headerShown: false }}
-            />
-          </Stack>
-        </View>
-      </MainProfileProvider>
+      <QueryProvider>
+        <MainProfileProvider>
+          <View style={styles.appHost}>
+            <Stack screenOptions={{ contentStyle: styles.navigatorContent }}>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="(tabs)"
+                options={{ gestureEnabled: false, headerShown: false }}
+              />
+              <Stack.Screen name="login" options={{ headerShown: false }} />
+              <Stack.Screen name="register" options={{ headerShown: false }} />
+              <Stack.Screen name="health-profile" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="profile/settings"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen name="subscription" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="modal"
+                options={{ presentation: "modal", title: "Modal" }}
+              />
+              <Stack.Screen
+                name="health-profile-summary"
+                options={{ headerShown: false }}
+              />
+            </Stack>
+          </View>
+        </MainProfileProvider>
+      </QueryProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

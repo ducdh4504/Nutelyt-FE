@@ -5,6 +5,8 @@ import { useEffect, useRef } from "react";
 import { Animated, Easing, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { logger } from "@/services/logger/logger";
+
 import { ScreenContainer } from "../components/screen-container";
 import { onboardingAssets } from "../data/onboarding-assets";
 
@@ -70,11 +72,11 @@ export function SplashScreen() {
 
         assetResults.forEach((result, index) => {
           if (result.status === "rejected") {
-            console.log(`Splash preload step ${index} failed:`, result.reason);
+            logger.warn(`Splash preload step ${index} failed:`, result.reason);
           }
         });
       } catch (error) {
-        console.log("Load splash/onboarding assets failed:", error);
+        logger.warn("Load splash/onboarding assets failed:", error);
       } finally {
         if (!mounted) return;
 

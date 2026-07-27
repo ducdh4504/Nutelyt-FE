@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Button, Typography } from "@/components/ui";
 import { loginAssets } from "@/features/auth";
+import { logger } from "@/services/logger/logger";
 
 import { OnboardingIllustration } from "../components/onboarding-illustrations";
 import { OnboardingProgressDots } from "../components/onboarding-progress-dots";
@@ -51,7 +52,7 @@ export function OnboardingFlowScreen() {
 
     Image.prefetch(loginPrefetchUris, "memory-disk").catch((error) => {
       if (mounted) {
-        console.log("Preload login assets failed:", error);
+        logger.warn("Preload login assets failed:", error);
       }
     });
 

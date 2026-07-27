@@ -1,6 +1,5 @@
 import { Feather } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { type ImageSource } from 'expo-image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,83 +8,10 @@ import { colors } from '@/theme/tokens';
 import { ImageWithSkeleton } from '@/components/ui';
 
 import { MainScreenHeader } from '@/components/layout/main-screen-header';
+import { useHistory } from '@/features/history/hooks/use-history';
 import { useHydratedProfile } from '@/features/profile';
 import type { RouteProfileParams } from '@/types/navigation.types';
-
-type HistoryStatus = 'Đã xem' | 'Đã lưu';
-
-type HistoryItem = {
-  id: string;
-  title: string;
-  status: HistoryStatus;
-  time: string;
-  image: number | ImageSource;
-};
-
-type HistorySection = {
-  title: string;
-  data: HistoryItem[];
-};
-
-const historySections: HistorySection[] = [
-  {
-    title: 'Hôm nay',
-    data: [
-      {
-        id: 'bun-bo-lanh-manh',
-        title: 'Bún bò lành mạnh',
-        status: 'Đã xem',
-        time: '10:32AM',
-        image: require('@assets/images/Food/Bun-bo.png'),
-      },
-      {
-        id: 'goi-y-3-mon-giam-can',
-        title: 'Bữa ăn Việt Nam 3 món',
-        status: 'Đã xem',
-        time: '09:15AM',
-        image: require('@assets/images/Food/Bua-an-3-mon.png'),
-      },
-      {
-        id: 'uc-ga-nuong-mat-ong',
-        title: 'Ức gà nướng mật ong',
-        status: 'Đã lưu',
-        time: '08:20AM',
-        image: require('@assets/images/Food/Uc-ga-mat-ong.png'),
-      },
-    ],
-  },
-  {
-    title: 'Hôm qua',
-    data: [
-      {
-        id: 'com-tam-suon-bi-cha',
-        title: 'Cơm tấm sườn bì chả',
-        status: 'Đã xem',
-        time: '15:45PM',
-        image: require('@assets/images/Food/Com-tam.png'),
-      },
-      {
-        id: 'salad-ca-hoi',
-        title: 'Salad cá hồi',
-        status: 'Đã xem',
-        time: '17:22PM',
-        image: require('@assets/images/Food/Salad-ca-hoi.png'),
-      },
-    ],
-  },
-  {
-    title: '2 ngày trước',
-    data: [
-      {
-        id: 'goi-y-mon-an-tap-gym',
-        title: 'Gợi ý món ăn tập gym',
-        status: 'Đã xem',
-        time: '18:30PM',
-        image: require('@assets/images/Food/Mon-an-tap-gym.png'),
-      },
-    ],
-  },
-];
+import type { HistoryItem } from '@/features/history/history.types';
 
 const cardShadow = {
   boxShadow: '0 10px 24px rgba(0, 0, 0, 0.06)',
@@ -135,6 +61,7 @@ export function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<RouteProfileParams>();
   const { profileParam } = useHydratedProfile(params);
+  const { data: historySections } = useHistory();
   const [query, setQuery] = useState('');
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(14)).current;
@@ -159,7 +86,7 @@ export function HistoryScreen() {
         data: section.data.filter((item) => item.title.toLocaleLowerCase('vi-VN').includes(normalizedQuery)),
       }))
       .filter((section) => section.data.length > 0);
-  }, [query]);
+  }, [historySections, query]);
 
   const goDashboard = () => {
     router.push({ pathname: '/dashboard', params: { profile: profileParam } } as unknown as Href);

@@ -135,7 +135,7 @@ export function HealthProfileFlowScreen() {
 
   return (
     <KeyboardAvoidingView
-      behavior={process.env.EXPO_OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       className="flex-1 bg-background"
       style={styles.screen}
     >

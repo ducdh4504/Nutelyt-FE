@@ -1,6 +1,6 @@
 import type { MockFood } from '../food-analysis.types';
 
-const mockFoods: MockFood[] = [
+export const mockFoods: MockFood[] = [
   {
     id: 'bun-bo-hue',
     name: 'Bún bò Huế',
@@ -157,9 +157,3 @@ const mockFoods: MockFood[] = [
     ],
   },
 ];
-
-const defaultFood = mockFoods[0];
-
-export function getFoodById(foodId?: string) {
-  return mockFoods.find((food) => food.id === foodId) ?? defaultFood;
-}

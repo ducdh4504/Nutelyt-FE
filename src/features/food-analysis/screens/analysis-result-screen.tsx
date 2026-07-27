@@ -5,13 +5,13 @@ import { Animated, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { parseHealthProfileParam, serializeProfile } from '@/features/health-profile';
+import { useFoodAnalysis } from '@/features/food-analysis/hooks/use-food-analysis';
 import type { RouteProfileParams } from '@/types/navigation.types';
 import { getFirstRouteParam } from '@/utils/route-params';
 
 import { AppHeader } from '../components/app-header';
 import { AIAnalysisCard } from '../components/ai-analysis-card';
 import { NutritionCard } from '../components/nutrition-card';
-import { getFoodById } from '../data/mock-foods';
 import {
   getAIAnalysisCopy,
   getAnalysisWarnings,
@@ -36,7 +36,7 @@ export function AnalysisResultScreen() {
   const profile = useMemo(() => parseHealthProfileParam(params), [params]);
   const profileParam = useMemo(() => serializeProfile(profile), [profile]);
   const foodId = getFirstRouteParam(params.foodId);
-  const food = useMemo(() => getFoodById(foodId), [foodId]);
+  const { data: food } = useFoodAnalysis(foodId);
   const status = getFoodStatusForProfile(profile, food);
   const statusTone = tone(status);
   const warnings = useMemo(() => getAnalysisWarnings(profile, food), [food, profile]);

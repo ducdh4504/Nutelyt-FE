@@ -1,32 +1,9 @@
-import type { ImageSource } from 'expo-image';
+import type { z } from "zod";
 
-export type DashboardMacro = {
-  id: 'carb' | 'protein' | 'fat';
-  label: string;
-  value: string;
-  color: string;
-};
+import type { dashboardSchema } from "@/features/dashboard/schemas/dashboard.schema";
 
-export type DashboardChartDay = {
-  day: string;
-  carb: number;
-  protein: number;
-  fat: number;
-};
-
-export type DashboardWarning = {
-  id: 'sodium' | 'protein';
-  title: string;
-  message: string;
-  tone: 'danger' | 'warning';
-};
-
-export type DashboardFoodEntry = {
-  id: string;
-  day: string;
-  date: string;
-  title: string;
-  image: number | ImageSource;
-  tags: { label: string; tone: 'danger' | 'success' | 'neutral' }[];
-  suggestion: string;
-};
+export type DashboardData = z.infer<typeof dashboardSchema>;
+export type DashboardMacro = DashboardData["macros"][number];
+export type DashboardChartDay = DashboardData["chart"][number];
+export type DashboardWarning = DashboardData["warnings"][number];
+export type DashboardFoodEntry = DashboardData["diary"][number];

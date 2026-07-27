@@ -1,5 +1,3 @@
-import { getFirstRouteParam } from '@/utils/route-params';
-
 import type { SubscriptionPlan } from '../subscription.types';
 
 export const subscriptionPlans: SubscriptionPlan[] = [
@@ -30,8 +28,3 @@ export const subscriptionPlans: SubscriptionPlan[] = [
     badge: 'TIẾT KIỆM HƠN',
   },
 ];
-
-export function getSubscriptionPlan(planId: string | string[] | undefined) {
-  const normalizedPlanId = getFirstRouteParam(planId);
-  return subscriptionPlans.find((plan) => plan.id === normalizedPlanId && !plan.isCurrent) ?? subscriptionPlans[1];
-}

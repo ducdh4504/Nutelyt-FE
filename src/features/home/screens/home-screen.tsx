@@ -1,5 +1,4 @@
 import { Feather } from "@expo/vector-icons";
-import { type ImageSource } from "expo-image";
 import { useLocalSearchParams, useRouter, type Href } from "expo-router";
 import { useEffect, useRef } from "react";
 import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -9,37 +8,11 @@ import { colors } from "@/theme/tokens";
 
 import { MainScreenHeader } from "@/components/layout/main-screen-header";
 import { ImageWithSkeleton } from "@/components/ui";
+import { useHomeRecommendations } from "@/features/home/hooks/use-home-recommendations";
 import { getProfileFallback } from "@/features/health-profile";
 import { useHydratedProfile } from "@/features/profile";
 import type { RouteProfileParams } from "@/types/navigation.types";
-
-type FoodRecommendation = {
-  id: string;
-  name: string;
-  description: string;
-  image: ImageSource;
-};
-
-const foodRecommendations: FoodRecommendation[] = [
-  {
-    id: "honey-grilled-chicken",
-    name: "Ức gà nướng mật ong",
-    description: "Giàu protein - ít béo",
-    image: require("@assets/images/Food/Uc-ga-mat-ong.png"),
-  },
-  {
-    id: "com-tam",
-    name: "Cơm tấm",
-    description: "Dinh dưỡng",
-    image: require("@assets/images/Food/Com-tam.png"),
-  },
-  {
-    id: "salmon-salad",
-    name: "Salad cá hồi",
-    description: "Giàu vitamin - tiêu hóa tốt",
-    image: require("@assets/images/Food/Salad-ca-hoi.png"),
-  },
-];
+import type { FoodRecommendation } from "@/features/home/home.types";
 
 const cardShadow = {
   boxShadow: "0 10px 24px rgba(0, 0, 0, 0.06)",
@@ -115,6 +88,7 @@ export function HomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { profile } = useHydratedProfile(params);
+  const { data: foodRecommendations } = useHomeRecommendations();
 
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(12)).current;
