@@ -1,22 +1,29 @@
-import { useRouter } from "expo-router";
 import { Asset } from "expo-asset";
+import { useFonts } from "expo-font";
 import { Image } from "expo-image";
-import { useEffect, useRef, useState } from "react";
-import { Animated, Pressable, ScrollView, Text, View } from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useRef } from "react";
+import {
+  Animated,
+  BackHandler,
+  ScrollView,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Button, Typography } from "@/components/ui";
 import { loginAssets } from "@/features/auth";
 import { logger } from "@/services/logger/logger";
 
-import { OnboardingIllustration } from "../components/onboarding-illustrations";
-import { OnboardingProgressDots } from "../components/onboarding-progress-dots";
-import { ScreenContainer } from "../components/screen-container";
-import { ONBOARDING_STEPS } from "../data/onboarding-data";
-
-const TRANSITION_OUT_MS = 110;
-const TRANSITION_IN_MS = 170;
-const wordmarkImage = require("@assets/images/Nutelyt-text.png");
+import { OnboardingSlideView } from "../components/onboarding-slide";
+import {
+  ONBOARDING_FONT_FAMILY,
+  ONBOARDING_FONTS,
+} from "../config/onboarding-fonts";
+import { ONBOARDING_SLIDES } from "../config/onboarding-slides";
+import { onboardingColors } from "../config/onboarding-theme";
+import { useOnboardingActivity } from "../hooks/use-onboarding-activity";
+import { useOnboardingFlow } from "../hooks/use-onboarding-flow";
 
 const loginPrefetchUris = loginAssets
   .map((moduleId) => {
@@ -30,26 +37,77 @@ const loginPrefetchUris = loginAssets
   .filter((uri): uri is string => typeof uri === "string" && uri.length > 0);
 
 export function OnboardingFlowScreen() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [slideDirection, setSlideDirection] = useState(1);
-  const transitionProgress = useRef(new Animated.Value(1)).current;
+  const [fontsLoaded, fontError] = useFonts(ONBOARDING_FONTS);
+  const { height, width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
-  const router = useRouter();
-  const step = ONBOARDING_STEPS[activeIndex];
-  const isFinalStep = activeIndex === ONBOARDING_STEPS.length - 1;
+  const scrollRef = useRef<ScrollView>(null);
+  const transitionProgress = useRef(new Animated.Value(1)).current;
+  const {
+    activeIndex,
+    complete,
+    continueToNext,
+    direction,
+    goBack,
+    isCompleting,
+    isTransitioning,
+    navigationError,
+  } = useOnboardingFlow();
+  const { isMotionEnabled, shouldReduceMotion } = useOnboardingActivity();
+  const slide = ONBOARDING_SLIDES[activeIndex] ?? ONBOARDING_SLIDES[0];
+  const isCompact = height - insets.top - insets.bottom < 760;
+  const contentWidth = Math.min(Math.max(width - 40, 280), 350);
+  const heroWidth = Math.min(contentWidth, isCompact ? 284 : 350);
+  const fontFamily = fontsLoaded ? ONBOARDING_FONT_FAMILY : undefined;
+  const isDisabled = isTransitioning || isCompleting;
 
   useEffect(() => {
-    if (!isFinalStep) {
+    if (fontError) {
+      logger.warn("Onboarding font failed to load; using system font:", fontError);
+    }
+  }, [fontError]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ animated: false, y: 0 });
+
+    if (shouldReduceMotion) {
+      transitionProgress.setValue(1);
       return;
     }
 
-    if (loginPrefetchUris.length === 0) {
+    transitionProgress.setValue(0);
+    Animated.timing(transitionProgress, {
+      duration: 280,
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  }, [activeIndex, shouldReduceMotion, transitionProgress]);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        if (activeIndex === 0) {
+          return false;
+        }
+
+        if (!isDisabled) {
+          goBack();
+        }
+        return true;
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, [activeIndex, goBack, isDisabled]);
+
+  useEffect(() => {
+    if (slide.step !== 3 || loginPrefetchUris.length === 0) {
       return;
     }
 
     let mounted = true;
-
     Image.prefetch(loginPrefetchUris, "memory-disk").catch((error) => {
       if (mounted) {
         logger.warn("Preload login assets failed:", error);
@@ -59,54 +117,7 @@ export function OnboardingFlowScreen() {
     return () => {
       mounted = false;
     };
-  }, [isFinalStep]);
-
-  function animateToStep(nextIndex: number, direction: number) {
-    if (isTransitioning || nextIndex === activeIndex) {
-      return;
-    }
-
-    setIsTransitioning(true);
-    setSlideDirection(direction);
-
-    Animated.timing(transitionProgress, {
-      duration: TRANSITION_OUT_MS,
-      toValue: 0,
-      useNativeDriver: true,
-    }).start(() => {
-      setActiveIndex(nextIndex);
-      transitionProgress.setValue(0);
-
-      Animated.timing(transitionProgress, {
-        duration: TRANSITION_IN_MS,
-        toValue: 1,
-        useNativeDriver: true,
-      }).start(() => {
-        setIsTransitioning(false);
-      });
-    });
-  }
-
-  function handleContinue() {
-    if (isTransitioning) {
-      return;
-    }
-
-    if (isFinalStep) {
-      router.replace("/login");
-      return;
-    }
-
-    animateToStep(activeIndex + 1, 1);
-  }
-
-  function handleBack() {
-    animateToStep(Math.max(activeIndex - 1, 0), -1);
-  }
-
-  function handleSkip() {
-    animateToStep(ONBOARDING_STEPS.length - 1, 1);
-  }
+  }, [slide.step]);
 
   const animatedContentStyle = {
     opacity: transitionProgress,
@@ -114,172 +125,49 @@ export function OnboardingFlowScreen() {
       {
         translateX: transitionProgress.interpolate({
           inputRange: [0, 1],
-          outputRange: [slideDirection * 18, 0],
+          outputRange: [direction * 18, 0],
         }),
       },
     ],
   };
 
   return (
-    <ScreenContainer className="bg-background" contentClassName="px-0 py-0">
-      <View className="flex-1 bg-background">
-        <OnboardingHeader
-          canGoBack={activeIndex > 0}
-          canSkip={!isFinalStep}
-          onBack={handleBack}
-          onSkip={handleSkip}
-        />
-
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: 20,
-            paddingHorizontal: 20,
-          }}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-        >
-          <Animated.View
-            className="flex-1 items-center justify-between"
-            style={animatedContentStyle}
-          >
-            <View className="w-full max-w-[384px]">
-              <OnboardingIllustration id={step.id} />
-            </View>
-
-            <View className="w-full max-w-[448px] items-center gap-4 pb-3">
-              <Typography
-                className="text-center text-2xl leading-9"
-                variant="subtitle"
-              >
-                {step.title}
-              </Typography>
-              <Typography
-                className="px-2 text-center text-[15px] leading-7"
-                tone="muted"
-              >
-                {step.description}
-              </Typography>
-
-              {!isFinalStep ? (
-                <View className="pt-5">
-                  <OnboardingProgressDots
-                    activeIndex={activeIndex}
-                    total={ONBOARDING_STEPS.length}
-                  />
-                </View>
-              ) : null}
-            </View>
-          </Animated.View>
-        </ScrollView>
-
-        <View
-          className="items-center gap-4 px-5 pt-4"
-          style={{
-            paddingBottom: isFinalStep
-              ? Math.max(insets.bottom, 32)
-              : Math.max(insets.bottom, 20),
-          }}
-        >
-          {isFinalStep ? (
-            <View className="pb-3">
-              <OnboardingProgressDots
-                activeIndex={activeIndex}
-                total={ONBOARDING_STEPS.length}
-              />
-            </View>
-          ) : null}
-
-          <Button
-            className="h-14 w-full max-w-[384px] rounded-[12px] border-primary-600 bg-primary-600"
-            disabled={isTransitioning}
-            onPress={handleContinue}
-            size="lg"
-          >
-            <View className="flex-row items-center justify-center gap-2">
-              <Text
-                className={
-                  isFinalStep
-                    ? "text-lg text-white"
-                    : "text-sm font-semibold text-white"
-                }
-              >
-                {step.primaryLabel}
-              </Text>
-              <Text className="text-lg font-semibold text-white">→</Text>
-            </View>
-          </Button>
-
-          {step.secondaryLabel ? (
-            <Pressable
-              accessibilityRole="button"
-              className="min-h-12 justify-center px-6"
-              disabled={isTransitioning}
-              onPress={handleSkip}
-            >
-              <Text className="text-center text-sm font-semibold text-muted">
-                {step.secondaryLabel}
-              </Text>
-            </Pressable>
-          ) : null}
-        </View>
-      </View>
-    </ScreenContainer>
-  );
-}
-
-function OnboardingHeader({
-  canGoBack,
-  canSkip,
-  onBack,
-  onSkip,
-}: {
-  canGoBack: boolean;
-  canSkip: boolean;
-  onBack: () => void;
-  onSkip: () => void;
-}) {
-  return (
-    <View className="h-14 flex-row items-center justify-between bg-background px-5">
-      <View className="h-12 w-20 items-start justify-center">
-        {canGoBack ? (
-          <Pressable
-            accessibilityLabel="Go back"
-            accessibilityRole="button"
-            className="h-12 w-12 items-center justify-center rounded-full"
-            onPress={onBack}
-          >
-            <Text className="text-2xl text-foreground">‹</Text>
-          </Pressable>
-        ) : null}
-      </View>
-
-      <View
-        className="absolute inset-x-0 top-0 h-14 items-center justify-center"
-        pointerEvents="none"
+    <View
+      className="flex-1"
+      style={{
+        backgroundColor: onboardingColors.background,
+        paddingTop: insets.top,
+      }}
+    >
+      <StatusBar backgroundColor={onboardingColors.background} style="dark" />
+      <ScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+          paddingBottom: Math.max(insets.bottom, 12),
+          paddingHorizontal: 20,
+        }}
+        contentInsetAdjustmentBehavior="never"
+        keyboardShouldPersistTaps="handled"
+        ref={scrollRef}
+        showsVerticalScrollIndicator={false}
       >
-        <Image
-          accessibilityLabel="Nutelyt"
-          className="h-7 w-28"
-          contentFit="contain"
-          source={wordmarkImage}
-        />
-      </View>
-
-      {canSkip ? (
-        <View className="h-12 w-20 items-end justify-center">
-          <Pressable
-            accessibilityRole="button"
-            className="min-h-12 justify-center rounded-[12px] px-4"
-            onPress={onSkip}
-          >
-            <Text className="text-sm font-semibold text-[#006492]">Bỏ qua</Text>
-          </Pressable>
-        </View>
-      ) : (
-        <View className="h-12 w-20" />
-      )}
+        <Animated.View className="flex-1" style={animatedContentStyle}>
+          <OnboardingSlideView
+            contentWidth={contentWidth}
+            disabled={isDisabled}
+            fontFamily={fontFamily}
+            heroWidth={heroWidth}
+            isCompact={isCompact}
+            isCompleting={isCompleting}
+            isMotionEnabled={isMotionEnabled}
+            navigationError={navigationError}
+            onBack={goBack}
+            onPrimaryAction={continueToNext}
+            onSkip={complete}
+            slide={slide}
+          />
+        </Animated.View>
+      </ScrollView>
     </View>
   );
 }

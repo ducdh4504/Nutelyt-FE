@@ -1,10 +1,10 @@
-// Thêm toàn bộ ảnh mà OnboardingIllustration đang dùng vào đây
-const onboardingImage1 = require("@assets/images/onboarding1-bg.png");
-const onboardingImage2 = require("@assets/images/Scan-Fruit-Vegetable.png");
+// Splash preloads this list before handing off to the onboarding route.
+const onboardingLogo = require("@assets/images/Nutelyt-logo.png");
+const onboardingMascot = require("@assets/images/Nutelyt-AI.png");
 
-export const onboardingAssets = [onboardingImage1, onboardingImage2];
+export const onboardingAssets = [onboardingLogo, onboardingMascot];
 
 export const onboardingImages = {
-  step1: onboardingImage1,
-  step2: onboardingImage2,
+  logo: onboardingLogo,
+  mascot: onboardingMascot,
 };

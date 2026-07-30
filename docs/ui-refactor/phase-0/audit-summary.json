@@ -1,0 +1,785 @@
+{
+  "project": {
+    "name": "Nutelyt-FE",
+    "auditDate": "2026-07-27",
+    "timezone": "Asia/Saigon",
+    "branch": "feature/refactor-new-design",
+    "phase": "Phase 0",
+    "scope": "Read-only frontend, Figma, architecture, model, mock, infrastructure, and validation audit",
+    "productionCodeModified": false,
+    "splashDisposition": "KEEP",
+    "defaultOtherScreenDisposition": "REPLACE UI",
+    "expoSdk": "54",
+    "installedExpo": "54.0.35",
+    "expectedExpo": "~54.0.36",
+    "installedExpoRouter": "6.0.23",
+    "figmaFileKey": "nWwlWMJdfhUjO7ytN4hCzQ",
+    "figmaPageId": "0:1",
+    "figmaApplicationFrameCount": 50,
+    "validation": {
+      "typecheck": "pass",
+      "eslintNoCache": "pass",
+      "packageLint": "infrastructure failure: EPERM writing Expo ESLint cache",
+      "expoDependencyCheck": "fail: Expo patch mismatch",
+      "expoDoctor": "not completed: not locally installed and package download prohibited",
+      "tests": "not available"
+    }
+  },
+  "routes": [
+    {
+      "path": "/",
+      "file": "src/app/index.tsx",
+      "parent": "root Stack",
+      "type": "index",
+      "guards": [],
+      "feature": "onboarding",
+      "screen": "SplashScreen",
+      "status": "KEEP"
+    },
+    {
+      "path": "/onboarding",
+      "file": "src/app/onboarding.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "onboarding",
+      "screen": "OnboardingFlowScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/login",
+      "file": "src/app/login.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "auth",
+      "screen": "LoginScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/register",
+      "file": "src/app/register.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "auth",
+      "screen": "RegisterScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/home",
+      "file": "src/app/(tabs)/home.tsx",
+      "parent": "(tabs)",
+      "type": "tab",
+      "guards": [],
+      "feature": "home",
+      "screen": "HomeScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/history",
+      "file": "src/app/(tabs)/history.tsx",
+      "parent": "(tabs)",
+      "type": "tab",
+      "guards": [],
+      "feature": "history",
+      "screen": "HistoryScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/chat-ai",
+      "file": "src/app/(tabs)/chat-ai.tsx",
+      "parent": "(tabs)",
+      "type": "tab",
+      "guards": [],
+      "feature": "ai-chat",
+      "screen": "ChatAIScreen",
+      "status": "ROUTE CHANGE REQUIRED"
+    },
+    {
+      "path": "/profile",
+      "file": "src/app/(tabs)/profile.tsx",
+      "parent": "(tabs)",
+      "type": "tab",
+      "guards": [],
+      "feature": "profile",
+      "screen": "ProfileScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/profile/settings",
+      "file": "src/app/profile/settings.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "profile",
+      "screen": "ProfileSettingsScreen",
+      "status": "ROUTE CHANGE REQUIRED"
+    },
+    {
+      "path": "/setting",
+      "file": "src/app/setting.tsx",
+      "parent": "root Stack",
+      "type": "legacy redirect",
+      "guards": [],
+      "feature": "legacy",
+      "screen": "Redirect to /profile/settings",
+      "status": "REMOVE LATER"
+    },
+    {
+      "path": "/health-profile",
+      "file": "src/app/health-profile/index.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "health-profile",
+      "screen": "HealthProfileFlowScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/health-profile/review",
+      "file": "src/app/health-profile/review.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "profile",
+      "screen": "ProfileScreen review mode",
+      "status": "ROUTE CHANGE REQUIRED"
+    },
+    {
+      "path": "/health-profile/complete",
+      "file": "src/app/health-profile/complete.tsx",
+      "parent": "root Stack",
+      "type": "temporary screen",
+      "guards": [],
+      "feature": "route-local",
+      "screen": "HealthProfileCompleteRoute",
+      "status": "REMOVE LATER"
+    },
+    {
+      "path": "/health-profile-summary",
+      "file": "src/app/health-profile-summary.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "profile",
+      "screen": "HealthProfileSummaryScreen",
+      "status": "ROUTE CHANGE REQUIRED"
+    },
+    {
+      "path": "/dashboard",
+      "file": "src/app/dashboard/index.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "dashboard",
+      "screen": "DashboardScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/dashboard/warning-detail",
+      "file": "src/app/dashboard/warning-detail.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "dashboard",
+      "screen": "DashboardWarningDetailScreen",
+      "status": "UNKNOWN"
+    },
+    {
+      "path": "/subscription",
+      "file": "src/app/subscription/index.tsx",
+      "parent": "subscription Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "subscription",
+      "screen": "SubscriptionScreen",
+      "status": "REPLACE UI"
+    },
+    {
+      "path": "/subscription/success",
+      "file": "src/app/subscription/success.tsx",
+      "parent": "subscription Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "subscription",
+      "screen": "SubscriptionSuccessScreen",
+      "status": "ROUTE CHANGE REQUIRED"
+    },
+    {
+      "path": "/scan",
+      "file": "src/app/scan/index.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "food-analysis",
+      "screen": "ScanCameraScreen",
+      "status": "REMOVE LATER"
+    },
+    {
+      "path": "/analysis-result",
+      "file": "src/app/analysis-result/index.tsx",
+      "parent": "root Stack",
+      "type": "screen",
+      "guards": [],
+      "feature": "food-analysis",
+      "screen": "AnalysisResultScreen",
+      "status": "REMOVE LATER"
+    },
+    {
+      "path": "/scan-history",
+      "file": "src/app/scan-history/index.tsx",
+      "parent": "root Stack",
+      "type": "legacy redirect",
+      "guards": [],
+      "feature": "legacy",
+      "screen": "Redirect to /history",
+      "status": "REMOVE LATER"
+    },
+    {
+      "path": "/modal",
+      "file": "src/app/modal.tsx",
+      "parent": "root Stack",
+      "type": "modal",
+      "guards": [],
+      "feature": "modal",
+      "screen": "ModalScreen",
+      "status": "REMOVE LATER"
+    }
+  ],
+  "features": [
+    {
+      "name": "auth",
+      "path": "src/features/auth",
+      "targetDomain": "identity/auth",
+      "layers": ["components", "data", "screens", "index"],
+      "publicApi": ["loginAssets", "LoginScreen", "RegisterScreen"],
+      "status": "incomplete",
+      "action": "replace UI and add session/contracts/API"
+    },
+    {
+      "name": "onboarding",
+      "path": "src/features/onboarding",
+      "targetDomain": "identity/onboarding",
+      "layers": ["components", "data", "screens", "index"],
+      "publicApi": ["SplashScreen", "OnboardingFlowScreen"],
+      "status": "partial",
+      "action": "keep Splash; replace onboarding UI"
+    },
+    {
+      "name": "health-profile",
+      "path": "src/features/health-profile",
+      "targetDomain": "health-profile",
+      "layers": ["components", "data", "screens", "steps", "utils", "types", "index"],
+      "publicApi": ["HealthProfileFlowScreen", "health parsing and BMI helpers", "HealthProfilePayload", "HealthProfileSummary"],
+      "status": "unvalidated runtime flow",
+      "action": "replace contracts/UI; selectively review utilities"
+    },
+    {
+      "name": "profile",
+      "path": "src/features/profile",
+      "targetDomain": "profile",
+      "layers": ["context", "screens", "utils", "index"],
+      "publicApi": ["MainProfileProvider", "profile hooks", "three profile screens"],
+      "status": "runtime-only",
+      "action": "replace data ownership and UI"
+    },
+    {
+      "name": "home",
+      "path": "src/features/home",
+      "targetDomain": "recommendation/home and nutrition",
+      "layers": ["api", "data", "hooks", "repositories", "schemas", "screens", "types", "index"],
+      "publicApi": ["HomeScreen", "useHomeRecommendations", "FoodRecommendation"],
+      "status": "mock-backed read feature",
+      "action": "reuse pipeline; replace contract/UI"
+    },
+    {
+      "name": "history",
+      "path": "src/features/history",
+      "targetDomain": "meal-logging/history and activity",
+      "layers": ["api", "data", "hooks", "repositories", "schemas", "screens", "types", "index"],
+      "publicApi": ["HistoryScreen", "useHistory", "History types"],
+      "status": "mock-backed read feature",
+      "action": "replace model with event union and replace UI"
+    },
+    {
+      "name": "ai-chat",
+      "path": "src/features/ai-chat",
+      "targetDomain": "conversation/chat",
+      "layers": ["api", "data", "hooks", "repositories", "schemas", "screens", "types", "index"],
+      "publicApi": ["ChatAIScreen", "useRecipes", "recipe types"],
+      "status": "recipe read feature plus local chat prototype",
+      "action": "unified workspace and structured conversation contracts"
+    },
+    {
+      "name": "food-analysis",
+      "path": "src/features/food-analysis",
+      "targetDomain": "nutrition analysis and Production-deferred capture",
+      "layers": ["api", "components", "data", "hooks", "repositories", "schemas", "screens", "utils", "types", "index"],
+      "publicApi": ["ScanCameraScreen", "AnalysisResultScreen", "useFoodAnalysis", "food types"],
+      "status": "active but out of MVP input scope",
+      "action": "defer/remove routes later; move rules backend-side"
+    },
+    {
+      "name": "dashboard",
+      "path": "src/features/dashboard",
+      "targetDomain": "dashboard",
+      "layers": ["api", "data", "hooks", "repositories", "schemas", "screens", "types", "index"],
+      "publicApi": ["DashboardScreen", "DashboardWarningDetailScreen", "useDashboard", "DashboardData"],
+      "status": "independent static read model",
+      "action": "replace with strict seven-day projection and UI"
+    },
+    {
+      "name": "subscription",
+      "path": "src/features/subscription",
+      "targetDomain": "subscription",
+      "layers": ["api", "data", "hooks", "repositories", "schemas", "screens", "types", "index"],
+      "publicApi": ["Subscription screens", "plan hooks", "plan types"],
+      "status": "mock plan read feature",
+      "action": "replace UI; add status/payment contracts"
+    },
+    {
+      "name": "modal",
+      "path": "src/features/modal",
+      "targetDomain": "none",
+      "layers": ["components", "hooks", "screens", "theme", "index"],
+      "publicApi": ["ModalScreen"],
+      "status": "Expo template",
+      "action": "remove later"
+    }
+  ],
+  "models": [
+    {
+      "name": "RouteProfileParams",
+      "path": "src/types/navigation.types.ts",
+      "feature": "shared navigation",
+      "backendReady": false,
+      "action": "replace"
+    },
+    {
+      "name": "HealthOption",
+      "path": "src/features/health-profile/health-profile.types.ts",
+      "feature": "health-profile",
+      "backendReady": false,
+      "action": "split domain and presentation"
+    },
+    {
+      "name": "HealthProfilePayload",
+      "path": "src/features/health-profile/health-profile.types.ts",
+      "feature": "health-profile",
+      "backendReady": false,
+      "action": "replace"
+    },
+    {
+      "name": "HealthProfileSummary",
+      "path": "src/features/health-profile/health-profile.types.ts",
+      "feature": "health-profile/profile",
+      "backendReady": false,
+      "action": "replace"
+    },
+    {
+      "name": "FoodRecommendation",
+      "path": "src/features/home/home.types.ts",
+      "feature": "home",
+      "backendReady": false,
+      "action": "expand/replace"
+    },
+    {
+      "name": "HistoryItem/HistorySection",
+      "path": "src/features/history/history.types.ts",
+      "feature": "history",
+      "backendReady": false,
+      "action": "replace with discriminated union"
+    },
+    {
+      "name": "MockRecipe/RecipeCatalog",
+      "path": "src/features/ai-chat/ai-chat.types.ts",
+      "feature": "ai-chat",
+      "backendReady": false,
+      "action": "replace"
+    },
+    {
+      "name": "ChatMessage",
+      "path": "src/features/ai-chat/screens/chat-ai-screen.tsx",
+      "feature": "ai-chat",
+      "backendReady": false,
+      "action": "replace with conversation/message content unions"
+    },
+    {
+      "name": "NutritionFacts",
+      "path": "src/features/food-analysis/food-analysis.types.ts",
+      "feature": "food-analysis",
+      "backendReady": "partial",
+      "action": "expand and move to nutrition domain"
+    },
+    {
+      "name": "MockFood/FoodStatus",
+      "path": "src/features/food-analysis/food-analysis.types.ts",
+      "feature": "food-analysis",
+      "backendReady": false,
+      "action": "replace later"
+    },
+    {
+      "name": "DashboardData",
+      "path": "src/features/dashboard/dashboard.types.ts",
+      "feature": "dashboard",
+      "backendReady": false,
+      "action": "replace schema but retain inference pattern"
+    },
+    {
+      "name": "SubscriptionPlan",
+      "path": "src/features/subscription/subscription.types.ts",
+      "feature": "subscription",
+      "backendReady": false,
+      "action": "expand/replace"
+    }
+  ],
+  "schemas": [
+    {
+      "name": "environmentSchema",
+      "path": "src/config/env.ts",
+      "feature": "shared infrastructure",
+      "backendReady": true,
+      "action": "keep"
+    },
+    {
+      "name": "foodRecommendationsSchema",
+      "path": "src/features/home/schemas/home.schema.ts",
+      "feature": "home",
+      "backendReady": false,
+      "action": "replace"
+    },
+    {
+      "name": "historySectionsSchema",
+      "path": "src/features/history/schemas/history.schema.ts",
+      "feature": "history",
+      "backendReady": false,
+      "action": "replace"
+    },
+    {
+      "name": "recipeSchema/recipeCatalogSchema",
+      "path": "src/features/ai-chat/schemas/recipes.schema.ts",
+      "feature": "ai-chat",
+      "backendReady": false,
+      "action": "replace"
+    },
+    {
+      "name": "foodAnalysisSchema",
+      "path": "src/features/food-analysis/schemas/food-analysis.schema.ts",
+      "feature": "food-analysis",
+      "backendReady": "partial",
+      "action": "expand later"
+    },
+    {
+      "name": "dashboardSchema",
+      "path": "src/features/dashboard/schemas/dashboard.schema.ts",
+      "feature": "dashboard",
+      "backendReady": false,
+      "action": "replace"
+    },
+    {
+      "name": "subscriptionPlanSchema",
+      "path": "src/features/subscription/schemas/subscription.schema.ts",
+      "feature": "subscription",
+      "backendReady": false,
+      "action": "expand/replace"
+    }
+  ],
+  "mocks": [
+    {
+      "name": "foodRecommendations",
+      "path": "src/features/home/data/mock-home.ts",
+      "feature": "home",
+      "risk": "card-only and disconnected from History",
+      "action": "replace"
+    },
+    {
+      "name": "historySections",
+      "path": "src/features/history/data/mock-history.ts",
+      "feature": "history",
+      "risk": "no confirmed events or canonical timestamps",
+      "action": "replace"
+    },
+    {
+      "name": "mockRecipes",
+      "path": "src/features/ai-chat/data/mock-recipes.ts",
+      "feature": "ai-chat",
+      "risk": "UI-coupled catalog and fixed IDs",
+      "action": "split/replace"
+    },
+    {
+      "name": "mockFoods",
+      "path": "src/features/food-analysis/data/mock-foods.ts",
+      "feature": "food-analysis",
+      "risk": "Production-deferred and mixed display/domain data",
+      "action": "replace later"
+    },
+    {
+      "name": "dashboardMock",
+      "path": "src/features/dashboard/data/mock-dashboard.ts",
+      "feature": "dashboard",
+      "risk": "critical: independent of History/Profile",
+      "action": "replace"
+    },
+    {
+      "name": "subscriptionPlans",
+      "path": "src/features/subscription/data/subscription-plans.ts",
+      "feature": "subscription",
+      "risk": "placeholder prices/features only",
+      "action": "keep as demo content seed, replace contract"
+    },
+    {
+      "name": "goals/diets/conditions",
+      "path": "src/features/health-profile/data/health-profile-options.ts",
+      "feature": "health-profile",
+      "risk": "contains non-MVP goals and UI colors/icons",
+      "action": "replace after product approval"
+    },
+    {
+      "name": "ONBOARDING_STEPS",
+      "path": "src/features/onboarding/data/onboarding-data.ts",
+      "feature": "onboarding",
+      "risk": "old scanning-focused content",
+      "action": "replace UI content"
+    },
+    {
+      "name": "hard-coded login",
+      "path": "src/features/auth/screens/login-screen.tsx",
+      "feature": "auth",
+      "risk": "one plaintext demo account",
+      "action": "remove"
+    },
+    {
+      "name": "chat keyword responses",
+      "path": "src/features/ai-chat/screens/chat-ai-screen.tsx",
+      "feature": "ai-chat",
+      "risk": "business/AI behavior in UI",
+      "action": "remove"
+    }
+  ],
+  "figmaFrames": [
+    {"section":"01 - Onboarding","name":"Giới thiệu 1 (Onboarding)","nodeId":"1:2","state":"step 1/3","proposedRoute":"/onboarding","currentRoute":"/onboarding","action":"REPLACE UI"},
+    {"section":"01 - Onboarding","name":"Giới thiệu 2 (Onboarding)","nodeId":"1:44","state":"step 2/3","proposedRoute":"/onboarding","currentRoute":"/onboarding","action":"REPLACE UI"},
+    {"section":"01 - Onboarding","name":"Giới thiệu 3 (Onboarding)","nodeId":"1:96","state":"step 3/3","proposedRoute":"/onboarding","currentRoute":"/onboarding","action":"REPLACE UI"},
+    {"section":"02 - Authentication","name":"Đăng nhập (Sign In)","nodeId":"1:155","state":"default","proposedRoute":"/login","currentRoute":"/login","action":"REPLACE UI"},
+    {"section":"02 - Authentication","name":"Đăng ký (Sign Up)","nodeId":"1:222","state":"default","proposedRoute":"/register","currentRoute":"/register","action":"REPLACE UI"},
+    {"section":"03 - Health Profile","name":"Thông tin cơ bản (Step 1/4)","nodeId":"5:31","state":"step 1/4","proposedRoute":"/health-profile","currentRoute":"/health-profile","action":"REPLACE UI"},
+    {"section":"03 - Health Profile","name":"Mục tiêu giảm cân (Step 2/4)","nodeId":"5:272","state":"step 2/4","proposedRoute":"/health-profile","currentRoute":"/health-profile","action":"REPLACE UI"},
+    {"section":"03 - Health Profile","name":"Chế độ ăn và dị ứng (Step 3/4)","nodeId":"5:125","state":"step 3/4","proposedRoute":"/health-profile","currentRoute":"/health-profile","action":"REPLACE UI"},
+    {"section":"03 - Health Profile","name":"Kiểm tra lại hồ sơ (Step 4/4)","nodeId":"5:349","state":"review","proposedRoute":"/health-profile/review","currentRoute":"/profile review mode","action":"ROUTE CHANGE REQUIRED"},
+    {"section":"04 - Home","name":"Home UI","nodeId":"7:716","state":"time-based breakfast example","proposedRoute":"/home","currentRoute":"/home","action":"REPLACE UI"},
+    {"section":"05 - History","name":"History - Overview","nodeId":"13:896","state":"populated","proposedRoute":"/history","currentRoute":"/history","action":"REPLACE UI"},
+    {"section":"05 - History","name":"History - Filter","nodeId":"13:1749","state":"filter sheet","proposedRoute":"/history","currentRoute":"/history","action":"NEW"},
+    {"section":"05 - History","name":"History - Loading","nodeId":"13:1324","state":"loading","proposedRoute":"/history","currentRoute":"/history","action":"NEW"},
+    {"section":"05 - History","name":"History - Null","nodeId":"13:1463","state":"empty","proposedRoute":"/history","currentRoute":"/history","action":"NEW"},
+    {"section":"05 - History","name":"History - Filter no matching results","nodeId":"13:1588","state":"filtered empty","proposedRoute":"/history","currentRoute":"/history","action":"REFACTOR"},
+    {"section":"06 - Chat AI","name":"New Chat Session","nodeId":"15:38","state":"empty workspace","proposedRoute":"/chat","currentRoute":"/chat-ai","action":"ROUTE CHANGE REQUIRED"},
+    {"section":"06 - Chat AI","name":"Bun bo Recipe Recommend","nodeId":"15:224","state":"structured recipe response","proposedRoute":"/chat/[conversationId]","currentRoute":"/chat-ai","action":"REPLACE UI"},
+    {"section":"06 - Chat AI","name":"Pho ga Eat out","nodeId":"15:475","state":"consumed food feedback","proposedRoute":"/chat/[conversationId]","currentRoute":"/chat-ai disabled entry","action":"NEW"},
+    {"section":"06 - Chat AI","name":"Using camera","nodeId":"15:704","state":"image message","proposedRoute":"Production-deferred","currentRoute":"/scan separate flow","action":"REMOVE LATER"},
+    {"section":"06 - Chat AI","name":"Nutelyt Response Loading","nodeId":"15:897","state":"assistant loading","proposedRoute":"/chat/[conversationId]","currentRoute":"/chat-ai","action":"NEW"},
+    {"section":"06 - Chat AI","name":"Error","nodeId":"15:1247","state":"response error","proposedRoute":"/chat/[conversationId]","currentRoute":"/chat-ai","action":"NEW"},
+    {"section":"06 - Chat AI","name":"Chat History","nodeId":"15:1411","state":"history drawer","proposedRoute":"/chat and /chat/[conversationId]","currentRoute":"/chat-ai","action":"NEW"},
+    {"section":"07 - Profile Setting","name":"Profile - Overview","nodeId":"20:39","state":"populated","proposedRoute":"/profile","currentRoute":"/profile","action":"REPLACE UI"},
+    {"section":"07 - Profile Setting","name":"Edit Information","nodeId":"20:664","state":"personal info edit","proposedRoute":"/profile/personal","currentRoute":"/health-profile-summary and /profile/settings partial","action":"NEW"},
+    {"section":"07 - Profile Setting","name":"Edit Health Personal","nodeId":"20:790","state":"health edit","proposedRoute":"/profile/health","currentRoute":"/health-profile","action":"NEW"},
+    {"section":"07 - Profile Setting","name":"Confirm Edit Health","nodeId":"22:1294","state":"confirm dialog","proposedRoute":"/profile/health","currentRoute":"none","action":"NEW"},
+    {"section":"07 - Profile Setting","name":"Quick Setup Weight","nodeId":"22:1572","state":"weight entry sheet","proposedRoute":"/profile","currentRoute":"none","action":"NEW"},
+    {"section":"07 - Profile Setting","name":"Setup Notificatino","nodeId":"22:2118","state":"notification settings","proposedRoute":"/profile/notifications","currentRoute":"none","action":"NEW"},
+    {"section":"07 - Profile Setting","name":"Logout Dialog","nodeId":"22:2732","state":"logout confirmation","proposedRoute":"/profile","currentRoute":"/profile/settings immediate logout","action":"NEW"},
+    {"section":"07 - Profile Setting","name":"Loading Profile","nodeId":"22:2774","state":"loading","proposedRoute":"/profile","currentRoute":"/profile","action":"NEW"},
+    {"section":"07 - Profile Setting","name":"Error","nodeId":"22:2915","state":"error","proposedRoute":"/profile","currentRoute":"/profile","action":"NEW"},
+    {"section":"08 - Premium Container","name":"Premium Plan","nodeId":"28:3005","state":"plan list","proposedRoute":"/subscription","currentRoute":"/subscription","action":"REPLACE UI"},
+    {"section":"08 - Premium Container","name":"Choosing Monthly Plan Dialog","nodeId":"30:8","state":"monthly selected","proposedRoute":"/subscription","currentRoute":"/subscription local selection","action":"REPLACE UI"},
+    {"section":"08 - Premium Container","name":"Choosing Annual Plan Dialog","nodeId":"30:447","state":"annual selected","proposedRoute":"/subscription","currentRoute":"/subscription local selection","action":"REPLACE UI"},
+    {"section":"08 - Premium Container","name":"Review Chosen Plan","nodeId":"30:884","state":"review consent unchecked","proposedRoute":"/subscription/review","currentRoute":"none","action":"NEW"},
+    {"section":"08 - Premium Container","name":"Argee Privacy Policy","nodeId":"30:1074","state":"review consent checked","proposedRoute":"/subscription/review","currentRoute":"none","action":"NEW"},
+    {"section":"08 - Premium Container","name":"Confirm Payment Dialog","nodeId":"30:1266","state":"confirmation dialog","proposedRoute":"/subscription/review","currentRoute":"none","action":"NEW"},
+    {"section":"08 - Premium Container","name":"Loading Payment","nodeId":"30:1509","state":"processing","proposedRoute":"checkout state","currentRoute":"none","action":"NEW"},
+    {"section":"08 - Premium Container","name":"Payment Successfully","nodeId":"30:1574","state":"success","proposedRoute":"checkout state","currentRoute":"/subscription/success","action":"REPLACE UI"},
+    {"section":"08 - Premium Container","name":"Payment Failed","nodeId":"30:1724","state":"failed","proposedRoute":"checkout state","currentRoute":"none","action":"NEW"},
+    {"section":"08 - Premium Container","name":"Payment Cancelled","nodeId":"30:1824","state":"cancelled","proposedRoute":"checkout state","currentRoute":"none","action":"NEW"},
+    {"section":"08 - Premium Container","name":"Premium Management","nodeId":"30:1910","state":"active management","proposedRoute":"/subscription/manage","currentRoute":"none","action":"NEW"},
+    {"section":"08 - Premium Container","name":"Loading Premium Management","nodeId":"30:2131","state":"loading","proposedRoute":"/subscription/manage","currentRoute":"none","action":"NEW"},
+    {"section":"09 - MAIN - Dashboard","name":"Stable","nodeId":"33:2299","state":"stable","proposedRoute":"/dashboard","currentRoute":"/dashboard","action":"REPLACE UI"},
+    {"section":"09 - MAIN - Dashboard","name":"Improve Well","nodeId":"33:2921","state":"positive trend","proposedRoute":"/dashboard","currentRoute":"/dashboard","action":"REPLACE UI"},
+    {"section":"09 - MAIN - Dashboard","name":"Limited Data","nodeId":"33:3520","state":"limited data","proposedRoute":"/dashboard","currentRoute":"/dashboard","action":"NEW"},
+    {"section":"09 - MAIN - Dashboard","name":"Caution","nodeId":"33:4113","state":"caution","proposedRoute":"/dashboard","currentRoute":"/dashboard","action":"REPLACE UI"},
+    {"section":"09 - MAIN - Dashboard","name":"No data","nodeId":"33:4683","state":"empty","proposedRoute":"/dashboard","currentRoute":"/dashboard","action":"NEW"},
+    {"section":"09 - MAIN - Dashboard","name":"Loading","nodeId":"33:4796","state":"loading","proposedRoute":"/dashboard","currentRoute":"/dashboard","action":"NEW"},
+    {"section":"09 - MAIN - Dashboard","name":"Error","nodeId":"33:4903","state":"error","proposedRoute":"/dashboard","currentRoute":"/dashboard","action":"NEW"}
+  ],
+  "sharedInfrastructure": {
+    "axios": {
+      "status": "active",
+      "baseUrl": "validated EXPO_PUBLIC_API_BASE_URL with localhost fallback",
+      "timeoutMs": 15000,
+      "authInterceptor": "stub: token reader always null",
+      "refreshInterceptor": "stub: always rejects",
+      "errorNormalization": true
+    },
+    "reactQuery": {
+      "status": "active",
+      "staleTimeMs": 300000,
+      "gcTimeMs": 1800000,
+      "retryCount": 2,
+      "refetchOnMount": false,
+      "risk": "unconditional mock initialData can suppress API requests and loading/error states"
+    },
+    "auth": {
+      "confirmedArchitecture": "Supabase Auth plus ASP.NET Core JWT and refresh token",
+      "readiness": "not implemented",
+      "supabaseClient": false,
+      "sessionRestoration": false,
+      "guards": false,
+      "secureStorage": false
+    },
+    "environment": {
+      "zodValidated": true,
+      "directProcessEnvOutsideConfig": false,
+      "mockApiDefault": true
+    },
+    "styling": {
+      "nativeWind": "4.2.6",
+      "tailwind": "3.4.19",
+      "themeTokens": "partial and duplicated",
+      "rawColors": "extensive",
+      "inlineStyles": "extensive",
+      "customFontsLoaded": false
+    },
+    "expo": {
+      "newArchitecture": true,
+      "typedRoutes": true,
+      "reactCompiler": true,
+      "scheme": "nutelytfe",
+      "missingConfiguredAssets": [
+        "assets/images/icon.png",
+        "assets/images/android-icon-foreground.png",
+        "assets/images/android-icon-background.png",
+        "assets/images/android-icon-monochrome.png",
+        "assets/images/favicon.png",
+        "assets/images/splash-icon.png"
+      ]
+    },
+    "aliases": {
+      "@/": "./src/*",
+      "@assets/": "./assets/*"
+    }
+  },
+  "issues": [
+    {"id":"R-01","severity":"critical","area":"auth","summary":"Supabase and ASP.NET session architecture is absent beyond stubs."},
+    {"id":"R-02","severity":"critical","area":"data","summary":"Dashboard mocks are disconnected from History and Profile."},
+    {"id":"R-03","severity":"critical","area":"react-query","summary":"Mock initialData plus refetchOnMount false can prevent REST requests."},
+    {"id":"R-04","severity":"critical","area":"expo-assets","summary":"All six app-config icon/splash asset paths are missing."},
+    {"id":"R-05","severity":"high","area":"routing/privacy","summary":"Serialized health-profile PII is passed through route params."},
+    {"id":"R-06","severity":"high","area":"contracts","summary":"Canonical history, conversation, activity, weight, alert, and payment contracts are missing."},
+    {"id":"R-07","severity":"high","area":"architecture","summary":"Large screens combine presentation, state, and business decisions."},
+    {"id":"R-08","severity":"high","area":"business-logic","summary":"Nutrition thresholds, chat recognition, auth, and profile logic are frontend-hard-coded."},
+    {"id":"R-09","severity":"high","area":"persistence","summary":"Onboarding, auth, health completion, profile, and chat state do not persist."},
+    {"id":"R-10","severity":"high","area":"state-coverage","summary":"Current code lacks most Figma loading, empty, error, retry, and dialog states."},
+    {"id":"R-11","severity":"medium","area":"design-system","summary":"Raw colors and duplicate local token maps are widespread."},
+    {"id":"R-12","severity":"medium","area":"product-scope","summary":"Current health goals conflict with weight-loss-only MVP focus."},
+    {"id":"R-13","severity":"medium","area":"scope","summary":"Active camera routes and fake voice behavior risk Production-deferred scope creep."},
+    {"id":"R-14","severity":"medium","area":"subscription","summary":"Current UI can imply payment success without entitlement or transaction proof."},
+    {"id":"R-15","severity":"medium","area":"testing","summary":"No test script or tests were found."},
+    {"id":"R-16","severity":"medium","area":"routing","summary":"No not-found route or protected route groups exist."},
+    {"id":"R-17","severity":"low-medium","area":"expo","summary":"Installed Expo patch is behind the expected SDK 54 patch."},
+    {"id":"R-18","severity":"low-medium","area":"tooling","summary":"Package lint cannot write the Expo ESLint cache, although no-cache lint passes."}
+  ],
+  "openDecisions": [
+    {"id":"D-01","area":"health-profile","question":"Are health-goal/profile edits unrestricted, limited to 15 days, limited to 30 days, or backend-controlled confirmation only?"},
+    {"id":"D-02","area":"auth","question":"What is the exact Supabase-to-ASP.NET exchange, storage, refresh rotation, revoke, and logout contract?"},
+    {"id":"D-03","area":"onboarding","question":"Which persisted state is authoritative for onboarding completion?"},
+    {"id":"D-04","area":"time","question":"What timezone and inclusive/exclusive semantics apply to default meal-window boundaries?"},
+    {"id":"D-05","area":"recommendation","question":"How are snack versus light-activity suggestions ranked outside meal windows?"},
+    {"id":"D-06","area":"history","question":"Which event kinds are retained and which confirmed events feed Dashboard?"},
+    {"id":"D-07","area":"dashboard","question":"Is the strict seven-day projection backend-owned, and what are completeness/alert thresholds?"},
+    {"id":"D-08","area":"chat","question":"Are conversations route-addressable, persisted, paginated, searchable, and deletable?"},
+    {"id":"D-09","area":"chat","question":"Which structured AI content and action blocks are supported in MVP?"},
+    {"id":"D-10","area":"recipe","question":"How are basic and AI-adjusted recipe versions identified and saved?"},
+    {"id":"D-11","area":"subscription","question":"How many simulated checkout/management states are required for the MVP demo?"},
+    {"id":"D-12","area":"notifications","question":"Is notification scope UI-only or real local/backend scheduling?"},
+    {"id":"D-13","area":"weight","question":"What are units, duplicate/edit/delete rules, and invalidation behavior for weight measurements?"},
+    {"id":"D-14","area":"media","question":"What is the canonical backend media reference and local fixture adapter?"},
+    {"id":"D-15","area":"routing","question":"Should the current Dashboard warning-detail route be retained, remapped, or removed?"}
+  ],
+  "phase1Candidates": [
+    {
+      "order": 1,
+      "name": "Contract and route baseline",
+      "scope": "Approve guards, auth/session interfaces, timestamps/timezones, canonical Zod domain contracts, and coherent fixtures.",
+      "entryGate": "Phase 0 sign-off",
+      "exitGate": "Frontend/backend/product contract review complete"
+    },
+    {
+      "order": 2,
+      "name": "Splash and boot hardening",
+      "scope": "Preserve current Splash UI, supply missing assets, coordinate native hide and restored redirect.",
+      "entryGate": "Auth/guard state machine approved",
+      "exitGate": "Cold start, return session, incomplete profile, anonymous, and deep-link tests pass"
+    },
+    {
+      "order": 3,
+      "name": "Shared Figma design foundation",
+      "scope": "Semantic tokens and reusable query/form/card/sheet/dialog/header/tab primitives.",
+      "entryGate": "Design tokens approved",
+      "exitGate": "Visual and accessibility review"
+    },
+    {
+      "order": 4,
+      "name": "Authentication and health profile",
+      "scope": "Supabase/backend auth, guards, new Auth UI, four-step validated weight-loss profile.",
+      "entryGate": "Session and profile contracts approved",
+      "exitGate": "Persistent session/profile and no route-param PII"
+    },
+    {
+      "order": 5,
+      "name": "Protected shell and Profile",
+      "scope": "Target tabs plus Profile overview/edit/weight/notifications/logout states.",
+      "entryGate": "Protected routing works",
+      "exitGate": "Mutations, invalidation, loading/error coverage"
+    },
+    {
+      "order": 6,
+      "name": "Home time recommendations",
+      "scope": "Time-window resolver, recommendations, explicit consumed-meal confirmation.",
+      "entryGate": "Time and nutrition contracts approved",
+      "exitGate": "Boundary/timezone tests and History linkage"
+    },
+    {
+      "order": 7,
+      "name": "Unified Chat Workspace",
+      "scope": "Persisted REST conversations, structured messages, history drawer, retry, save/confirm actions.",
+      "entryGate": "Conversation/AI contracts approved",
+      "exitGate": "Persistence/retry/history confirmation verified"
+    },
+    {
+      "order": 8,
+      "name": "History event log",
+      "scope": "Discriminated event rendering, filtering, pagination, query states.",
+      "entryGate": "Canonical event source active",
+      "exitGate": "All event kinds and empty states tested"
+    },
+    {
+      "order": 9,
+      "name": "Seven-day Dashboard",
+      "scope": "Projection from confirmed facts and all seven Figma states.",
+      "entryGate": "History/Profile coherence",
+      "exitGate": "Exact window, completeness, alert, and cross-screen tests"
+    },
+    {
+      "order": 10,
+      "name": "Premium mock UI",
+      "scope": "Only approved demo states with simulation disclosure.",
+      "entryGate": "Demo scope approved",
+      "exitGate": "No false entitlement or direct false success"
+    },
+    {
+      "order": 11,
+      "name": "Legacy retirement",
+      "scope": "Remove old screens/routes/models/mocks only after parity approval.",
+      "entryGate": "All replacement slices accepted",
+      "exitGate": "Full validation and regression pass"
+    }
+  ]
+}
