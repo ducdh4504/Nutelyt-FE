@@ -1,5 +1,6 @@
 export const routes = {
   login: "/login",
+  register: "/register",
   home: "/home",
   history: "/history",
   chatAi: "/chat-ai",

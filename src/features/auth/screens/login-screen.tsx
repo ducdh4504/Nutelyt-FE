@@ -1,199 +1,179 @@
-import { Feather } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRef } from "react";
+import { Pressable, Text, TextInput, View } from "react-native";
 
-import { Button, Typography } from "@/components/ui";
+import { Button } from "@/components/ui";
+import { routes } from "@/config/routes";
 
-import { loginAssets } from "@/features/auth/data/auth-assets";
-import { useMainProfile } from "@/features/profile";
+import { AUTH_FONT_FAMILY, authColors } from "../auth-theme";
+import { AuthCard } from "../components/auth-card";
+import { AuthDivider } from "../components/auth-divider";
+import { AuthFeedback } from "../components/auth-feedback";
 import { AuthGoogleButton } from "../components/auth-google-button";
+import { AuthScreenShell } from "../components/auth-screen-shell";
 import { AuthTextInput } from "../components/auth-text-input";
+import { useLoginForm } from "../hooks/use-login-form";
+import { useUnavailableAuthAction } from "../hooks/use-unavailable-auth-action";
 
-const [logoImage] = loginAssets;
+const UNAVAILABLE_MESSAGE = "Tính năng này hiện chưa khả dụng.";
 
 export function LoginScreen() {
-  const [rememberMe, setRememberMe] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loginError, setLoginError] = useState("");
-
-  const { height } = useWindowDimensions();
-  const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { hasCompletedHealthProfileThisRuntime } = useMainProfile();
+  const passwordRef = useRef<TextInput>(null);
+  const navigationLock = useRef(false);
+  const {
+    fieldErrors,
+    isSubmitting,
+    setField,
+    submissionError,
+    submit,
+    values,
+  } = useLoginForm();
+  const { feedback, pendingAction, showUnavailable } =
+    useUnavailableAuthAction();
 
-  const clearLoginError = () => {
-    if (loginError) {
-      setLoginError("");
-    }
-  };
-
-  const handleLogin = () => {
-    if (email === "admin@gmail.com" && password === "Test@123") {
-      setLoginError("");
-      router.replace(
-        hasCompletedHealthProfileThisRuntime ? "/home" : "/health-profile",
-      );
-      return;
-    }
-
-    setLoginError("Email hoặc mật khẩu không đúng.");
-  };
+  function goToRegister() {
+    if (navigationLock.current || isSubmitting) return;
+    navigationLock.current = true;
+    router.push(routes.register);
+  }
 
   return (
-    <KeyboardAvoidingView className="flex-1 bg-background" behavior="padding">
-      <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{
-            flexGrow: 1,
-            paddingBottom: Math.max(insets.bottom + 20, 36),
-            paddingHorizontal: 20,
-            paddingTop: 36,
-          }}
-          contentInsetAdjustmentBehavior="automatic"
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          <View className="w-full max-w-[440px] flex-1 self-center">
-            <View className="overflow-hidden rounded-[12px]">
-              <Image
-                accessibilityLabel="Nutelyt logo"
-                contentFit="contain"
-                source={logoImage}
-                style={{
-                  width: "100%",
-                  height: height * 0.10,
-                }}
-              />
-            </View>
+    <AuthScreenShell mainPaddingTop={57}>
+      <AuthCard>
+        <View className="gap-2">
+          <Text
+            className="text-center text-[28px] font-bold leading-9"
+            style={{ color: authColors.foreground, fontFamily: AUTH_FONT_FAMILY }}
+          >
+            Chào mừng bạn quay lại
+          </Text>
+          <Text
+            className="text-center text-base leading-6"
+            style={{ color: authColors.muted, fontFamily: AUTH_FONT_FAMILY }}
+          >
+            Tiếp tục hành trình dinh dưỡng cùng AI đồng hành của bạn.
+          </Text>
+        </View>
 
-            <View className="gap-2 pt-8">
-              <Typography
-                className="text-center text-[26px] font-semibold leading-9"
-                variant="subtitle"
+        <View className="mt-8 gap-4">
+          <AuthTextInput
+            autoCapitalize="none"
+            autoComplete="email"
+            error={fieldErrors.email}
+            icon="email"
+            keyboardType="email-address"
+            label="Email"
+            onChangeText={(value) => setField("email", value)}
+            onSubmitEditing={() => passwordRef.current?.focus()}
+            placeholder="nutelyt@vidu.com"
+            returnKeyType="next"
+            textContentType="emailAddress"
+            value={values.email}
+          />
+
+          <AuthTextInput
+            ref={passwordRef}
+            autoCapitalize="none"
+            canToggleSecureEntry
+            error={fieldErrors.password}
+            icon="lock"
+            label="Mật khẩu"
+            labelAccessory={
+              <Pressable
+                accessibilityLabel="Quên mật khẩu"
+                accessibilityRole="button"
+                className="min-h-11 justify-center"
+                hitSlop={4}
+                onPress={() =>
+                  showUnavailable(
+                    "forgot-password",
+                    "Khôi phục mật khẩu hiện chưa khả dụng.",
+                  )
+                }
               >
-                Chào mừng bạn quay trở lại!
-              </Typography>
-
-              <Typography
-                className="text-center text-base leading-6"
-                tone="muted"
-              >
-                Đăng nhập để theo dõi tiến trình dinh dưỡng của bạn.
-              </Typography>
-            </View>
-
-            <View className="gap-4 pt-8">
-              <AuthTextInput
-                autoCapitalize="none"
-                autoComplete="email"
-                icon="mail"
-                keyboardType="email-address"
-                label="Email"
-                onChangeText={(value) => {
-                  setEmail(value);
-                  clearLoginError();
-                }}
-                placeholder="name@example.com"
-                textContentType="emailAddress"
-                value={email}
-              />
-
-              <AuthTextInput
-                autoCapitalize="none"
-                canToggleSecureEntry
-                icon="lock"
-                label="Mật Khẩu"
-                onChangeText={(value) => {
-                  setPassword(value);
-                  clearLoginError();
-                }}
-                placeholder="••••••••"
-                secureTextEntry
-                textContentType="password"
-                value={password}
-              />
-
-              {loginError ? (
-                <Text className="px-1 text-sm font-semibold text-warning-600">
-                  {loginError}
+                <Text
+                  className="text-sm font-bold leading-5"
+                  style={{ color: authColors.primary, fontFamily: AUTH_FONT_FAMILY }}
+                >
+                  Quên mật khẩu?
                 </Text>
-              ) : null}
+              </Pressable>
+            }
+            onChangeText={(value) => setField("password", value)}
+            onSubmitEditing={submit}
+            placeholder="••••••••"
+            returnKeyType="done"
+            secureTextEntry
+            textContentType="password"
+            value={values.password}
+          />
 
-              <View className="flex-row items-center justify-between px-1">
-                <Pressable
-                  accessibilityRole="checkbox"
-                  accessibilityState={{ checked: rememberMe }}
-                  className="min-h-11 flex-row items-center gap-3"
-                  onPress={() => setRememberMe((current) => !current)}
-                >
-                  <View className="h-6 w-6 items-center justify-center rounded-[6px] border-2 border-border bg-card">
-                    {rememberMe ? (
-                      <Feather color="#1E732B" name="check" size={15} />
-                    ) : null}
-                  </View>
+          <AuthFeedback message={submissionError || feedback} />
 
-                  <Text className="text-sm font-semibold text-muted">
-                    Lưu đăng nhập
-                  </Text>
-                </Pressable>
+          <Button
+            accessibilityLabel="Đăng nhập"
+            accessibilityState={{ busy: isSubmitting, disabled: isSubmitting }}
+            className="h-14 rounded-[12px] border-[#006D33] bg-[#006D33]"
+            loading={isSubmitting}
+            onPress={submit}
+            size="lg"
+            style={{
+              backgroundColor: authColors.primary,
+              borderColor: authColors.primary,
+            }}
+            textClassName="text-xl font-semibold leading-7"
+          >
+            Đăng nhập
+          </Button>
+        </View>
 
-                <Pressable
-                  accessibilityRole="button"
-                  className="min-h-11 justify-center"
-                >
-                  <Text className="text-sm font-semibold text-[#006492]">
-                    Quên mật khẩu?
-                  </Text>
-                </Pressable>
-              </View>
+        <View className="mt-8">
+          <AuthDivider label="Hoặc" />
+        </View>
 
-              <Button
-                className="h-14 rounded-[12px] border-primary-600 bg-primary-600"
-                onPress={handleLogin}
-                size="lg"
-                textClassName="font-normal"
-              >
-                Đăng nhập
-              </Button>
-            </View>
+        <AuthGoogleButton
+          className="mt-8"
+          label="Đăng nhập bằng Google"
+          loading={pendingAction === "google-login"}
+          onPress={() => showUnavailable("google-login", UNAVAILABLE_MESSAGE)}
+        />
 
-            <View className="flex-row items-center gap-4 pt-8">
-              <View className="h-px flex-1 bg-border" />
+        <Pressable
+          accessibilityLabel="Mở màn hình đăng ký"
+          accessibilityRole="link"
+          className="mt-5 min-h-11 items-center justify-center"
+          onPress={goToRegister}
+        >
+          <Text
+            className="text-center text-base leading-6"
+            style={{ color: authColors.muted, fontFamily: AUTH_FONT_FAMILY }}
+          >
+            Chưa có tài khoản?{" "}
+            <Text style={{ color: authColors.primary, fontWeight: "700" }}>
+              Đăng ký ngay
+            </Text>
+          </Text>
+        </Pressable>
+      </AuthCard>
 
-              <Text className="text-sm font-semibold text-[#6D7A6E]">
-                Hoặc đăng nhập với
-              </Text>
-
-              <View className="h-px flex-1 bg-border" />
-            </View>
-
-            <AuthGoogleButton className="mt-6" onPress={() => undefined} />
-
-            <Pressable
-              accessibilityRole="link"
-              className="min-h-16 items-center justify-center pt-6"
-              onPress={() => router.push("/register")}
+      <View className="mt-8 flex-row items-center justify-center gap-7">
+        {["Điều khoản", "Bảo mật", "Hỗ trợ"].map((label) => (
+          <Pressable
+            key={label}
+            accessibilityRole="link"
+            className="min-h-11 justify-center"
+            onPress={() => showUnavailable(`support-${label}`, UNAVAILABLE_MESSAGE)}
+          >
+            <Text
+              className="text-xs leading-4 opacity-60"
+              style={{ color: authColors.muted, fontFamily: AUTH_FONT_FAMILY }}
             >
-              <Text className="text-center text-base text-muted">
-                Tôi chưa có tài khoản?{" "}
-                <Text className="font-bold text-[#1E732B]">Đăng ký</Text>
-              </Text>
-            </Pressable>
-          </View>
-        </ScrollView>
+              {label}
+            </Text>
+          </Pressable>
+        ))}
       </View>
-    </KeyboardAvoidingView>
+    </AuthScreenShell>
   );
 }
