@@ -1,13 +1,16 @@
-import { historySections } from "@/features/history/data/mock-history";
-import { historySectionsSchema } from "@/features/history/schemas/history.schema";
-import { createMockAdapter } from "@/services/http/mock-adapter";
+import { homeRuntimeLogSource } from '@/features/home';
+import { historySnapshotSchema } from '@/features/history/schemas/history.schema';
+import type { HistorySnapshot } from '@/features/history/history.types';
 
-const history = historySectionsSchema.parse(historySections);
-
+/**
+ * Temporary local adapter. It converts the public Home runtime event contract
+ * into the History feature contract without duplicating Home fixture data.
+ */
 export const historyMockRepository = {
-  getHistory: () => history,
+  getHistory(now: Date): HistorySnapshot {
+    return historySnapshotSchema.parse({
+      entries: homeRuntimeLogSource.getRuntimeHistoryEvents(),
+      generatedAt: now.toISOString(),
+    });
+  },
 } as const;
-
-export const historyMockAdapter = createMockAdapter(
-  historyMockRepository.getHistory,
-);

@@ -1,5 +1,7 @@
-import { HealthProfileSummaryScreen } from "@/features/profile";
+import { Redirect } from 'expo-router';
+
+import { routes } from '@/config/routes';
 
 export default function HealthProfileSummaryRoute() {
-  return <HealthProfileSummaryScreen />;
+  return <Redirect href={routes.profile} />;
 }

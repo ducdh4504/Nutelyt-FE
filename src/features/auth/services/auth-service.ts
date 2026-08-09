@@ -33,3 +33,8 @@ export async function registerWithCurrentContract(
     success: false,
   };
 }
+
+/** Runtime boundary until the project receives a real session provider. */
+export async function logoutWithCurrentContract(): Promise<void> {
+  return Promise.resolve();
+}

@@ -1,5 +1,7 @@
-import { ProfileSettingsScreen } from '@/features/profile';
+import { Redirect } from 'expo-router';
+
+import { routes } from '@/config/routes';
 
 export default function SettingTabRoute() {
-  return <ProfileSettingsScreen />;
+  return <Redirect href={routes.profile} />;
 }

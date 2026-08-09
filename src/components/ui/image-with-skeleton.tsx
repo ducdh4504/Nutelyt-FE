@@ -6,7 +6,7 @@ import { Shimmer } from "./shimmer";
 
 type ImageWithSkeletonProps = {
   source: ImageSource | string | number;
-  width: number;
+  width: number | `${number}%`;
   height: number;
   borderRadius?: number;
   contentFit?: ImageContentFit;

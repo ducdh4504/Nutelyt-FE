@@ -1,195 +1,75 @@
-import { Feather } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter, type Href } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { SectionList, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { colors } from '@/theme/tokens';
-import { ImageWithSkeleton } from '@/components/ui';
-
-import { MainScreenHeader } from '@/components/layout/main-screen-header';
+import { defaultHistoryFilters, filterHistoryEntries, groupHistoryEntries, hasActiveHistoryFilters } from '@/features/history/history-filtering';
+import { HistoryEmptyState, HistoryEntryCard, HistoryFilterSheet, HistoryLoading, HistoryToolbar } from '@/features/history/history-ui';
 import { useHistory } from '@/features/history/hooks/use-history';
-import { useHydratedProfile } from '@/features/profile';
-import type { RouteProfileParams } from '@/types/navigation.types';
-import type { HistoryItem } from '@/features/history/history.types';
-
-const cardShadow = {
-  boxShadow: '0 10px 24px rgba(0, 0, 0, 0.06)',
-};
-
-const ctaShadow = {
-  boxShadow: '0 14px 28px rgba(39, 174, 96, 0.22)',
-};
-
-function HistoryCard({ item, style }: { item: HistoryItem; style: object }) {
-  return (
-    <Animated.View style={style}>
-      <Pressable
-        accessibilityRole="button"
-        className="min-h-[110px] flex-row items-center rounded-[12px] bg-card px-5 py-5"
-        onPress={() => undefined}
-        style={cardShadow}
-      >
-        <ImageWithSkeleton
-          accessibilityIgnoresInvertColors
-          accessibilityLabel={item.title}
-          borderRadius={12}
-          contentFit="cover"
-          height={72}
-          source={item.image}
-          transition={200}
-          width={72}
-        />
-
-        <View className="ml-4 min-w-0 flex-1 gap-2 pr-2">
-          <Text className="text-base font-semibold leading-6 text-foreground" numberOfLines={2}>
-            {item.title}
-          </Text>
-          <View className="self-start rounded-full bg-primary-50 px-3 py-1">
-            <Text className="text-xs font-semibold leading-4 text-primary-700">{item.status}</Text>
-          </View>
-        </View>
-
-        <Text className="text-xs font-medium leading-4 text-muted">{item.time}</Text>
-      </Pressable>
-    </Animated.View>
-  );
-}
+import { useHistoryTime } from '@/features/history/hooks/use-history-time';
+import type { HistoryFilters } from '@/features/history/history.types';
 
 export function HistoryScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<RouteProfileParams>();
-  const { profileParam } = useHydratedProfile(params);
-  const { data: historySections } = useHistory();
-  const [query, setQuery] = useState('');
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(14)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, { duration: 240, toValue: 1, useNativeDriver: true }),
-      Animated.spring(translateY, { damping: 18, stiffness: 150, toValue: 0, useNativeDriver: true }),
-    ]).start();
-  }, [opacity, translateY]);
-
-  const filteredSections = useMemo(() => {
-    const normalizedQuery = query.trim().toLocaleLowerCase('vi-VN');
-
-    if (!normalizedQuery) {
-      return historySections;
-    }
-
-    return historySections
-      .map((section) => ({
-        ...section,
-        data: section.data.filter((item) => item.title.toLocaleLowerCase('vi-VN').includes(normalizedQuery)),
-      }))
-      .filter((section) => section.data.length > 0);
-  }, [historySections, query]);
-
-  const goDashboard = () => {
-    router.push({ pathname: '/dashboard', params: { profile: profileParam } } as unknown as Href);
+  const now = useHistoryTime();
+  const historyQuery = useHistory(now);
+  const [filters, setFilters] = useState<HistoryFilters>(defaultHistoryFilters);
+  const [draftFilters, setDraftFilters] = useState<HistoryFilters>(defaultHistoryFilters);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const snapshot = historyQuery.data;
+  const filteredEntries = useMemo(
+    () => snapshot ? filterHistoryEntries(snapshot.entries, filters, now) : [],
+    [filters, now, snapshot],
+  );
+  const sections = useMemo(() => groupHistoryEntries(filteredEntries, now), [filteredEntries, now]);
+  const resetFilters = () => {
+    setFilters(defaultHistoryFilters);
+    setDraftFilters(defaultHistoryFilters);
   };
+  const openFilters = () => {
+    setDraftFilters(filters);
+    setIsFilterOpen(true);
+  };
+
+  if (historyQuery.isPending) return <HistoryLoading />;
+  if (!snapshot) return <HistoryEmptyState error onRetry={() => historyQuery.refetch()} />;
+  if (snapshot.entries.length === 0) return <HistoryEmptyState />;
 
   return (
     <View className="flex-1 bg-background" style={styles.screen}>
-      <MainScreenHeader
-        align="center"
-        subtitle="Tìm lại các món ăn và gợi ý đã xem"
-        title="Lịch sử tìm kiếm"
-      />
-      <Animated.View className="flex-1" style={[styles.scrollRegion, { opacity, transform: [{ translateY }] }]}>
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{
-            flexGrow: 1,
-            gap: 24,
-            paddingBottom: Math.max(insets.bottom + 184, 208),
-            paddingHorizontal: 20,
-            paddingTop: 0,
-          }}
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}
-        >
-          <View className="flex-row items-center gap-3">
-            <View
-              className="h-14 flex-1 flex-row items-center rounded-[12px] bg-card px-4"
-              style={{ boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)' }}
-            >
-              <Feather color="#6B7280" name="search" size={18} />
-              <TextInput
-                className="ml-3 flex-1 text-base leading-6 text-foreground"
-                onChangeText={setQuery}
-                placeholder="Tìm kiếm cuộc trò chuyện..."
-                placeholderTextColor="#6B7280"
-                value={query}
-              />
-            </View>
-            <Pressable
-              accessibilityLabel="Bộ lọc"
-              accessibilityRole="button"
-              className="h-14 w-14 items-center justify-center rounded-[12px] bg-card"
-              onPress={() => undefined}
-              style={{ boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)' }}
-            >
-              <Feather color={colors.primaryDark} name="sliders" size={20} />
-            </Pressable>
+      <SectionList
+        ListEmptyComponent={<HistoryEmptyState filtered onReset={resetFilters} />}
+        ListHeaderComponent={(
+          <View className="gap-6" style={{ paddingTop: Math.max(insets.top + 18, 28) }}>
+            <HistoryToolbar
+              filters={filters}
+              onCategoryChange={(category) => setFilters((current) => ({ ...current, category }))}
+              onFilterPress={openFilters}
+              onQueryChange={(query) => setFilters((current) => ({ ...current, query }))}
+            />
+            {hasActiveHistoryFilters(filters) ? <Text accessibilityLiveRegion="polite" className="-mb-1 text-sm font-medium text-muted">Đang hiển thị kết quả đã lọc</Text> : null}
           </View>
-
-          {filteredSections.map((section, sectionIndex) => (
-            <View className="gap-3" key={section.title}>
-              <Text className="text-sm font-semibold leading-5 text-muted">{section.title}</Text>
-              <View className="gap-4">
-                {section.data.map((item, itemIndex) => (
-                  <HistoryCard
-                    item={item}
-                    key={item.id}
-                    style={{
-                      opacity,
-                      transform: [{ translateY: sectionIndex === 0 && itemIndex < 3 ? translateY : 0 }],
-                    }}
-                  />
-                ))}
-              </View>
-            </View>
-          ))}
-
-          {filteredSections.length === 0 ? (
-            <View className="items-center rounded-[12px] bg-card p-6" style={cardShadow}>
-              <Text className="text-center text-base leading-6 text-muted">Không tìm thấy lịch sử phù hợp.</Text>
-            </View>
-          ) : null}
-        </ScrollView>
-      </Animated.View>
-
-      <View
-        className="absolute left-0 right-0 border-t border-[#E5EEE7] bg-background px-8 pt-4"
-        style={{ bottom: Math.max(insets.bottom + 74, 84), paddingBottom: 12 }}
-      >
-        <Pressable
-          accessibilityRole="button"
-          className="h-16 items-center justify-center rounded-[18px] bg-primary-600"
-          onPress={goDashboard}
-          style={ctaShadow}
-        >
-          <Text className="text-base font-bold leading-6 text-white">Xem tổng quan 7 ngày</Text>
-        </Pressable>
-      </View>
+        )}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: Math.max(insets.bottom + 110, 132), paddingHorizontal: 20 }}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <HistoryEntryCard entry={item} />}
+        renderSectionHeader={({ section }) => <Text className="mb-3 mt-6 text-sm font-semibold text-muted">{section.title}</Text>}
+        sections={sections}
+        showsVerticalScrollIndicator={false}
+        stickySectionHeadersEnabled={false}
+        ItemSeparatorComponent={() => <View className="h-3" />}
+      />
+      <HistoryFilterSheet
+        draft={draftFilters}
+        onApply={() => { setFilters(draftFilters); setIsFilterOpen(false); }}
+        onClose={() => setIsFilterOpen(false)}
+        onDraftChange={setDraftFilters}
+        onReset={() => { setDraftFilters(defaultHistoryFilters); setFilters(defaultHistoryFilters); setIsFilterOpen(false); }}
+        visible={isFilterOpen}
+      />
     </View>
   );
 }
 
-const webShrink = Platform.OS === 'web' ? { minHeight: 0 } : null;
-
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    overflow: 'hidden',
-    ...webShrink,
-  },
-  scrollRegion: {
-    flex: 1,
-    ...webShrink,
-  },
+  screen: { flex: 1 },
 });

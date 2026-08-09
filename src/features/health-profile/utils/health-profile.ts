@@ -3,7 +3,8 @@ import { parsePositiveNumber } from '@/utils/numbers';
 import { getFirstRouteParam } from '@/utils/route-params';
 import { safeStringArray, safeText } from '@/utils/safe-values';
 
-import type { HealthProfileSummary } from '../health-profile.types';
+import { getDietLabel, getGoalSpeedLabel } from '../config/health-profile-options';
+import type { HealthProfilePresentation, HealthProfileSummary, HealthProfileValues } from '../health-profile.types';
 
 export function getProfileFallback(): HealthProfileSummary {
   return {
@@ -100,6 +101,51 @@ export function calculateBMI(heightCm: string, weightKg: string) {
   }
 
   return weight / Math.pow(height / 100, 2);
+}
+
+export function getBMICategory(bmi: number | null) {
+  if (bmi === null) return 'Chưa có dữ liệu';
+  if (bmi < 18.5) return 'Thiếu cân';
+  if (bmi < 25) return 'Bình thường';
+  if (bmi < 30) return 'Thừa cân';
+  return 'Béo phì';
+}
+
+export function getHealthProfilePresentation(values: HealthProfileValues): HealthProfilePresentation {
+  const bmiValue = calculateBMI(values.height, values.currentWeight);
+  return {
+    allergiesLabel: values.allergies.length ? values.allergies.join(', ') : 'Không có',
+    bmiCategory: getBMICategory(bmiValue),
+    bmiValue,
+    dietLabel: getDietLabel(values.diet),
+    goalSpeedLabel: getGoalSpeedLabel(values.goalSpeed),
+  };
+}
+
+export function toHealthProfileSummary(values: HealthProfileValues): HealthProfileSummary {
+  const presentation = getHealthProfilePresentation(values);
+  return {
+    age: calculateAgeFromBirthDate(values.birthday),
+    allergies: values.allergies,
+    allergyText: values.allergies.join(', '),
+    birthday: values.birthday,
+    conditionLabels: [],
+    conditions: [],
+    currentWeight: values.currentWeight.trim(),
+    dateOfBirth: values.birthday,
+    diet: values.diet,
+    dietLabel: presentation.dietLabel,
+    diseases: [],
+    fullName: values.fullName.trim(),
+    gender: values.gender ?? '--',
+    goal: 'weight-loss',
+    goalLabel: 'Giảm cân',
+    goalSpeed: values.goalSpeed ?? undefined,
+    height: values.height.trim(),
+    purpose: 'weight-loss',
+    targetWeight: values.targetWeight.trim(),
+    weight: values.currentWeight.trim(),
+  };
 }
 
 export function normalizeToken(value: string) {

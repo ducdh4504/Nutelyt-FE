@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
+import { healthProfileStorage } from '@/features/health-profile/storage/health-profile-storage';
 import {
   getProfileFallback,
   parseHealthProfileParam,
   serializeProfile,
-  type HealthProfileSummary,
-} from '@/features/health-profile';
+} from '@/features/health-profile/utils/health-profile';
+import type { HealthProfileSummary } from '@/features/health-profile/health-profile.types';
 import type { RouteProfileParams } from '@/types/navigation.types';
 import { getFirstRouteParam } from '@/utils/route-params';
 
@@ -21,9 +22,15 @@ type ProfileContextValue = {
 const ProfileContext = createContext<ProfileContextValue | null>(null);
 
 export function MainProfileProvider({ children }: { children: ReactNode }) {
-  const [profile, setProfile] = useState<HealthProfileSummary>(() => getProfileFallback());
+  const [profile, setProfileState] = useState<HealthProfileSummary>(
+    () => healthProfileStorage.read() ?? getProfileFallback()
+  );
   const [hasCompletedHealthProfileThisRuntime, setHasCompletedHealthProfileThisRuntime] = useState(false);
   const profileParam = useMemo(() => serializeProfile(profile), [profile]);
+  const setProfile = useCallback((nextProfile: HealthProfileSummary) => {
+    healthProfileStorage.save(nextProfile);
+    setProfileState(nextProfile);
+  }, []);
   const markHealthProfileCompleted = useCallback(() => {
     setHasCompletedHealthProfileThisRuntime(true);
   }, []);
@@ -35,7 +42,7 @@ export function MainProfileProvider({ children }: { children: ReactNode }) {
       profileParam,
       setProfile,
     }),
-    [hasCompletedHealthProfileThisRuntime, markHealthProfileCompleted, profile, profileParam]
+    [hasCompletedHealthProfileThisRuntime, markHealthProfileCompleted, profile, profileParam, setProfile]
   );
 
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>;

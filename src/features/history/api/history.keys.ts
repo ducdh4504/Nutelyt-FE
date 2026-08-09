@@ -1,4 +1,4 @@
 export const historyKeys = {
   all: ["history"] as const,
-  list: () => [...historyKeys.all, "list"] as const,
+  snapshot: (localDate: string) => [...historyKeys.all, "snapshot", localDate] as const,
 } as const;

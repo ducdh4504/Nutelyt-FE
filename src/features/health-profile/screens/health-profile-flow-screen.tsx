@@ -1,234 +1,340 @@
-import { useRouter, type Href } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Feather } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { useState } from 'react';
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HealthPrimaryButton } from '../components/health-primary-button';
-import { HealthProfileHeader } from '../components/health-profile-header';
-import { HealthProgress } from '../components/health-progress';
-import { HealthSecondaryButton } from '../components/health-secondary-button';
-import { conditions, diets, goals } from '../data/health-profile-options';
-import type { Gender, HealthProfilePayload } from '../health-profile.types';
-import { BasicHealthProfileStep } from '../steps/basic-health-profile-step';
-import { DietPreferenceStep } from '../steps/diet-preference-step';
-import { HealthGoalsStep } from '../steps/health-goals-step';
-import { MedicalConditionsStep } from '../steps/medical-conditions-step';
+import { routes } from '@/config/routes';
+import { colors } from '@/theme/tokens';
 
-const TOTAL_STEPS = 4;
-const NO_DIET_LABEL = 'Không theo chế độ ăn nào';
+import { commonAllergies, dietOptions, goalSpeedOptions } from '../config/health-profile-options';
+import type { DietPreference, Gender, GoalSpeed } from '../health-profile.types';
+import { getHealthProfilePresentation } from '../utils/health-profile';
+import { useHealthProfileWizard } from '../use-health-profile-wizard';
 
-function getOptionLabel(options: { id: string; label: string }[], id: string) {
-  return options.find((item) => item.id === id)?.label ?? '';
+const wordmarkImage = require('@assets/images/Nutelyt-text.png');
+const mascotImage = require('@assets/images/Nutelyt-AI.png');
+const genderOptions: Gender[] = ['Nam', 'Nữ', 'Khác'];
+
+function Field({
+  error,
+  label,
+  onChangeText,
+  placeholder,
+  suffix,
+  value,
+  ...props
+}: {
+  error?: string;
+  label: string;
+  onChangeText: (value: string) => void;
+  placeholder: string;
+  suffix?: string;
+  value: string;
+} & Omit<React.ComponentProps<typeof TextInput>, 'onChangeText' | 'value'>) {
+  return (
+    <View className="gap-2">
+      <Text className="text-sm font-semibold text-muted">{label}</Text>
+      <View style={[styles.input, error ? styles.inputError : undefined]}>
+        <TextInput
+          accessibilityLabel={label}
+          className="h-full flex-1 text-base text-foreground"
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor="#869087"
+          value={value}
+          {...props}
+        />
+        {suffix ? <Text className="text-sm font-semibold text-muted">{suffix}</Text> : null}
+      </View>
+      {error ? <Text accessibilityLiveRegion="polite" className="text-sm text-[#C02828]">{error}</Text> : null}
+    </View>
+  );
+}
+
+function ChoiceCard({
+  checked,
+  description,
+  label,
+  onPress,
+}: {
+  checked: boolean;
+  description: string;
+  label: string;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="radio"
+      accessibilityState={{ checked }}
+      className="min-h-[76px] flex-row items-center gap-3 rounded-2xl border bg-card px-4 py-3"
+      onPress={onPress}
+      style={[styles.choice, checked ? styles.choiceSelected : undefined]}
+    >
+      <View style={[styles.radio, checked ? styles.radioSelected : undefined]}>
+        {checked ? <View style={styles.radioDot} /> : null}
+      </View>
+      <View className="flex-1 gap-1">
+        <Text className="text-base font-semibold text-foreground">{label}</Text>
+        <Text className="text-sm leading-5 text-muted">{description}</Text>
+      </View>
+    </Pressable>
+  );
+}
+
+function SectionTitle({ subtitle, title }: { subtitle: string; title: string }) {
+  return (
+    <View className="gap-2">
+      <Text className="text-[28px] font-semibold leading-9 text-foreground">{title}</Text>
+      <Text className="text-base leading-6 text-muted">{subtitle}</Text>
+    </View>
+  );
+}
+
+function ReviewCard({ children, onEdit, title }: { children: React.ReactNode; onEdit: () => void; title: string }) {
+  return (
+    <View className="gap-4 rounded-2xl bg-card p-4" style={styles.cardShadow}>
+      <View className="flex-row items-center justify-between gap-3">
+        <Text className="text-lg font-semibold text-foreground">{title}</Text>
+        <Pressable accessibilityLabel={`Chỉnh sửa ${title}`} accessibilityRole="button" hitSlop={8} onPress={onEdit}>
+          <Text className="text-sm font-semibold text-primary-700">Chỉnh sửa</Text>
+        </Pressable>
+      </View>
+      {children}
+    </View>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="flex-row items-start justify-between gap-5">
+      <Text className="text-sm text-muted">{label}</Text>
+      <Text className="flex-1 text-right text-sm font-semibold text-foreground">{value}</Text>
+    </View>
+  );
 }
 
 export function HealthProfileFlowScreen() {
-  const [step, setStep] = useState(0);
-  const [fullName, setFullName] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
-  const [gender, setGender] = useState<Gender>('Nam');
-  const [height, setHeight] = useState('');
-  const [weight, setWeight] = useState('');
-  const [selectedGoal, setSelectedGoal] = useState('');
-  const [selectedDiet, setSelectedDiet] = useState('');
-  const [noDiet, setNoDiet] = useState(false);
-  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
-  const [allergyText, setAllergyText] = useState('');
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const opacity = useRef(new Animated.Value(1)).current;
-  const translateX = useRef(new Animated.Value(0)).current;
-  const progress = useRef(new Animated.Value(1 / TOTAL_STEPS)).current;
-
-  useEffect(() => {
-    Animated.timing(progress, {
-      duration: 320,
-      toValue: (step + 1) / TOTAL_STEPS,
-      useNativeDriver: false,
-    }).start();
-  }, [progress, step]);
-
-  const animateTo = (nextStep: number) => {
-    const direction = nextStep > step ? 1 : -1;
-    Animated.parallel([
-      Animated.timing(opacity, { duration: 120, toValue: 0, useNativeDriver: true }),
-      Animated.timing(translateX, {
-        duration: 120,
-        toValue: -18 * direction,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      setStep(nextStep);
-      translateX.setValue(24 * direction);
-      Animated.parallel([
-        Animated.timing(opacity, { duration: 220, toValue: 1, useNativeDriver: true }),
-        Animated.spring(translateX, {
-          damping: 18,
-          stiffness: 170,
-          toValue: 0,
-          useNativeDriver: true,
-        }),
-      ]).start();
-    });
-  };
-
-  const goBack = () => {
-    if (step === 0) {
-      if (router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace('/login');
-      }
-      return;
-    }
-    animateTo(step - 1);
-  };
-
-  const canContinue =
-    step === 0
-      ? Boolean(fullName.trim() && dateOfBirth && gender && height.trim() && weight.trim())
-      : step === 1
-        ? Boolean(selectedGoal)
-        : step === 2
-          ? Boolean(selectedDiet || noDiet)
-          : true;
-
-  const profilePayload = useMemo<HealthProfilePayload>(
-    () => ({
-      allergyText: allergyText.trim(),
-      conditionLabels: selectedConditions.map((id) => getOptionLabel(conditions, id)).filter(Boolean),
-      conditions: selectedConditions,
-      dateOfBirth,
-      diet: noDiet ? null : selectedDiet || null,
-      dietLabel: noDiet ? NO_DIET_LABEL : getOptionLabel(diets, selectedDiet),
-      fullName: fullName.trim(),
-      gender,
-      goal: selectedGoal,
-      goalLabel: getOptionLabel(goals, selectedGoal),
-      height: height.trim(),
-      weight: weight.trim(),
-    }),
-    [allergyText, dateOfBirth, fullName, gender, height, noDiet, selectedConditions, selectedDiet, selectedGoal, weight]
+  const { edit, finish, next, previous, setValue, state, toggleAllergy, totalSteps } = useHealthProfileWizard();
+  const [allergySearch, setAllergySearch] = useState('');
+  const { fieldErrors, isSubmitting, step, values } = state;
+  const presentation = getHealthProfilePresentation(values);
+  const filteredAllergies = commonAllergies.filter((allergy) =>
+    allergy.toLocaleLowerCase('vi-VN').includes(allergySearch.trim().toLocaleLowerCase('vi-VN'))
   );
 
-  const navigateToProfile = () => {
-    router.push({
-      pathname: '/profile',
-      params: { profile: JSON.stringify(profilePayload) },
-    } as unknown as Href);
+  const goBack = () => {
+    if (step > 0) {
+      previous();
+      return;
+    }
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace(routes.login);
+    }
   };
 
   const continueFlow = () => {
-    if (!canContinue) {
+    if (step === totalSteps - 1) {
+      if (finish()) router.replace(routes.home);
       return;
     }
-    if (step === TOTAL_STEPS - 1) {
-      navigateToProfile();
-      return;
-    }
-    animateTo(step + 1);
+    next();
   };
 
-  const progressWidth = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%'],
-  });
-
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1 bg-background"
-      style={styles.screen}
-    >
-      <View className="flex-1 bg-background" style={[styles.screen, { paddingTop: insets.top }]}>
-        <HealthProfileHeader onBack={goBack} step={step} totalSteps={TOTAL_STEPS} />
-        <HealthProgress width={progressWidth} />
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} className="flex-1 bg-background">
+      <StatusBar style="dark" />
+      <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+        <View className="h-16 flex-row items-center justify-between border-b border-[#E9ECE9] bg-card px-5">
+          <Pressable accessibilityLabel="Quay lại" accessibilityRole="button" className="h-12 w-12 items-center justify-center" onPress={goBack}>
+            <Feather color={colors.primaryDark} name="chevron-left" size={26} />
+          </Pressable>
+          <Image accessibilityLabel="Nutelyt" className="h-7 w-28" contentFit="contain" source={wordmarkImage} />
+          <Text accessibilityLiveRegion="polite" className="w-12 text-right text-sm font-semibold text-muted">
+            {step + 1}/{totalSteps}
+          </Text>
+        </View>
 
-        <Animated.View
+        <View accessibilityLabel={`Tiến trình bước ${step + 1} trên ${totalSteps}`} accessibilityRole="progressbar" className="flex-row gap-2 px-5 py-4">
+          {Array.from({ length: totalSteps }, (_, index) => (
+            <View className="h-1 flex-1 overflow-hidden rounded-full bg-[#E1E7E2]" key={index}>
+              <View className="h-full rounded-full bg-primary-600" style={{ width: index <= step ? '100%' : '0%' }} />
+            </View>
+          ))}
+        </View>
+
+        <ScrollView
           className="flex-1"
-          style={[styles.scrollRegion, { opacity, transform: [{ translateX }] }]}
+          contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom + 112, 136) }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <ScrollView
-            className="flex-1"
-            contentContainerStyle={{
-              flexGrow: 1,
-              gap: 24,
-              paddingBottom: 40,
-              paddingHorizontal: 20,
-              paddingTop: 24,
-            }}
-            contentInsetAdjustmentBehavior="automatic"
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            {step === 0 ? (
-              <BasicHealthProfileStep
-                dateOfBirth={dateOfBirth}
-                fullName={fullName}
-                gender={gender}
-                height={height}
-                setDateOfBirth={setDateOfBirth}
-                setFullName={setFullName}
-                setGender={setGender}
-                setHeight={setHeight}
-                setWeight={setWeight}
-                weight={weight}
-              />
-            ) : null}
+          {step === 0 ? (
+            <View className="gap-6">
+              <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants" pointerEvents="none" style={styles.mascotWrap}>
+                <Image className="h-24 w-24" contentFit="contain" source={mascotImage} />
+              </View>
+              <SectionTitle subtitle="Hãy cho Nutelyt biết một vài thông tin để tạo kế hoạch giảm cân phù hợp." title="Thông tin cơ bản" />
+              <View className="gap-4 rounded-2xl bg-card p-5" style={styles.cardShadow}>
+                <Field
+                  autoCapitalize="words"
+                  autoComplete="name"
+                  error={fieldErrors.fullName}
+                  label="Họ và tên"
+                  onChangeText={(value) => setValue('fullName', value)}
+                  placeholder="Nguyễn An"
+                  value={values.fullName}
+                />
+                <Field
+                  autoCapitalize="none"
+                  error={fieldErrors.birthday}
+                  label="Ngày sinh"
+                  maxLength={10}
+                  onChangeText={(value) => setValue('birthday', value)}
+                  placeholder="YYYY-MM-DD"
+                  value={values.birthday}
+                />
+                <View className="gap-2">
+                  <Text className="text-sm font-semibold text-muted">Giới tính</Text>
+                  <View accessibilityRole="radiogroup" className="flex-row gap-2">
+                    {genderOptions.map((gender) => {
+                      const checked = values.gender === gender;
+                      return (
+                        <Pressable
+                          accessibilityRole="radio"
+                          accessibilityState={{ checked }}
+                          className="min-h-12 flex-1 items-center justify-center rounded-xl border"
+                          key={gender}
+                          onPress={() => setValue('gender', gender)}
+                          style={checked ? styles.genderSelected : styles.gender}
+                        >
+                          <Text className={`text-sm font-semibold ${checked ? 'text-primary-700' : 'text-muted'}`}>{gender}</Text>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                  {fieldErrors.gender ? <Text className="text-sm text-[#C02828]">{fieldErrors.gender}</Text> : null}
+                </View>
+                <View className="flex-row gap-3">
+                  <View className="flex-1">
+                    <Field error={fieldErrors.height} keyboardType="decimal-pad" label="Chiều cao" onChangeText={(value) => setValue('height', value)} placeholder="170" suffix="cm" value={values.height} />
+                  </View>
+                  <View className="flex-1">
+                    <Field error={fieldErrors.currentWeight} keyboardType="decimal-pad" label="Cân nặng hiện tại" onChangeText={(value) => setValue('currentWeight', value)} placeholder="65" suffix="kg" value={values.currentWeight} />
+                  </View>
+                </View>
+              </View>
+            </View>
+          ) : null}
 
-            {step === 1 ? (
-              <HealthGoalsStep goal={selectedGoal} setGoal={setSelectedGoal} />
-            ) : null}
+          {step === 1 ? (
+            <View className="gap-6">
+              <SectionTitle subtitle="Đặt cân nặng mong muốn và tốc độ giảm cân bạn cảm thấy phù hợp." title="Mục tiêu cân nặng" />
+              <View className="rounded-2xl bg-card p-5" style={styles.cardShadow}>
+                <Field error={fieldErrors.targetWeight} keyboardType="decimal-pad" label="Cân nặng mục tiêu" onChangeText={(value) => setValue('targetWeight', value)} placeholder="58" suffix="kg" value={values.targetWeight} />
+              </View>
+              <View className="gap-3">
+                <Text className="text-base font-semibold text-foreground">Tốc độ giảm cân</Text>
+                <View accessibilityRole="radiogroup" className="gap-3">
+                  {goalSpeedOptions.map((option) => (
+                    <ChoiceCard checked={values.goalSpeed === option.id} description={option.description} key={option.id} label={option.label} onPress={() => setValue('goalSpeed', option.id as GoalSpeed)} />
+                  ))}
+                </View>
+                {fieldErrors.goalSpeed ? <Text className="text-sm text-[#C02828]">{fieldErrors.goalSpeed}</Text> : null}
+              </View>
+            </View>
+          ) : null}
 
-            {step === 2 ? (
-              <DietPreferenceStep
-                diet={selectedDiet}
-                noDiet={noDiet}
-                setDiet={(id) => {
-                  setSelectedDiet(id);
-                  setNoDiet(false);
-                }}
-              />
-            ) : null}
-
-            {step === 3 ? (
-              <MedicalConditionsStep
-                allergyText={allergyText}
-                selectedConditions={selectedConditions}
-                setAllergyText={setAllergyText}
-                setSelectedConditions={setSelectedConditions}
-              />
-            ) : null}
-          </ScrollView>
-        </Animated.View>
-
-        <View
-          className="border-t border-[#E2E2E5] bg-card px-5 py-5"
-          style={{
-            boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.06)',
-            paddingBottom: Math.max(insets.bottom + 12, 20),
-          }}
-        >
-          <HealthPrimaryButton disabled={!canContinue} onPress={continueFlow} />
           {step === 2 ? (
-            <HealthSecondaryButton
-              onPress={() => {
-                setSelectedDiet('');
-                setNoDiet(true);
-                animateTo(3);
-              }}
-            >
-              Tôi không theo chế độ ăn nào.
-            </HealthSecondaryButton>
+            <View className="gap-6">
+              <SectionTitle subtitle="Chọn một chế độ ăn và thêm những thực phẩm bạn cần tránh." title="Chế độ ăn & dị ứng" />
+              <View accessibilityRole="radiogroup" className="gap-3">
+                {dietOptions.map((option) => (
+                  <ChoiceCard checked={values.diet === option.id} description={option.description} key={option.id} label={option.label} onPress={() => setValue('diet', option.id as DietPreference)} />
+                ))}
+              </View>
+              {fieldErrors.diet ? <Text className="text-sm text-[#C02828]">{fieldErrors.diet}</Text> : null}
+              <View className="gap-3 rounded-2xl bg-card p-5" style={styles.cardShadow}>
+                <Text className="text-base font-semibold text-foreground">Dị ứng thực phẩm (nếu có)</Text>
+                <View style={styles.searchInput}>
+                  <Feather color="#6D7A6E" name="search" size={18} />
+                  <TextInput accessibilityLabel="Tìm dị ứng" className="ml-2 flex-1 text-base text-foreground" onChangeText={setAllergySearch} placeholder="Tìm thực phẩm" placeholderTextColor="#869087" value={allergySearch} />
+                </View>
+                <View className="flex-row flex-wrap gap-2">
+                  {filteredAllergies.map((allergy) => {
+                    const selected = values.allergies.includes(allergy);
+                    return (
+                      <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: selected }} className="min-h-11 rounded-full border px-4 py-2" key={allergy} onPress={() => toggleAllergy(allergy)} style={selected ? styles.chipSelected : styles.chip}>
+                        <Text className={`text-sm font-semibold ${selected ? 'text-primary-700' : 'text-muted'}`}>{allergy}</Text>
+                      </Pressable>
+                    );
+                  })}
+                  {!filteredAllergies.length ? <Text className="text-sm text-muted">Không tìm thấy dị ứng phổ biến phù hợp.</Text> : null}
+                </View>
+              </View>
+            </View>
           ) : null}
+
           {step === 3 ? (
-            <HealthSecondaryButton
-              onPress={() => {
-                setSelectedConditions([]);
-              }}
-            >
-              Tôi không có bệnh lý nào.
-            </HealthSecondaryButton>
+            <View className="gap-5">
+              <SectionTitle subtitle="Kiểm tra lại thông tin trước khi Nutelyt tạo kế hoạch giảm cân cho bạn." title="Xem lại hồ sơ" />
+              <ReviewCard onEdit={() => edit(0)} title="Thông tin cơ bản">
+                <View className="gap-3">
+                  <DetailRow label="Họ và tên" value={values.fullName} />
+                  <DetailRow label="Ngày sinh" value={values.birthday} />
+                  <DetailRow label="Giới tính" value={values.gender ?? '--'} />
+                  <DetailRow label="Chiều cao" value={`${values.height} cm`} />
+                  <DetailRow label="Cân nặng hiện tại" value={`${values.currentWeight} kg`} />
+                </View>
+              </ReviewCard>
+              <ReviewCard onEdit={() => edit(1)} title="Mục tiêu cân nặng">
+                <View className="gap-3">
+                  <DetailRow label="Cân nặng mục tiêu" value={`${values.targetWeight} kg`} />
+                  <DetailRow label="Tốc độ" value={presentation.goalSpeedLabel} />
+                </View>
+              </ReviewCard>
+              <ReviewCard onEdit={() => edit(2)} title="Chế độ ăn & dị ứng">
+                <View className="gap-3">
+                  <DetailRow label="Chế độ ăn" value={presentation.dietLabel} />
+                  <DetailRow label="Dị ứng" value={presentation.allergiesLabel} />
+                </View>
+              </ReviewCard>
+              <View className="flex-row items-center gap-4 rounded-2xl bg-primary-50 p-5">
+                <View className="h-12 w-12 items-center justify-center rounded-full bg-primary-600">
+                  <Feather color="#FFFFFF" name="heart" size={21} />
+                </View>
+                <View className="flex-1 gap-1">
+                  <Text className="text-base font-semibold text-primary-700">BMI của bạn</Text>
+                  <Text className="text-sm leading-5 text-primary-700">
+                    {presentation.bmiValue?.toFixed(1) ?? '--'} · {presentation.bmiCategory}
+                  </Text>
+                </View>
+              </View>
+              {fieldErrors.fullName ? <Text accessibilityLiveRegion="polite" className="text-sm text-[#C02828]">{fieldErrors.fullName}</Text> : null}
+            </View>
           ) : null}
+        </ScrollView>
+
+        <View className="border-t border-[#E9ECE9] bg-card px-5 pt-4" style={{ paddingBottom: Math.max(insets.bottom + 12, 20) }}>
+          <Pressable accessibilityLabel={step === totalSteps - 1 ? 'Hoàn tất hồ sơ sức khỏe' : 'Tiếp tục'} accessibilityRole="button" accessibilityState={{ disabled: isSubmitting }} className="h-14 flex-row items-center justify-center gap-2 rounded-2xl bg-primary-600" disabled={isSubmitting} onPress={continueFlow} style={isSubmitting ? styles.buttonDisabled : styles.buttonShadow}>
+            <Text className="text-base font-semibold text-white">{isSubmitting ? 'Đang lưu...' : step === totalSteps - 1 ? 'Hoàn tất' : 'Tiếp tục'}</Text>
+            {!isSubmitting ? <Feather color="#FFFFFF" name={step === totalSteps - 1 ? 'check' : 'arrow-right'} size={18} /> : null}
+          </Pressable>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -236,13 +342,21 @@ export function HealthProfileFlowScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    overflow: 'hidden',
-    ...(Platform.OS === 'web' ? { minHeight: 0 } : null),
-  },
-  scrollRegion: {
-    flex: 1,
-    ...(Platform.OS === 'web' ? { minHeight: 0 } : null),
-  },
+  buttonDisabled: { opacity: 0.6 },
+  buttonShadow: { boxShadow: '0 8px 18px rgba(39, 174, 96, 0.25)' },
+  cardShadow: { boxShadow: '0 4px 16px rgba(24, 39, 27, 0.06)' },
+  chip: { borderColor: '#D7DFD8' },
+  chipSelected: { backgroundColor: '#ECFDF3', borderColor: colors.primary },
+  choice: { borderColor: '#D7DFD8' },
+  choiceSelected: { backgroundColor: '#F3FCF6', borderColor: colors.primary },
+  content: { flexGrow: 1, gap: 24, paddingHorizontal: 20, paddingTop: 8 },
+  gender: { borderColor: '#D7DFD8' },
+  genderSelected: { backgroundColor: '#ECFDF3', borderColor: colors.primary },
+  input: { alignItems: 'center', borderColor: '#D7DFD8', borderRadius: 12, borderWidth: 1, flexDirection: 'row', height: 54, paddingHorizontal: 14 },
+  inputError: { borderColor: '#C02828' },
+  mascotWrap: { alignItems: 'flex-end', height: 42, overflow: 'visible' },
+  radio: { alignItems: 'center', borderColor: '#A6B2A7', borderRadius: 10, borderWidth: 1.5, height: 20, justifyContent: 'center', width: 20 },
+  radioDot: { backgroundColor: '#FFFFFF', borderRadius: 4, height: 8, width: 8 },
+  radioSelected: { backgroundColor: colors.primary, borderColor: colors.primary },
+  searchInput: { alignItems: 'center', borderColor: '#D7DFD8', borderRadius: 12, borderWidth: 1, flexDirection: 'row', height: 48, paddingHorizontal: 14 },
 });

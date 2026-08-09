@@ -3,6 +3,6 @@ export {
   useHydratedProfile,
   useMainProfile,
 } from "./context/profile-context";
-export { HealthProfileSummaryScreen } from "./screens/health-profile-summary-screen";
 export { ProfileScreen } from "./screens/profile-screen";
-export { ProfileSettingsScreen } from "./screens/profile-settings-screen";
+export { runtimeWeightRepository } from './repositories/runtime-weight.repository';
+export type { WeightMeasurement } from './profile.types';
